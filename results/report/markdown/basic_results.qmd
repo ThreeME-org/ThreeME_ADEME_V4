@@ -1,0 +1,84 @@
+---
+title: "Basic Results"
+author: "ThreeME Team"
+format: 
+ revealjs:
+  center: true
+  navigation-mode: linear
+  theme: [simple, www/presentation.scss]
+  width: 1200
+  height: 700
+params:
+  project_name: "multi_shock"
+  startyear: 2020
+  endyear: 2050
+  template_default: ofce
+  country_name: "France"
+  scenario: "ct1"
+---
+
+
+
+```{r}
+#| label: setup
+#| include: false
+
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  results = "hide"
+)
+
+```
+
+```{r Plots default options}
+#| label: load_parameters and basic files
+
+source("src/functions.R")
+options(ofce.base_family = "Arial")
+
+
+startyear <- params$startyear
+endyear <- params$endyear
+template_default <- params$template_default
+project_name <- params$project_name
+
+scenario <- c("baseline",params$scenario)
+
+data_full <- readRDS(file.path("data","output",paste0(project_name,".rds")))
+
+```
+ 
+
+```{r}
+#| label: fig-gdp
+#| fig-cap: GDP simulations results for all scenarii
+
+graph_gdp_data <- data_full |> filter(variable == "GDP") |>  pivot_longer(cols = scenario, names_to = "scenario") |> filter(year >= startyear & year <= endyear)
+
+graph_gdp <- graph_gdp_data |> 
+  ggplot(aes(x = year, y = value)) +
+  geom_line(aes(color = scenario)) +
+  
+  theme_ofce()+
+  theme(legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank()) 
+
+graph_gdp
+
+```
+
+
+
+```{r}
+#| label: save_bank
+#| include: false
+
+save(graph_gdp,
+     file = str_c("results/graphs_tables_banks/basic_bank_",project_name,".rda") 
+     )
+
+```

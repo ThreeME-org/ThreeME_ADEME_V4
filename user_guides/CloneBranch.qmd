@@ -1,0 +1,87 @@
+---
+title: "Cloning a (clean) branch on a external repository "
+format: html
+editor: visual
+---
+
+ 
+
+## Object of this command 
+
+This procedure should be applied for projects using the ThreeME modelling framework for applied analyses that are not model development oriented and therefore don't need to be integrated into the workflow of the ThreeME model. 
+
+## To create first a clean branch without history commits in a Git Hub repository
+
+ You first have to clone the repository on the computer:
+ 
+  - Go to the branch you want to clean the history (e.g. in Git Hub desktop)
+    
+  - Synchronize with the remote, Delete uncommitted changes
+
+  - Repository > Open in Command Prompt. Then type the following line:	`git checkout --orphan name_branch_clean`
+    
+  - Commit all the changes in a First commit:  e.g. "New Start!"
+    
+  - Publish the branch
+
+## Clone a Branch in another repository
+
+ To push `branch_repo1` from `repo1` to `branch_repo2` in `repo2` (The remote repository `repo2` should already be been created on a Git Hub server) copy/paste the following chunk into Git Bash after having set the `branch1` /`repo1` /`branch2` / `repo2` names.
+
+```
+
+
+
+###############################################################
+### User configuration: define repositories and branch's names
+###############################################################
+
+# Define repo1's https (NO SPACE ALLOWED!) :
+repo1=https://github.com/ThreeME-org/bash-repo1.git
+
+# Define repo2's https (NO SPACE ALLOWED!) : 
+repo2=https://github.com/ThreeME-org/bash-repo2.git
+
+
+# Branch name in repo1 (NO SPACE ALLOWED!) :
+branch_repo1=master
+
+# Branch name in repo2 (NO SPACE ALLOWED!) :
+branch_repo2=test01
+
+###############################################################
+### Verif configuration
+###############################################################
+echo ${repo1}
+echo ${repo2}
+echo ${branch_repo1}
+echo ${branch_repo2}
+
+####################################################################
+### Pushing `branch_repo1` from `repo1` to `branch_repo2` in `repo2`
+####################################################################
+
+# Extract short name of repository 1
+repo1_shortname=`expr "$repo1" : '.*/\([A-Za-z0-9_\-]*\.git\)'`
+echo ${repo1_shortname}                            
+
+# Clone bare a single branch from repository  1 to your local computer:
+git clone --bare --single-branch --branch $branch_repo1 $repo1
+
+# Go into the bare repository
+cd $repo1_shortname   
+
+# Add remote_repo2 as a remote for $repo2
+git remote add remote_repo2 $repo2
+
+# Rename the branch to be pushed
+git branch -m $branch_repo1 $branch_repo2
+
+# Push the branch '$branch_repo2' to server repository $repo2
+git push --force remote_repo2 $branch_repo2
+
+# Remove the temporary local repository
+cd ..
+rm -rf $repo1_shortname
+
+```

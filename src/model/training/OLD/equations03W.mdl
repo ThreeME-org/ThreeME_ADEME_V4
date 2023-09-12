@@ -1,0 +1,27 @@
+I+	Y = CH + I + G		+I
+
+Y * p_n = c_Y * Y * (1 + m_up)
+
+c_Y * Y = w * L_n + p * (delta + r) * K_n
+
+CH_n * p = (1 - sigma) * (w * L + p * r * K + c_Y * Y * m_up)
+
+w + L_n = Y / PROD_L * Phi_L ^ rho * (w 		      / c_Y / PROD_L) ^ (-rho)		+w
+
+r +	K_n = Y / PROD_K * Phi_K ^ rho * (p * (delta + r) / c_Y / PROD_K) ^ (-rho)		+r
+
+d(K) = I{-1} - delta * K{-1}  			## If Walras
+
+log(|V|) = ADJUST1_|V| * log(|V|_n) + (1 - ADJUST1_|V|) * (log(|V|{-1}) + d(log(|V|_e))) where V in p CH L
+
+d(log(|V|_e)) = ADJUST2_|V| * d(log(|V|_e{-1})) + ADJUST3_|V| * d(log(|V|{-1})) + ADJUST4_|V| * d(log(|V|_n))  where V in  p CH L K
+
+p_n = 1									## If Walras
+    
+K_n = K									## If Walras
+
+# Geometric adjustment process
+
+#|V| = (|V|_n)^ADJUST1_|V|*(|V|{-1} * |V|_e / |V|_e{-1})^(1 - ADJUST1_|V|) where V in p CH L
+
+#|V|_e = |V|_e{-1}*((|V|_e{-1}/|V|_e{-2})^ADJUST2_|V| * (|V|{-1}/|V|{-2})^ADJUST3_|V| * (|V|_n/|V|_n{-1})^ADJUST4_|V|) where V in  p CH L K

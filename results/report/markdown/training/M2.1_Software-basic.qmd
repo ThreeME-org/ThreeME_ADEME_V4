@@ -1,0 +1,855 @@
+---
+title: "Module 1: Software - basics"
+subtitle: "Installation and first simulation"
+author: "ThreeME team"
+date: "`r format(Sys.Date(), '%d %B %y')`"
+output:
+  slidy_presentation: 
+    theme: sandstone
+    highlight: monochrome
+    toc: true
+    number_sections: true
+    toc_depth: 3
+params:
+  startyear: 2020
+  endyear: 2035
+  project_name: "Software basics"
+  project_title: "Introduction to Software basics"
+  scenario_to_analyse: g
+  classification: c0_s0
+  compil: compil
+  Rsolver: Rsolver
+  githubrepo: ThreeME-R-training
+  template_default: ofce
+---
+
+```{r setup, include=FALSE}
+
+work.dir <- stringr::str_remove(getwd(),"/results/report/markdown/training")
+knitr::opts_knit$set(root.dir = work.dir)
+
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	results = "hide"
+)
+```
+
+```{r Plots default options}
+
+startyear <- params$startyear
+endyear <- params$endyear
+scenario_to_analyse <- params$scenario_to_analyse
+classification <- params$classification
+template_default <- params$template_default
+githubrepo <- params$githubrepo
+
+## SHOULD BE DELETED WHEN OPTION DE SIMPLEPLOT ERMEETH CHANGES:
+# scenario = scenario_to_analyse (and not scenario_name)
+scenario_name <- scenario_to_analyse
+
+```
+
+
+```{r Required packages, message=FALSE, warning=FALSE}
+
+# Load functions
+source("src/functions.R")
+
+
+```
+
+
+```{r load data and bridges}
+
+data_full<-readRDS(file = file.path("data","output", paste0(project_name,".rds")))
+```
+
+# How to start?
+
+## Software installation and tutorial
+
+ **Github:**   
+ 
+- Create an Github account on https://github.com/  
+- Download and install the application *Github Desktop* :  https://desktop.github.com/   
+- Tutorial on how to use Github: https://www.youtube.com/watch?v=iv8rSLsi1xo  
+
+ **R:** 
+ 
+- Download and install *R*: https://cran.r-project.org/bin/windows/base/   
+- Download and install *RStudio Desktop*: https://www.rstudio.com/products/rstudio/download/  
+- Tutorial on how to use R *RStudio Cheatsheets*: https://www.rstudio.com/resources/cheatsheets/   
+
+**Rtools42:**
+
+- Download and install: https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html    
+
+
+ **Markdown:**   
+ 
+ - Information on Markdown syntax: https://www.markdownguide.org/basic-syntax   
+
+
+# Github basics
+
+## Difference between Git and Github
+
+
+<center>
+
+![](pictures/GitvsGithub.png){width=55%}
+
+</center>
+
+How to integrate Git with GitHub ?
+
+
+## Clone a repository
+
+- Accept the email invitation to the Github repository *`r params$githubrepo`*   
+- Clone the repository *`r params$githubrepo`* locally in *Github desktop* 
+
+1. On GitHub.com, navigate to the main page of the repository   
+2. Above the list of files, click  Code  
+3. Copy the URL for the repository
+
+<center>
+
+![](pictures/URLcopy.png){width=65%}
+
+
+</center>
+
+
+## Clone a repository
+
+4. In Githhub desktop, click on file, clone a repository   
+
+<center>
+
+![](pictures/clonedesk.png){width=75%}   
+
+</center>
+
+5. Past the URL path and clone
+
+<center>
+
+![](pictures/URLpaste.png){width=75%}
+
+</center>
+
+
+## Create a branch from Github desktop
+
+- Create a new branch named <span style="color: blue;">**`"Training_Git"`**</span> 
+
+1. On GitHub desktop select Branch, then Create a new branch
+
+<center>
+
+![](pictures/create_new_branch.png){width=55%}
+
+</center>
+
+2. Give a name to your new branch
+ 
+<center>
+
+![](pictures/name_branch.png){width=75%}
+
+</center>
+
+3. You can publish your branch
+
+<center>
+
+![](pictures/publish_new_branch.png){width=75%}
+
+</center>
+
+
+## Changes with no <span style="color: red;">`"commit"`</span>
+    
+**Fill a file **:  
+
+- Create a test file named <span style="color: blue;">**`Git_test`**</span> , write "this is a test" and save the file
+- In Github desktop, at the left top of your window in <span style="color: red;">**`"Changes"`**</span> click on your file <span style="color: blue;">**`Git_test`**</span> . You can see what you just added on the right side of your window in green.
+
+<center>
+
+![](pictures/test.png){width=75%}
+
+</center>
+
+
+## Changes with no <span style="color: red;">`"commit"`</span>
+  
+**Make a change **: 
+
+- Open your text file  <span style="color: blue;">**`Git_test`**</span>, delete "this is a test " and write "Hello" then save. In Github desktop, you can see the change in green.
+
+<center>
+
+![](pictures/hello.png){width=75%}
+
+</center>
+
+
+## Changes with no <span style="color: red;">`"commit"`</span>
+    
+**Discard changes **: 
+
+
+- In Github desktop, at the left top of your window, right click on your file <span style="color: blue;">**`Git_test`**</span>  and select <span style="color: red;">**`"Discard changes"`**</span>. The file <span style="color: blue;">**`Git_test`**</span> is no more in <span style="color: red;">**`"Changes"`**</span>.
+
+<center>
+
+![](pictures/discard_changes.png){width=75%}
+
+
+</center>
+
+
+## Changes with  <span style="color: red;">`"commit"`</span>
+
+
+**Commit**: 
+
+- Create again your text file <span style="color: blue;">**`Git_test`**</span> write again "this is a test" and save. In Github desktop, at the left top of your window, select your file <span style="color: blue;">**`Git_test`**</span>  then at the left bottom of your window click on <span style="color: red;">**`"Commit to Training_Initials"`**</span>.
+
+<center>
+
+![](pictures/commit.png){width=75%}
+
+</center>
+
+
+## Changes with  <span style="color: red;">`"commit"`</span>
+
+
+**Push**:
+
+The tracking of the changes made in your file <span style="color: blue;">**`Git_test`**</span> moves from <span style="color: red;">**`"Changes"`**</span> to <span style="color: red;">**`"History"`**</span>. (An arrow going upwards appears above the changes description next to text <span style="color: red;">**`"Push origin"`**</span>.) 
+
+<center>
+
+![](pictures/arrow.png){width=75%}
+
+
+</center>
+
+
+## Changes with no <span style="color: red;">`"commit"`</span>
+    
+**Undo a commit **: 
+
+- In Github desktop, go to "history", select your text file <span style="color: blue;">**`Git_test`**</span> , right click and select <span style="color: red;">**`"Undo commit"`**</span>. The file is no more in <span style="color: red;">**`"History"`**</span> but you find it in <span style="color: red;">**`"Changes"`**</span>.
+
+<center>
+
+![](pictures/undo_commit.png){width=75%}
+
+
+</center>
+
+
+## Changes with no <span style="color: red;">`"commit"`</span>
+    
+**Revert changes **:  
+
+- Come back to your text file, and  add for example "this training is amazing ", save then click on  <span style="color: red;">**`"Commit to Training_Initials"`**</span>    
+- In Github desktop, at the left top of your window in <span style="color: red;">**`"History"`**</span> , right click on your file <span style="color: blue;">**`Git_test`**</span> and select <span style="color: red;">**`"Revert changes in commit"`**</span> and look at the changes. 
+
+<center>
+
+![](pictures/revert_changes.png){width=75%}
+ 
+    
+</center> 
+
+
+## Difference between <span style="color: red;">**`"Pull (origin)"`**</span> and  <span style="color: red;">**`"Fetch"`**</span>
+
+
+- You and your teammate work on the same branch and your teammate does a <span style="color: red;">**`"Commit"`**</span>  and a <span style="color: red;">**`"Push (origin)"`**</span> of the commit to the repository in the server. In your local repository, you don't have these changes. To retrieve them, you can do a <span style="color: red;">**`"Pull (origin)"`**</span> . If you and your teammates make modifications on the same file, you may have to solve <span style="color: red;">**`"Conflicts"`**</span>.  (you solve the conflict manually or choose the version you would like to keep).    
+
+- If you and each of your teammate create their own branch. Your teammate does a <span style="color: red;">**`"Commit"`**</span> and makes a <span style="color: red;">**`"Push"`**</span> of his branch to the repository in the sever. If you want to see your teammate's code, you need to go to his branch, then do a <span style="color: red;">**`"Pull"`**</span>.
+- If you do not see his branch (because it has just been created), you first need to  do a <span style="color: red;">**`"Fetch"`**</span> to retrieve your teammate's branch.    
+
+
+
+## Github glossary 
+
+```{r echo=FALSE, results='asis'}
+Name <- c("Branch", "Clone", "Commit", "Discard hanges", "Fetch", "Git", "Merge", "Merge conflicts", "Pull",
+          "Push", "Revert changes in commit")
+Description <- c("Parallel version of a repository", 
+                 "Copy of a repository on your computer instead of on a server", 
+                 "Records changes to one or more files in your branch", 
+                 "If you have uncommitted changes that you don't want to keep, you can discard the changes. This will remove the changes from the files on your computer", 
+                 "Brings your local copy of the remote repository up to date",
+                 "Stores snapshots of a repo at different points and then creates a timeline history", 
+                 "Takes the changes from one branch and applies them into another",
+                 "Happens when people make different changes to the same line of the same file. The merge conflict must be resolved before you can merge the branches.", 
+                 "Retreives commited changes from the remote repository to your local branch",
+                 "Sends your committed changes to a remote repository on GitHub.com", 
+                 "Inverts the changes of a specified commit as a new commit")
+Table <- data.frame(Name, Description)
+knitr::kable (Table, "pipe", align = c("l", "l"))
+
+
+
+```
+
+Link to Github glossary : https://docs.github.com/en/get-started/quickstart/github-glossary
+
+
+# Run the model
+
+## Running the model with the *"main.R"* file
+
+"main.R"" is the file used to run the model.
+
+<span style="color: red;"> **Warning**: Open **FIRST** the file **`r githubrepo`.Rproj** from the  ThreeME folder saved in your desktop </span>          
+
+  + Option 1: Click on the file in your file explorer. The path should be: <span style="color: blue;">`r file.path("...","GitHub",githubrepo,"ThreeME_V3")`.Rproj</span>. This will open *RStudio*
+
+  + Option 2: Open **RStudio**, in the menu go to *"file"*, then *"open project"*, and follow the path above.   
+
+
+## Scripts in the *"main.R"* file
+
+- **"src/functions.R"** :  installs R and "home-made" pakcages to run the model
+```{r src file, eval=FALSE,echo = TRUE}
+# Load functions
+source("src/functions.R")
+```
+
+- **"configuration/config_training.R"** :  It's a file where the main options are.    
+  
+```{r config file, eval=FALSE,echo = TRUE}
+# file.edit("configuration/config_training.R")
+source("configuration/config_training.R")
+```
+
+It sets the parameters of your scenario (name, timeframe...)
+
+```{r options, eval=FALSE,echo = TRUE}
+# Parameters
+model_folder <- "training"
+iso3 <- "TRA"                                    %>% tolower()
+scenario <- "g"                          %>% tolower()
+classification <- "c0_s0"                      %>% tolower()
+
+scenario_name <- paste(scenario,iso3, sep = "_") %>% tolower()
+
+
+# Input the base year used for the calibration
+baseyear <- 2020
+# Set the end of the sample
+lastyear <- 2035
+# Set the higher lag of the equation
+max_lags <- 3
+# Calculate first year of simulation
+firstyear <- baseyear - max_lags
+
+# Lists files (warning: if more than, place "lists.mdl" last)
+lists_files <- c(
+  "lists.mdl"
+)
+```
+
+
+It calls the following main files:
+
+  **"01.1-calib.mdl"**: the calibration file used to initialize the variables    
+  **"01.1-eq.mdl"**: includes all equations used in the model   
+
+```{r calib and eq files, eval=FALSE,echo = TRUE }
+
+# Calibration files (used to initialize variables)
+calib_files <- c(lists_files,
+  "01.1-calib.mdl"
+)
+
+# Model files 
+model_files = c(lists_files,
+  "01.1-eq.mdl"
+  )
+```
+
+
+  **"1_calib_baseline-steady.R"** and **"2_calib_shock_"** : the calibration scripts to use 
+  
+```{r calib scripts , eval=FALSE,echo = TRUE}
+# Calibration scripts to use 
+calib_baseline <- file.path("configuration","scenarii_calib","1_calib_baseline-steady.R")
+calib_scenario <- file.path("configuration","scenarii_calib",paste0("2_calib_shock_",scenario,".R"))
+```
+
+  
+           
+- **"src/run_threeme.R"** : where the model calibration is loaded, the model definition is compiled and the model is run   
+
+```{r run threeme, eval=FALSE,echo = TRUE}
+##### Script running ThreeME in R
+source("src/run_threeme.R")
+```
+
+- **0R_create_databases.R** : uses the outputs of the previous script "src/run_threeme.R" to generate the database   
+
+```{r database,eval=FALSE,echo = TRUE}
+# Create the database for further processing
+if(Rsolver == FALSE){
+  source(file.path("src","0_create_databases.R"))
+  }else{
+  source(file.path("src","0R_create_databases.R"))}
+```
+
+
+- After you run the **markdown**, your html result file **""Results_scenario_date_time.html"** is opened in default browser. 
+
+```{r markdown, eval=FALSE,echo = TRUE}
+# Run the Markdown of the results
+output_file = paste0("Results_",scenario_name,"_",format(Sys.time(), "%Y-%m-%d_%H-%M-%S"))
+
+rmarkdown::render(input = file.path("results","report","markdown","training","M2.1_Software-basic.qmd"),
+
+                  output_dir = file.path("results","report","render"), 
+                  output_file = output_file,
+                  output_format = "slidy_presentation",
+                  
+                  params = list(scenario_name = scenario_name ,
+                                classification = classification ,
+                                startyear = 2020 ,
+                                endyear = 2050, 
+                                compil = compil,
+                                Rsolver = Rsolver
+                                ) 
+                  )
+
+# Open results file in default browser
+browseURL(file.path("results","report","render",paste0(output_file,".html") ))
+
+```
+
+
+# Markdown
+
+ 
+## What is Markdown?
+
+
+- Markdown is a very simple ‘markup’ language which provides methods for creating documents with headers, images, links ...
+- You can convert Markdown documents to many other file types like .html or .pdf
+- When you create an RMarkdown file (.Rmd), you use conventional Markdown syntax alongside chunks of code written in R
+- RMarkdown presents your code alongside its output (graphs, tables, etc.) with conventional text to explain it
+
+## How to create a Markdown?
+
+- To create a new RMarkdown file (.Rmd), select File -> New File -> R Markdown...
+
+
+![](pictures/Create_Markdown.png){width=45%}
+
+
+- Choose the file type you want to create. For now we will focus on a .html Document
+
+
+![](pictures/File_type_Markdown.png){width=35%}
+
+
+
+- The newly created .Rmd file comes with basic instructions. You can delete them if you want to create your own Markdown.
+
+
+- Save your .Rmd file in your Github folder.
+
+- **Quarto document**: same process but the extension is qmd (for q markdown) 
+
+## What can you do in a Mardown file?
+
+- You can write a text using the <span style="color: red;">***Markdown syntax***</span>
+- You can insert equations : 
+
+  \begin{equation}
+    Y_{t} = CH_{t} + I_{t} + G_{t}   
+  \end{equation}
+  
+- You can insert images : 
+
+
+![](pictures/Coding.png){width=15%}
+
+
+- You can insert code "chunks", with several options:
+
+Eval: Whether to evaluate a code chunk    
+Echo: Whether to echo the source code in the output document    
+
+
+
+- You can render the .Rmd file and preview it using a single click: the "knit" button
+
+- **Quarto document**: for .qmd file, we have a "render" instead of a "knit" button
+
+<center>
+
+![](pictures/Options_Chunk.png){width=55%}
+
+<center>
+
+ 
+# Simulation and results
+
+
+## Model 1: one equation 
+
+The model is found in <span style="color: blue;">`r file.path("Github", githubrepo, "src", "model", "training", "01.1-eq.mdl")`</span> . It is called in the "config_training.R" file in the section "Model files".
+
+The model we consider is a simple one with only one equation: 
+
+  \begin{equation}
+    Y_{t} = CH_{t} + I_{t} + G_{t}   
+  \end{equation}
+
+- **Endogenous** variable:    
+   **Y**: GDP 
+
+- **Exogenous** variables:     
+   **CH**: Households Consumption  
+   **I**: Investment    
+   **G**: Public spendings       
+
+- **Calibration** :   
+  Y = 100  
+  CH = 60  
+  I = 25  
+  G = 15   
+
+
+## Baseline and shock scenarios: example of a shock on G
+
+- The baseline and shock scenario are found in the "config_training.R" file in the section "Calibration scripts to use".    
+- **Baseline scenario** is the reference scenario, the benchmark to which all the other scenarios will be compared. 
+
+Found in :<span style="color: blue;"> `r file.path("Github", githubrepo, "configuration","scenarii_calib", "1_calib_baseline-steady.R")`</span>
+    
+- **Shock scenarios** are alternative scenarios that are compared to the baseline scenario.     
+
+Found in : <span style="color: blue;"> `r file.path("Github", githubrepo, "configuration","scenarii_calib", "2_calib_shock_g.R")`</span>
+   
+- We introduce a shock on "G" of one GDP-point:
+  + G increases by **1** compared to the baseline since GDP (Y is calibrated to **100**.
+
+```{r File calib, echo=TRUE, eval=FALSE}
+shock_ch <- mutate(selection,
+                    g =   ifelse(year >= 2021, g + 1, g)
+                   )
+```
+
+  + Another equivalent way is to expressed it a percentage of y:
+
+```{r File calib 1, echo=TRUE, eval=FALSE}
+shock_ch <- mutate(selection,
+                    g =   ifelse(year >= 2021, g + 0.01*y[which(year == baseyear)], g)
+                  )
+```
+
+
+## "Data_full" table
+
+- You can have a look on your data in "data_full".       
+- "data_full" is a table where you can see the values taken by your variables in the baseline scenario and in the shock scenario.
+  + To view it in R studio type in the console: 
+```{r  datafull, echo=TRUE, eval=FALSE}
+view(data_full)
+```
+
+  + You can then filter by year or by variable.
+
+- You can also make tables:
+  + For year: **`r endyear`**
+
+```{r Table datafull endyear, echo=TRUE, results='asis'}
+variables_selection = c("Y","CH","I", "G")
+selection <-  data_full %>% filter(variable %in% variables_selection, year %in% c(endyear)) %>% select(-sector, -commodity, -year) %>% arrange(variable)
+flextable(selection)
+```
+
+  + For year: **`r startyear`**
+
+```{r Table datafull startyear, echo=TRUE, results='asis'}
+variables_selection = c("Y","CH","I", "G")
+selection <-  data_full %>% filter(variable %in% variables_selection, year %in% c(startyear)) %>% select(-sector, -commodity, -year) %>% arrange(variable)
+flextable(selection)
+
+```
+
+
+## "Data_full" table
+
+ + For three consecutive years
+ 
+```{r Table datafull two years, echo= TRUE, results='asis'}
+A <- data_full %>% 
+  filter(year %in% (c(2020,2021,2022))) %>% 
+  filter(variable %in% (c("CH","Y", "G"))) %>% 
+  #filter(variable != "MU") %>% 
+  select(-sector, -commodity) %>% 
+  rename(shock = scenario_name)
+flextable(A)
+
+```
+
+## *Simpleplot* function 
+
+- *simpleplot* creates graphs based on a vector of variables of a database. By default, the function plots one serie.  To see the function syntax in the Rstudio console: 
+
+```{r View simpleplot, echo=TRUE, eval=FALSE}
+View(ermeeth::simpleplot)
+```
+
+
+
+- There are **4 options** to plot a variable using *simpleplot*. To select an option, we change the argument "transformation" in the *simpleplot* function: 
+
+   Option 1: plot the variable in **level **      (transformation = "level" )    
+   Option 2: plot the variable in **relative difference** (transformation = "reldiff" )         
+   Option 3: plot the variable in **difference**  (transformation = "diff" )     
+   Option 4: plot the variable in **growth rate**   (transformation = "gr" )             
+
+
+## *simpleplot*: plot the variable "Y" in <span style="color:red;">level</span> (Option 1)
+
+
+- To plot the variable "Y" in level to the baseline scenario, set **transformation = "level"** as shown in the following code:
+
+```{r simpleplot level Y, echo=TRUE, fig.height=6, fig.width=14}
+simpleplot(data = data_full,  transformation = "level", series = "Y", label_series = "GDP", startyear = 2020, endyear = 2035, 
+           titleplot = "Gross Domestic Product (level)", unit = 1, decimal = 0.1, custom_x_breaks = 1, percent_label = TRUE)
+
+```
+
+- **Dashed** line : **Baseline** simulation 
+- **Solid** line : **Shock** simulation
+- **label_series = "GDP"** Changes the name of the variable "Y" into "GDP"
+
+
+## *simpleplot*: plot the variable "Y" in  <span style="color:red;">relative</span> difference (Option 2)
+
+- The **relative** difference in the shock compared to the baseline for variable Y is calculated using the following formula:
+  \begin{equation}
+  reldiff_{t} = (Y_{shock_{t}}-Y_{baseline_{t}})/Y_{baseline_{t}} = Y_{shock_{t}}/Y_{baseline_{t}}-1
+  \end{equation}
+
+- To plot the variable "Y" in relative difference to the baseline scenario, set **transformation = "reldiff"** as shown in the following code:
+```{r simpleplot reldiff, echo=TRUE, fig.height=6, fig.width=14}
+simpleplot(data = data_full,  transformation = "reldiff", series = "Y", label_series = "GDP", startyear = 2020, endyear = 2035, 
+           titleplot = "Gross Domestic Product (percentage change)", unit = "percent", decimal = 0.1, custom_x_breaks = 2)
+
+```
+
+- **Only one plot here !** This is the (relative) difference between the shock and the baseline
+
+
+## *simpleplot*: plot the variable "Y" in <span style="color:red;">absolute</span> difference (Option 3) 
+
+
+- The **absolute** difference in the shock compared to the baseline for variable Y is calculated using the following formula:
+- The variation of Y is calculated using the following formula:
+  \begin{equation}
+  diff_{t} = Y_{shock_t} - Y_{baseline_{t}}
+  \end{equation}
+
+- To plot the variable "Y" in absolute difference to the baseline scenario, set **transformation = "diff"** as shown in the following code
+
+```{r simpleplot diff GDP, echo=TRUE, fig.height=6, fig.width=14}
+simpleplot(data = data_full,  transformation = "diff", series = "Y", label_series = "GDP", startyear = 2020, endyear = 2035, 
+           titleplot = "Gross Domestic Product (absolute change)", unit = 1, decimal = 0.1)
+
+```
+
+
+## **simpleplot**: plot the variable "Y" in <span style="color:red;">growth rate</span> (Option 4)
+
+- The growth rate (over time) of Y is calculated using the following formula:
+  \begin{equation}
+  gr_{shock_{t}} = (Y_{shock_{t}}-Y_{shock_{t-1}})/Y_{shock_{t-1}}
+  \end{equation}
+  \begin{equation}
+  gr_{baseline_{t}} = (Y_{baseline_{t}}-Y_{baseline_{t-1}})/Y_{baseline_{t-1}}
+  \end{equation}
+
+- By growth rate, we mean annual percentage change
+
+- To plot the variable "Y" in growth rate to the baseline scenario, set **transformation = "gr"** as shown in the following code:
+
+
+```{r simpleplot gr, echo=TRUE, fig.height=6, fig.width=14}
+simpleplot(data = data_full,  transformation = "gr", series = "Y", label_series = "GDP", startyear = 2020, endyear = 2035, 
+           titleplot = "Gross Domestic Product (yearly percentage change)", unit = "percent", decimal = 0.01)
+
+```
+
+
+
+## Your turn: plot the variable Investment in level
+
+```{r simpleplot level investment, echo=TRUE, fig.height=6, fig.width=14}
+simpleplot(data = data_full,  transformation = "level", series = "I", label_series = "Investment", startyear = 2020, endyear = 2035, 
+           titleplot = "In level", unit = 1, decimal = 0.1, custom_x_breaks = 1)
+
+```
+
+
+## Your turn: plot in the same graph the variables "Y", "CH", "I", "G" in level 
+
+```{r Ex simple plot multiple series, echo=TRUE, fig.height=6, fig.width=14}
+variable_macro <- c("Y", "CH", "I", "G")
+label_macro <- c("GDP", "Households consumption", "Investment", "Public spending")
+
+simpleplot(data_full,variable_macro, label_macro, startyear = 2020, endyear= 2030,  transformation = "level", titleplot = "GDP and its components ",
+           percent_label = FALSE,unit = 1, decimal = 0.1 )
+
+```
+
+
+## Your turn: Put 2 graphs next to each other
+
+- Put together the graph plotting the variable Y in growth rate and the graph plotting "Y", "CH", "I", "G" in level 
+
+[comment]: <> (@Maryème:  Inserer les retour à la ligne dans tous les chunck quand le code dépasse la page)
+
+
+```{r Ex two graphs, echo=TRUE, fig.height=6, fig.width=14}
+
+A <- simpleplot(data = data_full,  transformation = "gr", series = "Y", startyear = 2020, endyear = 2035, 
+                titleplot = "Gross Domestic Product (percent change)", unit = "percent", decimal = 0.1)
+
+B <- simpleplot(data_full,c("CH", "I", "G"), startyear = 2020, endyear= 2030,  transformation = "level", titleplot = "GDP components in level",
+                decimal = 0.1, unit = 1 )
+
+ggarrange(A,B,
+          labels = c("(a)", "(b)"),
+          hjust = -0.5, vjust = 1.5,
+          ncol = 2, nrow = 1,
+          widths = 2,  heights = 1)
+```
+
+- Notice that label were omitted
+
+
+## Plot a graph with the contribution of "CH", "I" and "G" on "GDP"
+
+- The contribution of each variable to the relative change Y in the shock compared the baseline is calculated using the following formula:
+  \begin{equation}
+  \frac{Y_{shock}}{Y_{baseline}}-1= (\frac{CH_{shock}}{CH_{baseline}}-1)*(\frac{CH_{baseline}}{Y_{baseline}}) +
+  (\frac{I_{shock}}{I_{baseline}}-1)*(\frac{I_{baseline}}{Y_{baseline}}) +  (\frac{G_{shock}}{G_{baseline}}-1)*(\frac{G_{baseline}}{Y_{baseline}})
+  \end{equation}
+
+- The relative change of Y is the weighed average of the relative change of its components
+
+```{r Graph GDP and contrib, echo=TRUE, fig.height=6, fig.width=14}
+contrib_comp <- c( "CH", "I", "G")
+contrib_comp_label <- c("Households consumption", "Investment", "Public spending")
+
+data_plot <-  contrib(data_full,"Y", contrib_comp, scenar = c("baseline",scenario_name))
+
+A <- contrib.plot(data_plot, series = contrib_comp,label_series = contrib_comp_label,
+             startyear = 2020, titleplot = "Contributions to change in GDP", line_tot = TRUE)
+
+B <- simpleplot(data_full,c("CH", "I", "G"), contrib_comp_label, startyear, endyear, titleplot = "Components of the GDP (in difference from baseline)")
+
+ggarrange(A,B,
+          labels = c("(a)", "(b)"),
+          hjust = -0.5, vjust = 1.5,
+          ncol = 2, nrow = 1,
+          widths = 2,  heights = 1)
+
+```
+
+
+## Calibration error
+
+Change the calibration for public expenditure and have a look at the calibration error.    
+
+- Change in the calibration file "01.1-calib.mdl" the value of G. Put **G := 26** instead of **G : = 15**     
+- Save the calibration file    
+- Run the main
+
+**What do you notice?**
+
+- A message : "The following equations are not well calibrated for the baseline scenario" (same for the shock scenario)      
+- Even with an error in your calibration, the model shows the results (that are different from the ones with no calibration error).     
+
+## Now let's change the model: I and CH  become endogenous
+
+In the previous model we had only one equation:  
+
+-   <span style="color: blue;">Production</span>      
+  \begin{equation}
+    Y_{t} = CH_{t} + I_{t} + G_{t}   
+  \end{equation}    
+
+The new file used for calibration is found in  <span style="color: blue;"> `r file.path("Github", githubrepo, "src", "model", "training", "01.2-eq.mdl")`</span>    
+
+In the new model, we add two other equations  that make I and CH endogenous now (without changing the calibration).    
+        
+- <span style="color: blue;">Households consumption</span>       
+
+  \begin{equation}
+    CH_{t} = 0.6 * Y_{t-1}   
+  \end{equation}
+  
+- <span style="color: blue;">Investment</span>    
+
+  \begin{equation}
+    I_{t} = 0.25 * Y_{t}   
+  \end{equation}
+
+- Note that in the equation file, **time index is ommited**. For example in the equation of production we only write **"Y = CH + I + G"** while in latex we write : \begin{equation} Y_{t} =  CH_{t} + I_{t} + G_{t}\end{equation}   
+- Also, the past period is written **"Y{-1}"** while it is written in latex as follows: $Y_{t-1}$
+
+
+## Your turn: generate the same plots with the new model
+
+To get your new results when changing in the "config_training.R" file the equations of the model from **01.1-eq.mdl** to **01.2-eq.mdl**,  you need to:   
+
+- Save the "config_training.R" file.   
+- Run the "main.R" file.     
+
+Now you can see changes in the values of your variables in data_full and visualize these changes in the plots. 
+
+Here are some main changes:    
+
+- The shape of the series look different (non linear shape) in the shock scenario    
+- The baseline scenario is constant    
+- All variables have different yearly values in the shock scenario whereas only G and Y changed in the previous model.
+- For the same shock, the % change in Y is different in the two models 
+- We can see the contribution of each variable in GDP change. Public spendings is the component of GDP with the highest change compared to the baseline but it is households consumption that contributes most to change in GDP.
+
+
+## Assuming a growing economy
+
+Change in the "config_training.R" file the calibration of the model from **01.1-calib.mdl** to **01.2-calib.mdl**      
+
+The new file used for calibration is found in  <span style="color: blue;"> `r file.path("Github", githubrepo, "src", "model", "training", "01.2-calib.mdl")`</span> 
+
+What changes from the previous model?
+
+- The calibration changes the shape of some series in the shock scenario      
+- Variables in the baseline scenario are not constant anymore
+
+
+# Thanks and next steps
+
+## Next steps
+
+- Application of this knowledge to other models
+- Simulation of small CGE models with prices
+- Walrasian versus Keynesian closure
+

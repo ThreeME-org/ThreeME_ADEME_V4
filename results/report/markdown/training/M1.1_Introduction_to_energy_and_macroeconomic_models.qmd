@@ -1,0 +1,132 @@
+---
+title: "Introduction to energy and macroeconomic models"
+subtitle: "ThreeME training"
+author: "Dr. Frédéric Reynès"
+date: "`r format(Sys.Date(), '%d/%m/%y')`"
+institute: ""
+format: beamer
+theme: OFCE
+---
+
+# Contents
+
+-   Model tools applied to climate change:
+    -   Why do we need models?
+    -   Limits of existing models
+    -   Bottom-up versus top-down approaches
+    -   Main existing models
+-   The ThreeME model
+    -   Context of the creation of the model
+    -   Main characteristics
+
+# Model tools applied to climate change
+
+-   Context
+    -   To keep global warming from rising more than 2°C compared to pre-industrial levels, OECD countries are expected to reduce their greenhouse gas (GHG) emissions by 80-95% by 2050 compared to 1990.
+    -   Kyoto protocol where countries have agreed to meet emission reduction targets
+    -   Accentuated by the global Paris' agreement in 2015 during the COP21
+    -   Most countries have pledged to cut drastically GHG emissions
+        -   Carbon neutrality
+    -   Part of the Sustainable Development Goals (SDG)
+        -   No trade off between economic & environmental objectives
+        -   Environmental policy seen as an economic opportunity
+        -   Energy security
+        -   "Green" industry and technology use high skilled jobs
+
+# Why do we need models?
+
+-   Strong research need in economic evaluation
+    -   Ex post and ex ante impact assessments of climate/energy policy
+        -   Impact of the energy transition
+    -   Need of new indicators (Beyond GDP)
+-   Difficult task requiring a detailed analysis and a lot of data
+    -   Many heterogeneous, targeted measures for many countries
+-   Applied economic models: one of the main tools
+    -   Costs & impact assessment of policy measures
+-   But existing models have limits
+    -   Lack of details or realism
+    -   Research need in model development
+
+# Limits of existing models
+
+-   Measure poorly certain side effects of environmental policies
+    -   Rebound effects & wealth effects
+        -   Ex: house insulation for poor households
+        -   Often energy consumption depends on revenue and not on the number of cars or buildings
+        -   Often only one consumer
+    -   Impact on inequality
+    -   Endogenous energy efficiency
+-   Say little about the short and medium term
+    -   Maybe because climate change is a long term phenomenon
+    -   Although most people agree on the long term beneficial effects of climate policy, the acceptability of climate policies depends on their short term impacts
+        -   Ex: rejection of Kyoto by the USA; of the carbon tax in France
+-   Effect on non-economic indicators
+    -   Sustainability
+    -   Environmental and social aspects of progress
+
+# Bottom-up versus top-down approaches
+
+-   **Bottom-up**: "from the detailed to the aggregate level"
+    -   [Advantages:]{.underline} realism and high level of detail
+    -   [Drawbacks:]{.underline} neglect indirect effects
+        -   Ex: effect of energy savings on prices (which in return will affect energy savings themself)
+-   **Top-down**: "from the aggregate to the detailed level"
+    -   [Advantages:]{.underline} accounts for interactions/feedbacks
+        -   Rebound effects: a lower energy bill means an extra revenue which in return may lead to more energy consumption
+        -   Carbon leakage
+    -   [Drawbacks:]{.underline} lack of details, unrealistic representation of certain economic behaviours such as energy consumption
+
+# Universe of energy & climate models
+
+![](pictures/models.jpg)
+
+# Main existing models
+
+-   Computational General Equilibrium Models (CGEM)
+
+-   Neoclassical Integrated Assessment Models
+
+-   Engineering models / energy system models
+
+-   Hybrid models: combination of the three above
+
+# Computational General Equilibrium Models (CGEM)
+
+**ENV-Linkages (OECD), GTAP**
+
+-   Walrasian models: perfect price flexibility guaranties equilibrium on each market at every period
+-   Typical applications:
+    -   Effect of the change in technical progress
+        -   Climate change will degrade productivity in certain sectors. This will lead to the increase of the production price of these sectors. Agents will react/adapt by substituting goods or input
+    -   Effect of a tax on emissions
+-   Limits:
+    -   Long term models: do not say much about the short and medium term.
+        -   Ex: no unemployment
+    -   Lack of details about the drivers of energy consumption
+
+# Neoclassical Integrated Assessment Models
+
+**DICE (Nordhaus)**
+
+-   A representative agent maximizes the future welfare of the entire society by making a trade off between the benefits of economic growth (consumption) and its costs (emissions)
+-   Typical applications:
+    -   The value and trajectory of the optimal carbon tax
+        -   Climate change has a cost in terms of (future) wealth but mitigation also has a cost. Weighing these 2 costs defines the optimal growth that allows the maximum wealth in the future
+-   Limits:
+    -   Perfect insight/information about the future
+    -   Largely normative: an economic "dictator" who decides for all the society (the whole world)
+
+# Engineering models / energy system models
+
+**MARKAL, PRIMES (European Commission), POLES, LEAP.**
+
+-   A representative agent minimizes the future energy costs of the society by choosing the optimal energy mix
+-   Very detailed representation of all technical energy processes
+    -   Costs (production, distribution, etc), availability
+-   Typical applications
+    -   When (or under which circumstances) a given technology will be profitable?
+    -   How will the most cost effective energy mix evolve in the future?
+-   Limits:
+    -   Partial equilibrium: exogenous prices
+        -   No vision of the global economic system
+    -   Largely normative: the economic "dictator"

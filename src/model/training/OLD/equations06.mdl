@@ -1,0 +1,50 @@
+Y + M = CH + I + G + X 		 		### Changed compared to 05
+
+p * (Y + M) = py * Y + pm * M 		### New compared to 05
+
+py_n * Y = c_Y * Y * (1 + m_up)		### Changed compared to 05
+
+c_Y * Y = w * L_n + p * (delta + r) * K_n
+
+CH_n * p = (1 - sigma) * (w * L + p * r * K + c_Y * Y * m_up) * (1 - T_INC)
+
+L_n = Y / PROD_L * Phi_L ^ rho * (w 		      / c_Y / PROD_L) ^ (-rho)
+
+K_n = Y / PROD_K * Phi_K ^ rho * (p * (delta + r) / c_Y / PROD_K) ^ (-rho)
+
+I = d(K) + delta * K{-1}				## If Keynes
+
+log(|V|) = ADJUST1_|V| * log(|V|_n) + (1 - ADJUST1_|V|) * (log(|V|{-1}) + d(log(|V|_e))) where V in py CH L K 			### Changed compared to 05
+
+d(log(|V|_e)) = ADJUST2_|V| * d(log(|V|_e{-1})) + ADJUST3_|V| * d(log(|V|{-1})) + ADJUST4_|V| * d(log(|V|_n))  where V in  py CH L K 	### Changed compared to 05
+
+# Mark-up equation
+d(log(1 + m_up)) = alpha_1 * d(log(L_n/L)) + alpha_2 * d(log(K_n/k))
+
+# Wage equation
+U = 1 - L/LF
+d(log(w)) = RHO0 + RHO_1 * d(log(p)) + RHO_2 * d(log(PROD_L)) - RHO_3 * U - RHO_4 * d(U)
+
+# interest rate equation:  Taylor reaction function
+d(r) =  gamma_1 * d(d(p)/p{-1}) - gamma_2 * d(U)
+
+# Propensity to save equation: Ricardien effect 
+d(sigma) = theta_1 * d( r - d(p)/p{-1})
+
+# Saving (budget balance) of the Government 
+SAV_GOV = (w * L + p * r * K + c_Y * Y * m_up) * T_INC - p * G 
+
+# Budget balance as a percentage of GDP
+SAV_GOV_GDP = 100 * SAV_GOV / (py * Y)								### New compared to 05
+
+M = (Y + M) * Phi_M  * (pm / p) ^ (-rho_M) 	### New compared to 05
+
+X  = WD  * (py / pw) ^ (-rho_X)				### New compared to 05
+
+# Saving of the Rest of the World (Trade balance: + means trade deficit for the national economy)
+SAV_ROW = pm * M - py * X 					### New compared to 05
+
+# Trade balance as a percentage of GDP
+
+SAV_ROW_GDP = 100 * SAV_ROW / (py * Y)		### New compared to 05
+

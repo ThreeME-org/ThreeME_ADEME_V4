@@ -1,0 +1,25 @@
+##### Linking ThreeME-LUX to the model NEAM
+
+#### Household 
+
+### Energy  consumption defined by NEAM
+NCH[ce] = CH_HOUS_NEAM[ce] + CH_TRSP_NEAM[ce]
+
+### Automobile investment defined by NEAM
+NCH[cveh] = CH_TRSPINV_NEAM
+
+### Housing investment defined by NEAM
+NCH[ccon] = CH_HOUSINV_NEAM 
+
+### Public transport defined by NEAM
+NCH[ct] = CH_TRSP_NEAM[ct] 
+
+#### Economic activities
+
+
+#### Modeling fuel sales to non-residents (Exports)
+@over X[cfut] = X_NEAM[cfut]
+
+# This will deactivate the endogenous approacheed used in the OECD version:
+# ##! Notional substitution effect induced by a change in the relative price between export prices and (converted in domestic currency) international prices for the commodity $c$
+# @over d(SUBST_X_n[cfut]) = -ES_X[cfut] * d(log(PX[cfut]) - log(EXR * PWD[cfut] * PNEIGHBOR[cfut]))

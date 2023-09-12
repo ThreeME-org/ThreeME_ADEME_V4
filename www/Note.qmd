@@ -1,0 +1,940 @@
+---
+title: "Livrable L1 : Analyse des résultats du cahier de variantes"
+subtitle: "Livrable L2 : Note sur les améliorations du modèle"
+author: "Modèle ThreeME Luxembourg"
+date: 'Janvier 2023'
+format:
+  html: 
+    toc: true
+    theme: simplex
+    self-contained: true
+    fig-dpi: 300
+    fig-format: svg
+    fig-width: 5
+    comments:
+      hypothesis: true
+  pdf:
+    documentclass: scrartcl
+    classoption: 
+    - DIV=12
+    template-partials:
+      - "before-body.tex"
+      - "_titlepage.tex"
+    include-in-header: "in-header.tex"
+    number-sections: true
+    number-depth: 2
+    toc: true
+    toc-depth: 2
+    toc-title: "Table des matières"
+    papersize: a4
+    fontsize: 9pt
+    fig-cap-location: top
+    extra_dependencies: ["float"]
+    fig-dpi: 600
+    fig-format: svg
+editor_options: 
+    markdown: 
+      wrap: 100
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.pos="htb", 
+  out.extra="",
+  dev="ragg_png",
+  out.width="100%",
+  fig.showtext=TRUE,
+  cache=FALSE)
+```
+
+```{r datainit, include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(glue)
+library(ggh4x)
+library(ofce)
+library(showtext)
+library(markdown)
+library(plotly)
+library(scales)
+if (F){
+  devtools::install_github("ofce/ofce")
+}
+sysfonts::font_add_google('Roboto')
+showtext_opts(dpi = 300)
+showtext_auto()
+# objects <- load("../data/sorties.rdata")
+options(ofce.background_color = "#F9F4ED")
+options(ofce.base_family = "Nunito")
+options(ofce.base_size = 7)
+```
+
+{{< pagebreak >}}
+
+# Analyse des résultats
+
+## Caractéristiques du scénario de référence
+
+Pour cet exercice analytique, le sentier de référence est supposé correspondre à un sentier de
+croissance équilibré (*steady state*) à la Solow : toutes les variables en volume croissent au taux
+de croissance du PIB et tous les prix croissent au même rythme d'inflation.
+
+Le scénario qui sert de référence pour l'étude des variantes présentées dans ce cahier est construit
+suivant les hypothèses suivantes :
+
+-   Le PIB est supposé croître à 4,3% par an. Cela se correspond à une hausse de 3,4% du PIB sur le
+    long terme entre 2015 et 2050. A long terme, le progrès technique est supposé économiser le
+    travail (*labor-augmenting*), le taux de croissance tendanciel correspond à la somme du taux de
+    croissance de la population et du progrès technique (respectivement de 2,37% et de 1,9%).
+-   Les prix croissent au rythme de 2% par an.
+-   Le taux de chômage est supposé constant et égal à 5.6%.
+-   La balance commerciale est positive et supposé constante (33.7 points de PIB).
+-   Sur le long terme, les émissions de GES augmentent comme le PIB de 3,4% entre 2015 et 2050 car
+    les progrès techniques du facteur énergie et l'intensité en émission des commodités énergétiques
+    sont supposés constants.
+
+{{< pagebreak >}}
+
+## Hausses des dépenses publiques d'un montant de 1 point de PIB (EXPG1)
+
+### Mise en oeuvre
+
+La variante considérée consiste en un choc permanent de 1 point de PIB sur les consommations finales
+du gouvernement. La variable choquée est « EXPG » qui est définie dans l'équation
+\ref{eq:1}\footnote{Voir documentation du modèle ThreeME pour plus de détails, disponible sur https://www.threeme.org/documentation. Le nom des variables est défini dans le glosaire, page 168.}:
+
+\textcolor{blue}{Consommation finale de la commodité c par les administrations publiques}
+
+```{=tex}
+\begin{equation}\label{eq:1}
+\varDelta \left(\operatorname{log} G_{c}\right) = \varDelta \left(\operatorname{log} EXPG\right)
+\end{equation}
+```
+### Mécanismes
+
+L'augmentation des dépenses publiques impacte comptablement et immédiatement le PIB dont les
+composantes sont explicitées dans l'équation \ref{eq:2}. Les dépenses publiques qui ont un effet
+multiplicateur sur le PIB sont celles touchant la production du service public (éducation, santé,
+etc.) qui n'est pas importée.
+
+\textcolor{blue}{PIB (définition de dépenses)} \begin{equation}\label{eq:2}
+GDP = CH + G + I + X + DS - M
+\end{equation}
+
+Etant donnée qu'une partie de la consommation publique est importée, le multiplicateur est inférieur
+à l'unité. La part des imports des consommations publiques est en moyenne de 16% (la part importée
+des services publics étant égale à 6%). Une partie des dépenses publiques contribue donc à
+l'augmentation des importations (M). La balance commerciale (X-M) va donc tirer le PIB vers le bas ;
+diminuant l'importance du multiplicateur.
+
+### Résultats
+
+On observe un impact immédiat sur le PIB qui augmente de 0.7% la première année. Cet effet
+s'affaiblit au cours des années, diminuant jusqu'à 0.2% à long terme. On aurait un multiplicateur
+supérieur à 1 si la balance commerciale était exclue. La balance commerciale contribue négativement
+de 0.7 point de PIB en 2025, alors que la contribution de la consommation finale et l'investissement
+à l'augmentation du PIB est de 1.3 points en 2023 (section 1.4 annexes).
+
+L'augmentation de l'activité entraîne une baisse du taux de chômage qui diminue de 0.5 à 0.7 points
+pendant les cinq premières années, puis de 0.2 point à long terme. Il y a aussi une hausse de 0.6%
+des salaires. L'impact inflationniste est relativement faible. On observe une hausse des prix à la
+consommation de 0.1% à moyen terme, effet qui s'annule à long terme. Le déficit public est dégradé,
+il y a une baisse du taux d'épargne du gouvernement de 0.9 point de PIB et la dette augmente de 6
+points de PIB à l'horizon 2040 (section 2.1 annexes).
+
+### Comparaison avec des autres modèles
+
+-   Effet similaire sur les prix que dans Modux. La modélisation des salaires est similaire (courbe
+    WS), mais Modux inclut des spécificités de la négociation salariale au Luxembourg
+    (revalorisation de la grille salariale en fonction de l'inflation par exemple).
+-   ThreeME n'inclut pas d'effet frontalier et on observe une baisse plus forte du taux de chômage
+    que dans Modux. ThreeME intègre uniquement un effet de flexion de population active (quand le
+    nombre de chômeurs diminue, on a une augmentation de la population active). En effet, le taux
+    d'activité dépend négativement du taux de chômage :
+
+\textcolor{blue}{Taux d’activité} \begin{equation}\label{eq:3}
+\varDelta \left(PARTR^{n}\right) = \varDelta \left(PARTR^{trend}\right) - \rho^{PART,UnR} . \varDelta \left(UnR\right)
+\end{equation}
+
+où $\rho^{PART,UnR} = 0.3$.
+
+{{< pagebreak >}}
+
+## Baisse des cotisations sociales employeurs d'un point de PIB ex ante (RRSC1)
+
+### Mise en oeuvre
+
+Cette variante consiste à réduire de manière permanente le taux de cotisations versée par les
+employeurs. Le taux de cotisations employeurs « RRSC » - dont la valeur moyenne est de 12.5 points -
+est choquée négativement pour chaque secteur s. La baisse de cotisations, de 1 point de PIB, est
+repartie entre les différents secteurs et correspond à une baisse uniforme de 2,1 points du taux de
+cotisations employeurs à partir de l'année du choc.
+
+### Mécanismes
+
+Comme conséquence de la baisse du taux de cotisations RRSC, les contributions sociales payées par
+les employeurs diminuent (équation \ref{eq:4}) et le coût du travail est ainsi allégé (équation
+\ref{eq:5}).
+
+\textcolor{blue}{Cotisations patronales de sécurité sociale versées par le secteur s}
+\begin{equation}\label{eq:4}
+RSC_{s} \; PRSC_{s} = W_{s} \; F_{L, s} \; RRSC_{s}
+\end{equation}
+
+\textcolor{blue}{Coût de la main d’œuvre dans le secteur s} \begin{equation}\label{eq:5}
+C_{L, s} \; F_{L, s} = W_{s} \; F_{L, s} + RSC_{s} \; PRSC_{s}
+\end{equation}
+
+En conséquence, on obtient une diminution des coûts de production (équation \ref{eq:6}) qui sont
+répercutées dans les prix à la production.
+
+\textcolor{blue}{Coût unitaire de production dans le secteur s} \begin{equation}\label{eq:6}
+CU^{n}_{s} \; Y_{s} = \sum_{f} C_{f, s} \; F^{n}_{f, s} + NTAXS^{VAL}_{s}
+\end{equation}
+
+La baisse des prix à la production est transmise aux autres prix. La baisse du prix des exportations
+améliore la compétitivité et donc les exportations. La baisse du prix à la consommation augmente le
+revenu réel des ménages et donc leur consommation. Cet effet est amplifié par la substitution du
+capital par de la main d'œuvre qui entraine une hausse de l'emploi au détriment de l'investissement.
+
+### Résultats
+
+Un effet positif, lent et progressif est observé sur le PIB -- une augmentation de 0.1% pendant les
+deux premières années, qui monte jusqu'à 0.5% à la cinquième année et reste relativement stable
+autour de cette valeur sur le long terme. Le caractère progressif de cette hausse du PIB est dû au
+délai d'ajustement des prix qui répercutent la baisse du coût à la production avec retard. Il en va
+de même pour l'emploi qui augmente de 0.6% sur le long terme ce qui correspond à 6.8 milliers
+d'emplois. L'investissement est la seule composante du PIB qui se dégrade les deux premières années
+du fait des mécanismes de substitution entre le capital et le travail. La hausse de l'activité
+compense progressivement cet effet par la suite et l'investissement augmente à l'horizon de moyen
+terme. La hausse de la compétitivité produit une augmentation des exportations de 0.1% à partir de
+la deuxième année, qui croit jusqu'à atteindre 0.3% sur le long terme. La balance commerciale
+s'améliore -- de 1 point sur le long terme -- malgré la légère hausse des importations stimulée par
+l'augmentation de la demande mais limitée du fait de l'amélioration de la compétitivité-prix des
+producteurs nationaux.
+
+Les secteurs le plus bénéficies de cette baisse de cotisations sociales sont les secteurs transport
+et services, qui subissent une hausse de la production sur le long terme de 0.61% et de 0.55%
+respectivement. Seulement deux secteurs sur huit subissement des pertes de productivité, il s'agit
+des secteurs énergies fossiles et autres énergies (baisses de productivité sur le long terme de
+0.32% et de 0.12% respectivement). Si on analyse la hausse de la productivité globale, c'est le
+secteur services qui contribue le plus -- il explique autour de 86% de cette hausse. En ce qui
+concerne la valeur ajoutée, tous les secteurs subissent une hausse sur le long terme, à exception du
+secteur des énergies fossiles dont la VA diminue de 0.75% sur le long terme. Les secteurs transport
+et agriculture sont les plus bénéficiés, néanmoins, la contribution des services à l'augmentation
+globale de la VA reste supérieure à celle des autres secteurs (elle est de l'ordre de 84%). Par
+rapport à l'emploi, l'agriculture et le transport sont les deux secteurs les plus bénéficiés avec
+des hausses d'autour de 0.9% sur le long terme. Quant aux contributions à l'augmentation totale de
+l'emploi, c'est le secteur services qui l'emporte sur le reste. L'investissement augmente pour la
+plupart des secteurs, sauf pour les secteurs énergies fossiles et autres énergies. En ce qui
+concerne la hausse globale de l'investissement, les secteurs services et transports expliquent
+autour de 35%-40% chacun, suivis du secteur industrie énergivore qui est responsable
+d'approximativement 10%-15% de cette hausse.
+
+### Comparaison avec des autres modèles
+
+De façon générale, les effets observés à cinq ans sont similaires à ceux de Modux. Dans le cas du
+Luxembourg, les cotisations sociales sont payées un tiers par les employeurs, un tiers par les
+employés et un tiers par l'état. Cette répartition est une des raisons pour lesquelles le Luxembourg
+attire autant des travailleurs étrangers. Si les cotisations sociales expliquent le fait que le
+Luxembourg attire de l'immigration, ce choc devrait donc générer un impact sur la population,
+notamment sur l'immigration.
+
+{{< pagebreak >}}
+
+## Baisse de la TVA d'un point de PIB ex ante (VAT1)
+
+### Mise en oeuvre
+
+Le choc consiste à réduire les recettes de la TVA de 1 point de PIB. Les variables « RVATD » et «
+RVATM » (respectivement taux moyen de TVA sur les commodités domestiques et taux moyen de TVA sur
+les commodités importées) sont choquées de façon uniforme pour toutes les commodités du modèle
+(équations \ref{eq:7} et \ref{eq:8}). Le choc correspond à une baisse du taux moyen de la TVA de 3,7
+points.
+
+\textcolor{blue}{Prix du marché de la consommation finale c produite au niveau national}
+\begin{equation}\label{eq:7}
+PCHD_{c} = PYQSBVAT_{c} \; \frac{1 + RVATD_{c}}{1 + RVATD_{c, t_0}}
+\end{equation}
+
+\textcolor{blue}{Prix du marché de la consommation finale c importée} \begin{equation}\label{eq:8}
+PCHM_{c} = PMSBVAT_{c} \; \frac{1 + RVATM_{c}}{1 + RVATM_{c, t_0}}
+\end{equation}
+
+La baisse de la TVA simulée est intégralement répercutée sur les consommateurs, c'est-à-dire, il n'y
+a pas d'hypothèses concernant le taux de marge des entreprises (elles n'en profitent pas de cette
+baisse pour augmenter leur marges). La TVA est seulement payée par les consommateurs : il n'y a donc
+pas d'effet direct sur les consommations intermédiaires, l'investissement ou les exportations
+supposés exonéré de TVA.
+
+### Mécanismes
+
+Il s'agit d'un choc de demande, qui augmente le revenu réel des ménages via la réduction de prix à
+la consommation. Une hausse directe de la consommation se produit. La demande augmente ce qui génère
+une hausse de l'activité.
+
+La baisse des prix à la consommation impacte indirectement les salaires. Etant donnée qu'ils sont
+indexés sur les prix à la consommation, ils baissent, ce qui entraîne une baisse des coûts de
+production et en conséquence, une hausse de la compétitivité et des exportations. La hausse de
+l'activité impacte non seulement la consommation domestique mais entraîne aussi une hausse des
+importations, ce qui limite l'effet positif sur l'activité nationale.
+
+### Résultats
+
+Le PIB augmente de façon progressive, jusqu'à se stabiliser à long terme à 1.1%. On observe une
+répercussion immédiate sur le prix à la consommation qui diminue de 3.4% dès la première année. La
+consommation s'ajuste à la hausse du nouveau revenu réel, ainsi son augmentation est atténuée à
+partir de la cinquième année -- hausse de 1.6% contre 2.4% la première année -- quand le revenu réel
+de ménages décroit de 2.3%, conséquence de la baisse progressive des salaires indexés de manière
+unitaire sur le prix à la consommation.
+
+Les exportations augmentent comme conséquence de la baisse des salaires et de l'amélioration de la
+compétitivité-prix, à partir de la cinquième année. Une hausse de 0.5% des exportations est soutenue
+sur le long terme.
+
+### Comparaison avec des autres modèles
+
+-   Les résultats sont différents dans Modux à court terme, l'effet du choc sur l'économie étant
+    négatif. Cet effet passe par l'investissement qui dépend du cout d'usage, très sensible à
+    variation de l'inflation. A 5 ans, les effets entre les deux modèles deviennent similaires.
+
+-   Dans ThreeME on travaille sous l'hypothèse que la TVA n'est pas récupérée et que les entreprises
+    n'augmentent pas leur marge ; on modélise une situation dans laquelle la baisse est directement
+    répercutée sur les consommateurs. Cela ne correspond pas forcément à ce qui se passe dans la
+    réalité. On pourrait envisager de modéliser une situation dans laquelle les entreprises
+    augmentent leur taux de marge.
+
+-   Dans le Luxembourg, approximativement un tiers des recettes de la TVA sont issues du secteur des
+    services. Dans le modèle ThreeME, on trouve que 58% des recettes de la TVA viennent du secteur
+    services.
+
+{{< pagebreak >}}
+
+## Baisse de l'impôt sur le revenu des ménages de 1 point du PIB ex ante (INCT1)
+
+### Mise en oeuvre
+
+Le choc consiste à réduire de façon permanente l'impôt sur le revenu des ménages de 1 point de PIB.
+La variable choquée est le taux d'imposition sur le revenu disponible des ménages « RINC_SOC_TAX »
+qui diminue de 1 point à partir de l'année du choc (équation \ref{eq:9}). Il s'agit d'un choc qui
+touche uniquement les ménages.
+
+\textcolor{blue}{Impôts et cotissations sociales exprimés en valeur} \begin{equation}\label{eq:9}
+INC^{SOC,TAX,VAL} = RINC^{SOC,TAX} . DISPINC^{BT,VAL}
+\end{equation}
+
+### Mécanismes
+
+La baisse des impôts sur le revenu des ménages entraîne une hausse de leur revenu disponible
+(équation \ref{eq:10}).
+
+\textcolor{blue}{Revenu disponible après impôt exprimé en valeur} \begin{equation}\label{eq:10}
+DISPINC^{AT,VAL} = DISPINC^{BT,VAL} - INC^{SOC,TAX,VAL}
+\end{equation}
+
+La hausse du pouvoir d'achat des ménages se traduit par une augmentation de la consommation. Cette
+augmentation est repartie entre consommation importée et domestique. Il y en a donc en conséquence
+une augmentation des importations mais aussi de la production nationale. Les conséquences sur
+l'activité nationale dépende grandement de la part des importation dans la consommation des ménages.
+Selon Exiobase, la part des imports dans les consommations privées est en moyenne de 84% au
+Luxembourg. Pour certaines commodités cette part atteint presque 100%. C'est le cas par exemple des
+véhicules. Le choc se traduit principalement en une hausse des importations.
+
+### Résultats
+
+On observe un impact faible et soutenu sur le PIB de 0.1% dès la première année. Le revenu
+disponible des ménages augmente de 1.4% dès l'année du choc. L'effet positif de la hausse de la
+consommation des ménages (augmentation permanente de la consommation d'autour de 1.4%) est
+neutralisé par la balance commerciale, notamment par l'augmentation des importations d'un montant
+autour de 0.2% sur toute la période. Ainsi, tandis que la consommation finale contribue de 0.4 point
+à l'augmentation du PIB, la contribution de la balance commerciale est négative et égale à 0.3 point
+de PIB. Ces valeurs sont constantes à partir de la deuxième année après le choc et valables pour
+toute la période (section 1.4 annexes).
+
+### Comparaison avec des autres modèles
+
+Dans ThreeME on n'a pas d'effet sur l'investissement comme il est le cas dans Modux. Une baisse de
+l'impôt sur le revenu des ménages aurait un impact potentiel sur l'attractivité du Luxembourg qui se
+traduirait dans une augmentation de la population via l'immigration. On peut envisager de modéliser
+ce phénomène par la suite.
+
+{{< pagebreak >}}
+
+## Dépréciation permanente de 10% de l'euro (EXR10)
+
+### Mise en oeuvre
+
+La variante consiste en une dépréciation permanente de l'euro de 10%. La variable choquée est EXR
+qui est définie comme le taux de change de l'euro avec les devises du reste du monde. On fait
+l'hypothèse qu'une baisse de 10 % du taux de change de l'euro contre toutes les monnaies représente
+une dépréciation d'environ 5 % du taux de change effectif. Dans cette variante, le taux de change
+EXR est donc augmenté de 5%. L'élasticité des exportations adopté est unique pour toutes les
+secteurs et commodités et égale à 0.6 (effet positif de la dépréciation de l'euro sur l'économie).
+
+### Mécanismes
+
+Comme conséquence de la dépréciation de l'euro, les produits importés des compétiteurs étrangers
+deviennent plus chers (équation \ref{eq:11}). Cela entraîne un double impact sur l'économie. D'un
+côté, un impact négatif sur l'activité du fait de la hausse du prix des importation et donc de la
+baisse du revenu réel des agent. D'un autre un effet positif sur la compétitivité-prix par rapport
+aux concurrents étrangers : les exportations augmentent et les importations diminuent au profit des
+producteurs nationaux. L'impact final dépend des niveaux d'élasticité des importations et des
+exportations (théorème des élasticités critiques de Marshall-Lerner).
+
+\textcolor{blue}{Prix de la commodité importée c exprimé au prix de base}
+\begin{equation}\label{eq:11}
+PM_{c} = EXR . PWD_{c}
+\end{equation}
+
+Il y a un effet de substitution qui intervient comme conséquence de la variation du taux de change
+(équation \ref{eq:12}). Une partie de la production importée est substituée par de la production
+nationale. La compétitivité sur le marché extérieur augmente aussi. Néanmoins, l'effet n'est pas
+permanent car la hausse des prix des importations se répercute progressivement sur les prix à la
+production. A long terme, l'impact de la hausse de la compétitivité est annulé. Il s'agit donc d'un
+effet transitoire.
+
+\textcolor{blue}{Demande étrangère pour les exportations de la commodité c}
+\begin{equation}\label{eq:12}
+\varDelta \left(\operatorname{log} X_{c}\right) = \varDelta \left(\operatorname{log} WD_{c}\right) + \varDelta \left(SUBST^{X}_{c}\right)
+\end{equation}
+
+\textcolor{blue}{Effet de substitution théorique induit par un changement du prix relatif entre les prix à l’exportation (convertis en monnaie nationale) et les prix internationaux de la commodité c}
+\begin{equation}\label{eq:13}
+\varDelta \left(SUBST^{X,n}_{c}\right) = -\eta^{X}_{c} \; \varDelta \left(\operatorname{log} PX_{c} - \operatorname{log} \left(EXR . PWD_{c}\right)\right)
+\end{equation}
+
+### Résultats
+
+On observe un effet positif sur le PIB pendant les cinq premières années (0.9% un an après le choc)
+qui est neutralisé à long terme. Sur le court terme, il y a une hausse des exportations jusqu'à
+0.7%. Cet effet sur les exportations est neutralisé sur le long terme, comme conséquence de l'impact
+de l'augmentation des prix à la production. Les imports baissent de façon presque constante pendant
+toute la période, la variation étant d'autour de -0.2% annuelle.
+
+De manière générale, on a un effet positif sur l'économie au départ qui devient neutre avec le
+temps. La balance commerciale s'améliore pendant les premières cinq-sept années, atteignant une
+hausse supérieure à 4% pendant la deuxième année, puis elle se dégrade légèrement jusqu'à atteindre
+une augmentation stable et modérée sur le long terme, d'autour de 0.9% (slide 1.4 annexes). Les
+salaires nominaux augmentent de 5% sur le long terme, les salaires étant très sensibles à l'équation
+de salaires retenue.
+
+### Comparaison avec des autres modèles
+
+-   Dans ThreeME, on ne fait pas de différence entre les imports qui viennent de l'Europe et ceux
+    originaires du reste du monde.
+-   Différence dans la modélisation du taux de change.
+
+{{< pagebreak >}}
+
+## Hausse permanente de 1% de la demande mondiale (WD1)
+
+### Mise en oeuvre
+
+Le choc consiste en une augmentation de la demande mondiale de 1%. La variable demande mondiale « WD
+» est choquée de manière uniforme pour toutes les commodités et secteurs (équation \ref{eq:14}).
+Notamment pour les secteurs financiers, pour lesquels il n'y a pas de spécificité particulière dans
+la modélisation.
+
+\textcolor{blue}{Demande étrangère pour les exportations de la commodité c}
+\begin{equation}\label{eq:14}
+\varDelta \left(\operatorname{log} X_{c}\right) = \varDelta \left(\operatorname{log} WD_{c}\right) + \varDelta \left(SUBST^{X}_{c}\right)
+\end{equation}
+
+### Mécanismes
+
+L'augmentation de la demande mondiale induit une hausse des exportations qui a des effets positifs
+sur l'activité. Les exportations sont composées en partie par des réexportations. En moyenne, la
+part des importations dans les produits exportés est de 34%. Dans certains secteurs et pour certains
+produits, notamment ceux qui sont moins taxés au Luxembourg, cette partie peut être beaucoup plus
+élevée (87% dans le cas des véhicules, par exemple). Ce mécanisme explique l'effet positif observé
+sur les importations, mais seulement en partie. Il y a en parallèle une augmentation de l'emploi qui
+augmente le revenu disponible des ménages. La hausse des importations est donc aussi expliquée par
+une augmentation des consommations privés, pour lesquelles la part importée est plus importante,
+d'autour de 84% en moyenne. Le commerce de carburants constitue une part non négligeable des revenus
+du Luxembourg. Les tarifs avantageux en comparaison aux pays frontaliers encouragent le "tourisme à
+la pompe". Cette spécificité du pays exige une distinction entre les produits pétroliers liés au
+secteur transport et ceux liés au bâtiment (chauffage au fioul), étant donné que les dynamiques
+subyacentes sont très différentes. Dans le modèle ThreeME il n'existe pas à présent une telle
+distinction.
+
+### Résultats
+
+Les exportations augmentent de manière soutenue d'autour de 1% pendant la période d'analyse. Une
+hausse du PIB de 0.8% est observée les deux premières années, puis cette valeur se stabilise à 0.7%
+sur le long terme. Les émissions de GES augmentent de 0.9% sur le long terme. La balance commerciale
+s'améliore comme conséquence de la hausse des exportations, néanmoins cet effet s'affaiblit sur le
+long terme car il y a une augmentation des importations (0.8% sur le long terme) liées à la hausse
+de la consommation (0.4% sur le long terme). La hausse de la balance commerciale passe donc de 2% la
+première année à 1.4% sur le long terme (slide 1.4 annexes). L'emploi et les salaires nominaux
+augmentent sur le long terme de 0.7% et 0.3% respectivement.
+
+### Comparaison avec des autres modèles
+
+-   Retard dans l'investissement par rapport à Modux.
+-   Différences dans le taux de chômage comme conséquence de l'effet frontalier avant évoqué.
+
+{{< pagebreak >}}
+
+## Hausse de 10% du prix des énergies fossiles (FF10)
+
+### Mise en oeuvre
+
+Ce choc consiste à l'augmentation du prix du pétrole et du gaz. Les variables « PWD_CFUT » et «
+PWD_CGAS » (prix du pétrole et du gaz respectivement) sont choquées de façon permanente de 10%. Ce
+choc vient renforcer la hausse des prix des énergies fossiles modélisé dans le scénario de référence
+(hausse initiale de 2%). Le prix de la tonne de pétrole passe en conséquence de 460€ en 2015 à 670€
+en 2030, et atteint 996€ sur le long terme (valeurs exprimées en euros 2015).
+
+### Mécanismes
+
+La hausse du prix des énergies fossiles est à la fois un choc d'offre et un choc de demande. Un choc
+d'offre puisqu'une hausse du prix du pétrole et du gaz accroît les coûts de production des
+entreprises et un choc de demande car elle réduit le pouvoir d'achat des ménages. Ce choc
+inflationniste par la hausse du prix des importations entraîne une baisse de l'activité. La
+substitution entre capital-énergie et main d'œuvre fait que l'impact sur le PIB de cette hausse du
+prix est plutôt faible. Une augmentation de l'emploi et de l'investissement se produit comme
+conséquence des substitutions qui sont opérées. Contrairement aux importations d'énergie fossile,
+elles favorisent l'économie nationale. La substitution et ses effets sont plutôt forts due aux
+élasticités retenues :
+
+\textcolor{red}{Élasticité de substitution (ES) entre le matériel et l’agrégat capital-énergie-travail}
+
+ES_NEST_MAT_KEL\[s\] = 0.0
+
+\textcolor{red}{ES entre l’agrégat énergie-capital et le travail}
+
+ES_NEST_KE_L\[s\] = 0.5
+
+\textcolor{red}{ES dans l'agrégat énergie-capital (entre énergie et capital)}
+
+ES_NEST_K\_E\[s\] = 2.5
+
+\textcolor{red}{ES entre consommation intermédiaire d’énergie}
+
+ES_NRJ\[ce, cee, s\] = 1.0
+
+\textcolor{red}{ES entre consommation intermédiaire de transport}
+
+ES_TRSP\[ct, ctt, s\] = 1.0
+
+Il est important de rappeler que cette variante de hausse de 10 % du prix du pétrole et du gaz est
+parfois qualifiée de « naïve » ou « d'analytique » car les prix étrangers et la demande mondiale
+sont supposés inchangés. Or l'augmentation du cours des énergies fossiles a aussi un effet
+inflationniste sur l'activité dans le reste du monde. D'un côté, nous exagérons la perte de
+compétitivité du Luxembourg et donc la dégradation de la balance commerciale associée. D'un autre,
+nous surestimons le dynamisme de la demande mondiale adressée au Luxembourg et sous-estimons
+l'inflation importée et donc l'activité économique.
+
+### Résultats
+
+Il s'agit ici d'un choc négatif mais très faible. En effet, le PIB reste stable pendant les
+premières années et diminue de 0.1% sur le long terme. Les émissions de GES baissent de 2.2% l'année
+du choc, puis de 3.3% la première année après le choc et de 4.3% sur le long terme. Il y a une
+augmentation des investissements qui est liée aux substitutions capital-énergie, cette hausse
+s'élève jusqu'à 0.8% sur le long terme.
+
+Les prix augmentent d'entre 0.2% et 0.6% sur le long terme. Bien que les salaires s'ajustent (hausse
+de 0.6% sur le long terme) pour faire face à cette hausse des prix, la consommation de ménages et en
+conséquence les importations diminuent d'autour de 0.2% et 0.1% sur toute la période respectivement.
+La balance commerciale se dégrade de 0.35% sur le long terme, principalement à cause de la
+diminution des exportations qui contribuent de 0.6% à sa dégradation (slide 1.4 annexes).
+
+### Comparaison avec des autres modèles
+
+-   Dans le cas de ThreeME France, avec une courbe « Wage-Setting » (WS), le taux de chômage
+    d'équilibre augmente de manière permanente à la suite d'une hausse du prix des énergies fossiles
+    alors qu'on n'observe pas cet effet dans le cas du Luxembourg (pas de variation dans le taux de
+    chômage).
+
+{{< pagebreak >}}
+
+## Hausse de la taxe carbone de 1 point de PIB (CT1)
+
+### Mise en oeuvre
+
+La présente variante consiste en une hausse de la taxe carbone correspondant la première année à 1
+point de PIB. Cette hausse concerne uniquement le Luxembourg et il n'y a aucun mécanisme
+d'ajustement du carbone aux frontières qui soit prévu. Les recettes de la taxe, qui ne sont pas
+redistribuées, sont affectées intégralement à la réduction du déficit.
+
+La variable choquée est le taux de la taxe carbone « RCO2TAX_VOL ». Les émissions touchées sont
+celles concernant les consommations intermédiaires, les matériaux, la production et la consommation
+des ménages (variables « EMS_CI_CO2 », « EMS_MAT_CO2 », « EMS_Y\_CO2 » et « EMS_CH_CO2 »
+respectivement). Le choc réalise correspond à une hausse permanente de la taxe carbone de 72,4 € par
+rapport au scénario de référence.
+
+### Mécanismes
+
+L'instauration de la taxe carbone sans redistribution de recettes entraîne une élévation du prix des
+énergies fossiles dont les effets macroéconomiques sont proches d'une hausse du prix du pétrole.
+Toutefois, à différence de cette dernière, l'instauration de la taxe réduit le déficit public.
+
+Il y a une hausse du PIB qui découle des hypothèses de substitution capital-énergie adoptées
+(élasticité de substitution égale à 2.5). En effet, l'augmentation de l'investissement compense la
+baisse de la consommation générée par la réduction du pouvoir d'achat des ménages (équations
+\ref{eq:15} et \ref{eq:16}). Les investissements pour faire face à la hausse du prix de l'énergie
+sont pour la plupart produits au niveau national, seulement 30% des investissements sont importés.
+On pourrait juger cet effet positif sur l'économie de « trop optimiste » étant donné que la taxe
+n'est pas redistribuée.
+
+\textcolor{blue}{Prix du marché de la consommation finale des ménages c produite au niveau national}
+\begin{equation}\label{eq:15}
+PCHD_{c} = PYQSBVAT_{c} \; \frac{1 + RVATD_{c}}{1 + RVATD_{c, t_0}} + \frac{T2VAL_CH[c]}{CH[c]}
+\end{equation}
+
+\textcolor{blue}{Prix du marché de la consommation finale des ménages c importée}
+\begin{equation}\label{eq:16}
+PCHM_{c} = PMSBVAT_{c} \; \frac{1 + RVATM_{c}}{1 + RVATM_{c, t_0}} + \frac{T2VAL_CH[c]}{CH[c]}
+\end{equation}
+
+Les prix des consommations intermédiaires augmentent et en conséquence les prix à la production
+(équations \ref{eq:17} et \ref{eq:18}). On a une dégradation de la compétitivité et des
+exportations.
+
+\textcolor{blue}{Prix du marché de la consommation intermédiaire c produite au niveau national acheté par le secteur s}
+\begin{equation}\label{eq:17}
+PCID_{c, s} = PYQSBVAT_{c} + \frac{T2VAL^{CI}_{c, s}}{CI_{c, s}}
+\end{equation}
+
+\textcolor{blue}{Prix du marché de la consommation intermédiaire c importée acheté par le secteur s}
+\begin{equation}\label{eq:18}
+PCIM_{c, s} = PMSBVAT_{c} + \frac{T2VAL^{CI}_{c, s}}{CI_{c, s}}
+\end{equation}
+
+À long terme, la hausse du chômage est permanente. Ce résultat provient de la modélisation des
+salaires adoptée (courbe WS) dans laquelle la hausse de la fiscalité entraîne une hausse permanente
+du taux de chômage d'équilibre.
+
+### Résultats
+
+En 2025 la dette diminue de 4.5 points de PIB et sur le long terme de 11.5 points de PIB, en
+variation par rapport au scénario de référence (slide 2.1 annexes). L'épargne du gouvernement
+augmente de 1.1% l'année du choc, cette hausse reste stable au cours des années et atteint 1.3% sur
+le long terme.
+
+Le PIB augmente de 0.1% dès la première année et reste stable sur cette valeur à long terme. Cela
+est dû en grande partie à l'investissement qui augmente de façon permanente depuis l'année du choc
+(de 0.8%) et sur le long terme (de 4.4%). La consommation des ménages, de son côté, diminue de 0.4%
+la première année et de 0.1% sur le long terme. Il y a une baisse des exportations qui se stabilise
+autour de 0.7% dès la première décennie et une hausse permanente du chômage qui atteint 0.3% sur le
+long terme.
+
+### Comparaison avec des autres modèles
+
+Dans le cas de ThreeME France, il n'y a pas d'effet positif sur l'activité observé pour une taxe
+carbone sans redistribution.
+
+{{< pagebreak >}}
+
+## Hausse de 10% de la productivité du capital (PRODK10)
+
+### Mise en oeuvre
+
+La variante consiste à l'augmentation permanente de la productivité de long terme du capital de 10%.
+Pour cela, le taux de croissance du progrès technique du capital « GR_PROG_EXO_K » est augmenté
+l'année de choc de 10% pour tous les secteurs de manière uniforme, ce qui se répercute directement
+sur la variable progrès technique du capital « PROG_K ».
+
+### Mécanismes
+
+La demande du capital étant négativement corrélé avec sa productivité (équation \ref{eq:19}),
+l'augmentation du progrès technique du capital entraîne une diminution de sa demande. Cet effet est
+compensé par un effet de substitution qui fait que quand le coût d'un facteur de production diminue
+par rapport aux autres, la demande de ce facteur augmente car considéré comme moins cher par rapport
+aux autres facteurs. Cet effet de substitution dépend en grande partie du niveau des élasticités
+retenues (équation \ref{eq:20}).
+
+\textcolor{blue}{Demande du facteur de production f par le secteur s} \begin{equation}\label{eq:19}
+\varDelta \left(\operatorname{log} F^{n}_{f, s}\right) = \varDelta \left(\operatorname{log} Y_{s}\right) - \varDelta \left(\operatorname{log} PROG_{f, s}\right) + \varDelta \left(SUBST^{F}_{f, s}\right)
+\end{equation}
+
+\textcolor{blue}{Substitution entre l’input f et les autres inputs ff} \begin{equation}\label{eq:20}
+\varDelta \left(SUBST^{F,n}_{f, s}\right) = \sum_{ff} -ES_{f, ff, s} \; \varphi_{ff, s, t-1} \; \varDelta \left(\operatorname{log} \frac{C_{f, s}}{PROG_{f, s}} - \operatorname{log} \frac{C_{ff, s}}{PROG_{ff, s}}\right)
+\end{equation}
+
+Les élasticités adoptées étant supérieures à l'unité (égale à 2.5 dans le cas de l'élasticité de
+substitution entre capital et énergie), les effets de substitution observés sont plutôt forts. A
+cause des substitutions, il y a une augmentation de la demande de capital car le coût relatif de ce
+facteur de production diminue. On s'attendrait à avoir une hausse d'investissement en augmentant la
+productivité du capital, mais on a sur le long terme une baisse, effet qui est dû aux élasticités de
+substitution adoptées. De manière générale on a une réduction du coût de la production (équation
+\ref{eq:21}) et donc des prix de production. On s'attendrait à une augmentation de la consommation
+et une hausse du revenu réel des ménages, mais au contraire on trouve une diminution. Cela est une
+conséquence des substitutions entre capital-énergie et force de travail. Bien qu'on trouve une
+hausse du PIB, l'emploi baisse et il y a une hausse de l'investissement.
+
+\textcolor{blue}{Coût unitaire de production dans le secteur s} \begin{equation}\label{eq:21}
+CU^{n}_{s} \; Y_{s} = \sum_{f} C_{f, s} \; F^{n}_{f, s} + NTAXS^{VAL}_{s}
+\end{equation}
+
+Les prix de production diminuent et aussi les prix des exportations, donc il y a une hausse de la
+compétitivité et en conséquence des exportations. En un deuxième tour et comme conséquence du gain
+de productivité, il y a un effet des capacités de production. Le progrès technique du capital fait
+qu'on ait plus de capacités de production pour un même capital (équation \ref{eq:22}). Le taux
+d'utilisation des capacités de production baisse (équation \ref{eq:23}) et en conséquence le taux de
+marge (équation \ref{eq:24}) pour attirer de nouveaux clients. Le prix de production qui baissait
+déjà avec le coût, baisse maintenant avec la marge aussi (équation \ref{eq:25}) ce qui renforce
+l'effet.
+
+\textcolor{blue}{Capacité de production du secteur s} \begin{equation}\label{eq:22}
+\varDelta \left(\operatorname{log} YCAP_{s}\right) = \sum_{f} \varphi_{f, s, t-1} \; \varDelta \left(\operatorname{log} \left(F_{f, s} \; PROG_{f, s}\right)\right) + \alpha^{YCAP,Y}_{s} \; \left( \operatorname{log} Y_{s, t-1} - \operatorname{log} \left(YCAP_{s, t-1} \; CUR_{s, t_0}\right) \right)
+\end{equation}
+
+\textcolor{blue}{Taux d’utilisation de la capacité du secteur s} \begin{equation}\label{eq:23}
+CUR_{s} = \frac{Y_{s}}{YCAP_{s}}
+\end{equation}
+
+\textcolor{blue}{Prix de production du secteur s} \begin{equation}\label{eq:24}
+PY^{n}_{s} = CU^{n}_{s} \; \left( 1 + \mu_{s} \right)
+\end{equation}
+
+\textcolor{blue}{Marge notionnelle du secteur s} \begin{equation}\label{eq:25}
+\varDelta \left(\operatorname{log} \left(1 + \mu^{n}_{s}\right)\right) = \rho^{\mu,Y} . \varDelta \left(\operatorname{log} CUR_{s}\right)
+\end{equation}
+
+### Résultats
+
+Le GDP augmente de 1 point à dix ans et de 0.7 point sur le long terme. Les substitutions opèrent de
+façon lente, ce qui fait qu'il y ait une augmentation de l'investissement pendant les premières
+années (de 1.8% à dix ans) puis une diminution sur le long terme de 1.1%. L'emploi augmente
+légèrement pendant la première décennie et diminue sur le long terme de 0.3%. Les prix de production
+diminuent sur toute la période (de 1% sur le long terme). Les prix à la consommation baissent
+d'autour de 0.4% depuis la cinquième année, ce qui permet aux ménages d'augmenter leur consommation
+(au moins pendant les premières décennies), même quand leurs salaires et revenu réel diminuent de
+façon permanente.
+
+Les exportations augmentent et la balance commerciale s'améliore jusqu'à atteindre une valeur autour
+de 3% sur le long terme. Quant aux importations, elles augmentent de 0.1% au cours de la première
+décennie après le choc, puis elles diminuent sur le long terme de 0.2%.
+
+### Comparaison avec des autres modèles
+
+--
+
+{{< pagebreak >}}
+
+## Hausse de 10% de la productivité de l'énergie (PRODE10)
+
+### Mise en oeuvre
+
+Le choc réalisé consiste à l'augmentation de la productivité de long terme de l'énergie de 10%. Le
+taux de croissance du progrès technique de l'énergie « GR_PROG_EXO_E » est choquée de 10% pour tous
+les secteurs de manière uniforme. Dans le cas de l'énergie, le progrès technique n'est pas seulement
+drivé par un taux de croissance exogène mais aussi par l'efficacité énergétique endogène «
+RHO_PROG_E\_PE » qui est initialisé à 0.15. Ainsi, le progrès technique de l'énergie augmente avec
+les prix de l'énergie et cet effet est supposé irréversible, c'est-à-dire, une baisse du prix de
+l'énergie n'entraîne pas de diminution du progrès technique.
+
+### Mécanismes
+
+Les mécanismes subjacents sont similaires à ceux relevés dans le choc sur la productivité du
+capital. Dans le cas de la variante productivité de l'énergie, les substitutions opèrent dans le
+sans inverse et on trouve une diminution de l'investissement. Il y a aussi une diminution de
+l'emploi qui affecte le pouvoir d'achat des ménages et on trouve donc une diminution de la
+consommation. Bien que la situation macroéconomique se dégrade et que le PIB décroît sur le long
+terme, il y a une augmentation des émissions de GES comme conséquence des substitutions qui sont
+opérés. En effet, l'élasticité de substitution capital-énergie est égale à 2.5 (il s'agit d'une
+élasticité qui opère de manière symétrique dans les deux sens).
+
+### Résultats
+
+Les émissions de GES diminuent dans un premier temps puis elles augmentent d'autour de 2% à partir
+de la cinquième année et sur le long terme. Le PIB subit une hausse puis une diminution qui se
+stabilise à 0.2%. L'investissement diminue sur toute la période, de 3.1% sur le long terme. Il y a
+une baisse permanente et croissance de l'emploi qui atteint 0.4% ce qui correspond à une diminution
+de 3800 effectifs.
+
+Les prix à la production diminuent d'autour de 0.5% à partir de la cinquième année, ce qui permet
+une hausse de la compétitivité et donc des exportations (+0.1% sur le long terme). La consommation
+des ménages diminue de 0.2% comme conséquence de la perte de pouvoir d'achat liée à la dégradation
+de l'emploi. Les salaires diminuent eux aussi.
+
+### Comparaison avec des autres modèles
+
+--
+
+{{< pagebreak >}}
+
+## Hausse de 10% de la productivité du travail (PRODL10)
+
+### Mise en oeuvre
+
+La variante consiste à une hausse de la productivité de long terme du travail de 10%. Le taux de
+croissance du progrès technique du travail « GR_PROG_EXO_L » est augmenté de 10% pour tous les
+secteurs de manière uniforme, ce qui se répercute directement sur la variable progrès technique du
+travail « PROG_L ».
+
+### Mécanismes
+
+L'augmentation de la productivité du travail fait qu'on ait une demande de travailleurs plus faible,
+ce qui produit une diminution de l'emploi et une augmentation du taux de chômage. La substitution
+entre le binôme capital-énergie et le travail est plutôt modéré -- l'élasticité correspondante étant
+égale à 0.5 -- ce qui fait que les effets de substitutions ne soient pas si prononcés comme dans le
+cas des chocs sur la productivité du capital et de l'énergie. L'augmentation de la demande de main
+d'œuvre par effet des substitutions n'est donc pas suffisante pour contrebalancer l'effet négatif de
+l'augmentation de la productivité. Les salaires étant indexés sur la productivité du travail, ils
+augmentent de manière prononcée.
+
+### Résultats
+
+Les salaires augmentent fortement, d'autour de 6% dès la cinquième année et sur le long terme.
+L'emploi est impacté de façon immédiate et diminue de 5.3% l'année du choc, puis de 8% sur le long
+terme (ce qui correspond à une baisse de 84000 effectifs). L'investissement diminue dans un premier
+temps (de 0.2% les deux premières années) et augmente de 0.4% dès la cinquième année.
+
+Les prix à la production diminuent d'autour de 1.7% dès la première année après le choc et de façon
+permanente. Les exportations subissent une hausse de 0.6% dès la dixième année qui est soutenue sur
+le long terme. Les importations restent sans variation sur le long terme et la balance commerciale
+s'améliore (les valeurs négatives sur le tableau correspondent uniquement à un effet de prix). Le
+PIB augmente de 1% sur le long terme.
+
+### Comparaison avec des autres modèles
+
+--
+
+{{< pagebreak >}}
+
+## Hausse de 10% de la productivité totale des facteurs (TPF10)
+
+### Mise en oeuvre
+
+Le choc consiste à l'augmentation de la productivité totale des facteurs de production de 10%. Les
+taux de croissance du progrès technique du capital et du travail (« GR_PROG_EXO_K » et «
+GR_PROG_EXO_L » respectivement) sont augmentés de 10% pour tous les secteurs de manière uniforme,
+ainsi que le taux de croissance du progrès technique de l'énergie (« GR_PROG_EXO_E »). Il s'agit
+d'un choc sur la productivité totale des facteurs qui touche aussi le facteur énergie.
+
+### Mécanismes
+
+On observe une augmentation du PIB. Les émissions de GES baissent, principalement grâce à
+l'augmentation de la productivité du capital.
+
+Il y a une diminution prononcée des prix à la production, en conséquence, la compétitivité
+s'améliore et les exports augmentent. L'emploi diminue et les salaires subissent une légère hausse
+étant donné qu'ils sont indexés sur la productivité du travail.
+
+### Résultats
+
+Le PIB augmente de 0.5% l'année du choc, puis d'autour de 1.9% la dixième année et se stabilise à
+1.6% sur le long terme. Dans cette augmentation du PIB on voit l'effet des trois chocs appliqués
+simultanément. Comme conséquence de la diminution des prix à la production (de 3% sur le long
+terme), les exportations augmentent de façon constante d'autour de 1.2% à partir de la cinquième
+année. Les importations quant à elles, diminuent de 0.2% sur le long terme.
+
+L'emploi s'effondre (diminution de 8.5% sur le long terme) et le revenu disponible des ménages
+diminue (de 1.6% sur le long terme). Les salaires augmentent sur toute la période, d'entre 2.8% et
+5.1%.
+
+### Comparaison avec des autres modèles
+
+--
+
+{{< pagebreak >}}
+
+# Amélioration de la version ThreeME -- Luxembourg
+
+A la vue des résultats obtenus dans le cahier de variante ci-dessus et des séances discussions avec
+STATEC, nous établissons une liste de priorités pour améliorer la version Luxembourgeoise de
+ThreeME. Ces améliorations permettraient de mieux tenir compte des spécificités connues du
+Luxembourg. La liste de ces modifications potentielles ci-dessous est classée en fonction de l'horizon de mise en oeuvre. Ainsi, on identifie des améliorations qui sont susceptibles d'être réalisées dans le court terme (avant la fin de l'année 2023) et des autres qui sont envisagés plutôt dans le moyen terme.
+
+## A prendre en compte dans le court terme
+
+### Modélisation des frontaliers
+
+Ajouter dans le modèle les frontaliers qui viennent travailler au Luxembourg (dans Modux, le travail
+est importé et le chômage « exporté »). La prise en compte des frontaliers dans la modélisation ne se limiterait pas seulement au marché du travail, par exemple, la consommation des frontaliers serait aussi prise en compte.
+
+### Elasticités du commerce extérieur à la demande mondiale
+
+S'inspirer de la spécification de MODUX en endogénéisant l'élasticité des exportations et des importations à la demande
+mondiale. Ajouter une équation d'élasticité où les élasticités du commerce extérieur diffèrent par rapport au PIB
+des partenaires commerciaux. Par exemple, cette élasticité est supérieure à 1 pour les pays
+de la zone euro. Faire aussi apparaitre une hétérogénéité entre les commodités : par exemple, la
+différence entre services marchands et financiers.
+
+### Choc sur les dépenses publiques différencié
+
+Faire deux chocs au lieu d'un, l'un sur l'investissement public et l'autre sur la consommation.
+Notamment on pourrait faire un scénario où on affecte davantage le secteur construction. Dans
+ThreeME, l'investissement (productif) public est l'investissement du secteur non marchand. La
+production du secteur non marchand est achetée par les administrations publiques (consommation
+finale publique valorisée au cout de production selon les standards de la comptabilité nationale).
+Réaliser ce choc nécessite de bien définir ce qu'on n'entend par investissement public. En
+particulier, par investissent public, on entends souvent les dépenses affectées à une activité (e.g.
+éducation, santé, etc.) que ce soit des salaires, des consommations intermédiaires ou de
+l'investissement en capital. Du point de vue de la comptabilité nationale, ces dépenses publiques
+correspondent à la consommation finale des administrations publiques car elle inclut tous les couts de
+production du service public. C'est donc plus large que l'investissement du secteur non marchand au
+sens de la comptabilité nationale qui n'inclut que les investissements en capital productif du
+secteur non marchand (immeuble, ordinateur, etc).
+
+### Indexation des salaires
+
+Modifier l'équation de salaire pour introduire les mécanisme d'indexation des salaires propre au
+Luxembourg.
+
+### TVA récupérée
+
+Modéliser une situation dans laquelle les entreprises augmentent leur taux de marge quand la TVA
+baisse.
+
+### Modélisation des ventes de carburant
+
+La modélisation du phénomène de "tourisme à la pompe" exige une distinction entre les produits pétroliers liés au secteur transport et ceux liés au bâtiment.
+
+### Attractivité du Luxembourg
+
+Modéliser l'amélioration de l'attractivité de l'offre du travail du Luxembourg lors des mesures comme une baisse de la TVA ou de l'impôt
+sur le revenu des ménages. Cela impliquerait l'endogénisation de la population (résidente et active) dans le modèle, qui pour l'instant est exogène, pour prendre en compte les personnes qui viennent habiter au Luxembourg ou dans des régions frontalières suite à ces mesures.
+
+## A prendre en compte dans le moyen terme
+
+### Recalibration de ThreeME
+
+Recalibrer le modèle ThreeME avec des données STATEC. Les données nécessaires à fournir par STATEC
+sont :
+
+-   Tables Entrées-Sorties sectorielles ;
+
+-   Balance énergétique ;
+
+-   Emissions par source et secteurs ;
+
+-   Fiscalité par produits détaillé par type de taxes.
+
+Pour des questions de confidentialité, les données sources fournies par STATEC seront éventuellement
+amendée avant d'être mise la disposition. Il s'agira de développer un programme sur R qui, à partir
+des données fournies par STATEC, permet de construire automatiquement la calibration des données
+d'entrée de ThreeME. Ce programme pourra être utilisé par STATEC pour la mise à jour de la
+calibration du modèle.
+
+### Modélisation de la redistribution d'une taxe carbone
+
+On pourrait envisager de repliquer les reglès de redistribution de la taxe carbone qui sont
+appliqués au Luxembourg:
+
+-   Une moitié des recettes de la taxe intègre un fond dedié aux messures liées à l'efficacité
+    énergétique ;
+
+-   L'autre moitié est redistribuée aux ménages sous forme d'une baisse des impôts, en fonction des
+    quantiles de revenus ce qui bénéficie aux ménages les plus modèstes.
+
+Etant donné que dans ThreeME on n'a pas de différentiation par quantile, on pourrait faire
+l'hypothèse que le taux d'épargne baisse, ce qui montre que la redistribution bénéficie davantage
+aux ménages pauvres.
+
+### Couplage au modèle énergétique bottom-up
+
+Faire un couplage entre ThreeME et le modèle énergétique NEAM. On pourra s'insipirer du couplage déjà réalisé avec LuxGEM. NEAM prend en compte les secteurs bâtiment, industrie, etc., ce qui premettrait de modéliser des politiques telles que les normes d'efficacité énergétique sur les bâtiments neufs, l'interdiction massive des chaudières mazout, etc. 
+
+Des mesures telles que la subvention pour achat des véhicules électriques, panneaux solaires, entre autres, ne sont pas modélisés à présent mais pourraient aussi être envisagés.
+
+### Simuler les effets multiplicateurs des politiques de transition énergétique
+
+Dans la suite logique du cahier de variantes qui simule les propriétés du modèle et les multiplicateurs de politiques ou chocs macroéconomiques généraux (e.g. baisse de la TVA, de l’impôt sur le revenu, hausse du prix du pétrole, etc.), il serait utile de dériver les multiplicateurs liés plus spécifiquement à des politiques de transition énergétique. Cela revient à simuler les impacts de la mise en œuvre des scénarios de transition énergétiques présentés dans le Plan National intégré en matière d’Energie et de Climat (PNEC). Pour cela, il faudra connaître les besoins en investissement pour chaque scénario afin de modéliser le coût macro-économique des objectifs climatiques.
+
+{{< pagebreak >}}

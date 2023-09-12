@@ -1,0 +1,161 @@
+Economic models have originally been considered as purely theoretical object whom the original function was to highlight some phenomenon through the study of behaviors’ dynamics in a mathematical framework. The progress in informatics we observed in the past 50 years brought economists to the quantitative analysis of complex models such as ThreeME. These models are basically informatics programs, which combine data compilation with a code source, describing the model structure. 
+This wiki aims to give the necessary indications to use ThreeME as an analytical tool (Part I) but is also explaining the structure of the model and how to modify it for further development (Part II). 
+
+# 1.	Simulation with Eviews 
+ThreeME has been tested and implemented with Eviews on Windows platform with the following configuration:
+-	Eviews 8.1 or later for Windows. All information on: http://www.Eviews.com/home.html. See also the Eviews Manual (Manual-1.pdf & Manual 2.pdf). 
+
+## 1.1	Installation and Registration of Eviews 
+To install the Eviews software, the user has different options:
+•	Download Eviews 8 through the below links and then upgrade to the version 8.1 or later   (in order to allow installing add-ins afterwards)
+
+•32-bit Installer
+  
+•64-bit Installer
+
+•	Install it from a CD-ROM following the instructions. 
+Regarding the registration, the user has 30 days to register after installing its copy with a serial key, provided with the CD-ROM or in the Eviews 8 Desktop, go in the menu to Help/Eviews Registration and follow the instructions
+
+<!-- ## 1.2	Running ThreeME with Eviews  -->
+<!-- In the Eviews program, click on the top right File/Open/programs and then go to: `/ThreeME/main.prg`.  You should see the finder depicted below.  -->
+<!-- [Shootscreen of the eviews window] -->
+
+<!-- Click on Run and then OK (making sure that the option Quiet is enabled) to launch the model simulation. -->
+
+<!-- **Note**: Throughout the model, `include`'s and data file location are defined using relative paths. These are paths specified relative to the location of the calling script, which is represented by the characters .\. It is then possible to move upwards in the folder hierarchy relative to this location using ..\ -->
+<!-- This allows ThreeME to be run from any folder without having to specify its location on disk explicitly. -->
+
+### Examples
+•	`main.prg` is located at the root of the repository. Thus, when including the file `src\model\run.prg`, the include command using a relative path becomes`.\src\model\run.prg`.
+
+•	To load the file `data\calibrations\SAM_New.xls` from the script `src\data\load_data.prg`, we need first to tell Eviews to start from the script location (.\), go up twice up the folder hierarchy (..\..\), and then specify the Excel file location (`data\calibrations\SAM_New.xls`), thus giving the full relative path `.\..\..\data\calibrations\SAM_New.xls`.
+
+## 1.3	Configuration of the simulation
+In addition to the `main.prg` files , the ThreeME repository contains another important files; `configuration.prg` .
+Whereas `main.prg` is the main entry point in the model in Eviews when running ThreeME, `configuration.prg` contains all the configuration pertaining to the model run: 
+
+**Important**: `configuration.prg` should be the only file modified when running a scenario without modifying ThreeME's internals.
+
+## 1.4	What happens when the model is run?
+1.	ThreeME starts running in `main.prg`, first including all necessary subroutines (this only loads the subroutines, but doesn't run them yet)
+o	Include model configuration from `configuration.prg`
+o	Include subroutines used for data loading, from `src\data\`
+o	Include all the subroutines specifying the model blocks, from `src\model\`
+o	Include subroutines necessary to specify, solve and run the model, from `src\model\`
+2.	Still in `main.prg`, runs the model for each data calibration and each data shock requested in the configuration file in the `%calibrations` and `%shocks strings`.
+o	Each model run is made using the run subroutine (from file `src\model\run.prg`).
+3.	Inside subroutine run:
+
+•	**Model setup**
+
+•	Create the Eviews workfile - thus there is one workfile per model run
+
+•	Create lists of sectors (subroutine create_lists defined in `src\utils\subroutines.prg`)
+
+•	Load data calibration (subroutine load_data defined in `src\data\load_data.prg`)
+
+•	Define the model, using only blocks mentioned in %list_block in `configuration.prg` (subroutine model_specification defined in `src\model\specification.prg`)
+
+*	**Baseline scenario**
+
+•	Runs the baseline scenario (subroutine run_scenario defined in `src\model\run.prg`, see below)
+
+*	**Shock scenario**
+
+•	Runs the shock scenario (subroutine run_scenario defined in `src\model\run.prg`, see below)
+
+*	Report errors, save workfile if requested, and close windows if requested
+
+•	Inside subroutine run_scenario
+
+*	**Load the scenario**
+
+•	If running the baseline scenario, optionally loads a realist baseline scenario (subroutine realist defined in `src\data\load_load_ data_realist.prg`)
+
+•	If running a shock scenario, loads data shock (subroutine load_data_shocks defined in `src\data\load_data_shocks.prg`)
+
+*	**Solve the model**
+
+•	Calls subroutine solve_model defined in `src\model\solve.prg`
+
+*	**Prepare output**
+
+•	If running the baseline scenario, calls subroutine create_series_baseline defined in `src\utils\subroutines.prg`
+
+•	If running a shock scenario, calls subroutine create_series_shock defined in `src\utils\subroutines.prg`
+
+*	**Generate output**
+
+•	Calls subroutine graph, defined in `src\utils\results_outputs.prg`
+
+•	Calls subroutine tables, defined in `src\utils\results_outputs.prg`
+
+
+	# Explanation on the script of the model
+The model is programmed in different files all included in a repository “ThreeME”. This repository is divided in 4 folders: 
+	## data
+*	calibration: data calibrations for the model (Excel files)
+*	shocks: shock scenarios to be applied to the model (Excel files)
+#####  doc: documentation for the model (LateX & pdf files)
+#####  results: outputs saved after model runs - not tracked in the git repository
+#####  src: source code for the model, divided into:
+*	**data**: subroutines to load data calibrations and shocks
+*	**model**: specification of the model, broken down into individual blocks.
+*	**Eviews**: Eviews programs to run the model.
+*	**addin**: Programs to execute different tasks.
+ plus the necessary subroutines to specify (`specification.prg`), solve (`solve.prg`) and run the model (`run.prg`)
+*	**utils**: small utility subroutines used to setup the model (`subroutines.prg`), and to generate its outputs (`results_outputs.prg`)
+
+Each folder is dedicated to a specific feature of the model (data, source code, results production…) which are going to be more extensively presented in the next sections.
+
+## The database and shock calibration
+
+The database of the model is made of several Excel files that are located in the subfolders data/…:
+
+•	 > …/Shocks: the excel files where the shock scenarios are applied
+•	`…/Calibrations`:  the Excel 2008 files (calibrationXXX.xlsx) on which the model is simulated.
+
+### The calibration folder
+
+TO BE REVISED:
+The calibration folder includes the Excel file SAM that going to be red during the simulation with Eviews. It is the same copy as the one which is located in the database folder. It is strongly advised to only modify the SAM located in the database and then create a copy of it, in the calibration folder. 
+
+WARNING: Make sure that you save in the calibration folder your Excel workfile SAM_XXX in .xls (only Excel 97-2003 format can be read by Eviews).  
+
+### The shock folder
+The different shock files are located in the shock folder in .xls (Excel 97-2003 format).
+Each shock file is composed of series on exogenous variables in the model which are going to be modified in the scenario 02 (shock) with respect to the scenario 01 (baseline). 
+
+**WARNING**: Only the series starting in the column “A” with “01” are going to be read by the model. 
+
+## The ThreeME compiler and MoDeL syntax
+
+### The Compiler
+ThreeME is using the Eviews software to solve the model but is also using another program (The Compiler) for the loading and the programming of the equations in a different (and more convenient way). 
+First of all, we will define more precisely what we call `series` &  `equations`:
+
+•	A `serie` is an object that defines a variable, either by a value loaded from a database, or a relation with other variables. In the source code, the operator `:=` is used for defining the different series.   
+
+•	An `equation` is a mathematical relation that links a variable with others and define the behavior of this variable within the model. In the source code, the operator `=` is used for defining the different equations. 
+
+### Definition & calibration of the variables
+The different data are extracted from the excel files in matrical form in the `load_calibration`, `load_data_realist`, `load_data_shocks files` . The variables creation as series is located in `Round0`, `Round1`, `Round2`. This whole set of files is corresponding to the data loading process in the ThreeME model, on which the modelling is then operating. 
+The data folder gathers all the files where the series are defined. They are dispatched in different files as depicted below. 
+
+INSERT SCREEN CAPTURE
+
+Whereas calibrating & writing the series was possible in Eviews if & only if the variables where described in an ordinal way in the code source, the compiler program (located in the `ThreeME\src\addin`) allows writing in a non-ordinal way the series.  
+
+### The ThreeME modelling
+The Model as a program is constituted of several files (see picture below) and is constructed on an integrated block structure. MoDeL (Model Description Language) is a template language specifically designed to make describing models which use subscripted equations heavily as clear and concise as possible. Notably, it aims at avoiding explicit loops when repeating the same equations over various subscripts and/or variables.
+
+The code source is written in such way such that specific modifications of the equations the developers would like to integrate are going to be only in the located dedicated files. 
+These files are for the calibration as the modelling of the model denoted exceptions_XXX. For the modelling, several exceptions files exist and each one corresponds to a specific purpose:
+
+## 1.5	Possible bugs you may encounter
+
+Eviews may complain about the _tmp_all_vars.csv file. Make sure the file _tmp_all_vars.csv is present in the folder src\addin\model. See also the commit on 18th december 2019.
+
+It may also help to remove all add-ins in Add-ins > Manage Add-ins. Remove all add-ins and retry your Eviews run.
+
+Also make sure to have an empty folder called 'standard' within the folder 'results'.

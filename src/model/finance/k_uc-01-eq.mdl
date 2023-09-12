@@ -1,0 +1,149 @@
+##### All equations of the \textit{User cost} model
+
+#### Producers
+
+##! Production (GDP)
+Y = CH + I + G
+
+##! Profit of firms (before investment)
+PROF = p * Y - w * L - c_K * K + Phi_INV_F * p{-1} * I{-1}
+
+##! Notional dividend for households
+DIV_n = PROF * Phi_DIV_H
+
+
+##! Firms' savings
+SAV_F = PROF - DIV - p * I
+
+##! Firms' bank debt
+DEBT_F = DEBT_F{-1} * (1 - Phi_RD_F{-1}) - SAV_F
+
+##! Notional labor demand 
+L_n = (Y / PROD_L) * ((Phi_L) ^ rho) * (w   / (c_Y * PROD_L)) ^ (-rho)
+
+##! Notional capital demand 
+K_n = (Y / PROD_K) * ((Phi_K) ^ rho) * (c_K / (c_Y * PROD_K)) ^ (-rho)
+
+##! Investment
+d(log(I)) = ADJUST_I_Kn * d(log(K_n)) + ADJUST_I_I1 * d(log(I{-1})) +  ADJUST_I_KnK1 * log(K_n{-1}/K{-1}) - ADJUST_I_rK * d(r-d(p)/p{-1})
+
+##! Capital stock
+K = K{-1} * (1 - delta) + I{-1}
+
+##! Notional production price
+p_n * Y = c_Y * Y * (1 + m_up)
+#p_n * Y = c_Y * Y * (1 + m_up + dm_up)
+
+##! Notional mark-up
+d(log(1 + m_up_n)) = alpha_1 * d(log(L_n/L)) + alpha_2 * d(log(K_n/k))
+
+##! Notional unit cost production cost
+c_Y * Y = w * L_n + c_K * K_n
+
+##! Capital cost
+c_K * K = p_K{-1}*K{-1}*(delta + r_K{-1}) + Phi_INV_F * p{-1} * I{-1}
+
+##! Average price of the accumulated capital stock
+p_K * K = p_K{-1}*K{-1}*(1 - delta) + p{-1}*I{-1}
+
+##! Average interest rate paid on the debt
+r_K * p_K*K = r_K{-1}*p_K{-1}*K{-1}*(1 - delta) + p{-1} * I{-1} * r{-1}
+
+#### Households
+##! Notional households consumption
+CH_n * p = (1 - sigma) * INC * (1 - t_inc)
+
+##! Households' income
+INC = (w * L + r_WEALTH{-1} * WEALTH{-1} + DIV)
+
+##! Rate of return on households' wealth
+r_WEALTH * WEALTH = Phi_rK_H * (r_K * p_K * K + r_DEBT_G * DEBT_G)
+
+##! Households' total wealth
+WEALTH = WEALTH{-1} + SAV_H
+
+##! Notional propensity to save equation 
+d(log(1 - sigma_n)) = theta_2 * d(U) - theta_1 * d(r - d(p)/p{-1}) - theta_3 * d(log(DEBT_G/(p*Y)))
+
+##!  Households' savings
+SAV_H = INC * (1 - t_inc) - p * CH
+
+#### Government
+##! Government's savings
+SAV_G = t_inc * INC - p*G - DEBT_G{-1}*(Phi_RD_G{-1} + r_DEBT_G{-1}) 
+
+##! Notional income tax rate
+d(t_inc_n) = rho_tinc_debt * d(DEBT_G / (p * Y)) 
+
+##! Primary balance of the Governement (deficit)
+Bal_G_Prim = t_inc * INC - p*G
+
+##! Total balance of the Governement (deficit)
+Bal_G_Tot = t_inc * INC - p*G - DEBT_G{-1}*r_DEBT_G{-1} 
+
+##! Total Government's debt
+DEBT_G = DEBT_G{-1}*(1-Phi_RD_G{-1}) - SAV_G
+
+##! Average interest rate paid on the total Government's debt  
+d(r_DEBT_G) = d(r)
+
+##! Notional interest rate of the Central Bank (Taylor reaction function)
+d(r_n) =  gamma_1 * d(d(p)/p{-1}) - gamma_2 * d(U)
+
+#### Labor market
+
+##! Notional wage (WS or Phillips curve)
+d(log(w_n)) = RHO0 + RHO_1 * d(log(p_e)) + RHO_2 * d(log(PROD_L)) - RHO_3 * U - RHO_4 * d(U)
+
+d(RHO0) = RHO0_U * RHO_3 * d(U)
+
+## Unemployment rate
+U = 1 - L/LF
+
+#### Adjustments
+##! Wage
+d(log(w)) = ADJUST_W_Wn * d(log(w_n)) + ADJUST_W_W1 * d(log(w{-1})) - ADJUST_W_W1Wn1*log(w{-1}/w_n{-1})
+
+##! Production price
+log(p) = ADJUST1_p * log(p_n) + (1 - ADJUST1_p) * (log(p{-1}) + d(log(p_e)))
+
+##! Expected production price inflation
+d(log(p_e)) = ADJUST2_p * d(log(p_e{-1})) + ADJUST3_p * d(log(p{-1})) + ADJUST4_p * d(log(p_n))
+
+##! Households final consumption
+log(CH) = ADJUST1_CH * log(CH_n) + (1 - ADJUST1_CH) * (log(CH{-1}) + d(log(CH_e)))
+
+##! Expected households final consumption growth
+d(log(CH_e)) = ADJUST2_CH * d(log(CH_e{-1})) + ADJUST3_CH * d(log(CH{-1})) + ADJUST4_CH * d(log(CH_n))
+
+##! Labor
+log(L) = ADJUST1_L * log(L_n) + (1 - ADJUST1_L) * (log(L{-1}) + d(log(L_e)))
+
+##! Expected labor growth
+d(log(L_e)) = ADJUST2_L * d(log(L_e{-1})) + ADJUST3_L * d(log(L{-1})) + ADJUST4_L * d(log(L_n))
+
+##! Dividend for households
+log(DIV) = ADJUST1_DIV * log(DIV_n) + (1 - ADJUST1_DIV) * (log(DIV{-1}) + d(log(DIV_e)))
+
+##! Expected dividend for households
+d(log(DIV_e)) = ADJUST2_DIV * d(log(DIV_e{-1})) + ADJUST3_DIV * d(log(DIV{-1})) + ADJUST4_DIV * d(log(DIV_n))
+
+##! Interest rate of the Central Bank
+r = ADJUST_r * r_n + (1 - ADJUST_r) * r{-1}
+
+##! Propensity to save
+sigma = ADJUST_sigma * sigma_n + (1 - ADJUST_sigma) * sigma{-1}
+
+##! Mark-up
+m_up = ADJUST_m_up * m_up_n + (1 - ADJUST_m_up) * m_up{-1}
+
+##! Income tax rate
+t_inc = ADJUST_t_inc * t_inc_n + (1 - ADJUST_t_inc) * t_inc{-1}
+
+##! Households' total wealth (for verification)
+WEALTH_bis = WEALTH_bis{-1} + SAV_H
+
+##! Verification wealth
+Verif_WEALTH = WEALTH - WEALTH_bis
+
+

@@ -1,0 +1,432 @@
+---
+title: "Modules 3: a small neo-keynesian model - Open Economy"
+subtitle: "Scenario: `r params$scenario_to_analyse`"
+author: "ThreeME team"
+date: "`r format(Sys.Date(), '%d %B %y')`"
+output: 
+  revealjs:
+    theme: sandstone
+   # highlight: monochrome
+  #  toc: true
+   # number_sections: true
+    #toc_depth: 3
+params:
+  startyear: 2020
+  endyear: 2035
+  project_name: "multi_shock"
+  project_title: "Simulation with small general equilibrium model"
+  scenario_to_analyse: g
+  classification: c0_s0
+  compil: compil
+  Rsolver: Rsolver
+  githubrepo: ThreeME-R-training
+  template_default: ofce
+
+---
+
+```{r setup, include=FALSE}
+
+work.dir <- stringr::str_remove(getwd(),"/results/report/markdown/training")
+knitr::opts_knit$set(root.dir = work.dir)
+
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	results = "hide"
+)
+```
+
+```{r Plots default options}
+
+startyear <- params$startyear
+endyear <- params$endyear
+scenario_to_analyse <- params$scenario_to_analyse
+project_name <- params$project_name
+classification <- params$classification
+template_default <- params$template_default
+githubrepo <- params$githubrepo
+
+## SHOULD BE DELETED WHEN OPTION DE SIMPLEPLOT ERMEETH CHANGES:
+# scenario = scenario_to_analyse (and not scenario_name)
+scenario_name <- scenario_to_analyse
+
+```
+
+
+```{r Required packages, message=FALSE, warning=FALSE}
+
+# Load functions
+source("src/functions.R")
+
+
+```
+
+
+```{r load data and bridges}
+
+data_full<-readRDS(file = file.path("data","output", paste0(project_name,".rds")))
+
+
+```
+
+# Changes compared to close economy
+
+
+## New equations for open economy
+
+- **Production**
+
+\begin{equation}
+Y + M = CH + I + G + X
+\end{equation}
+
+- **Average user price**
+
+\begin{equation}
+p . \left( Y + M \right) = py . Y + pm . M
+\end{equation}
+
+- **Notional production price **
+
+\begin{equation}
+py^{n} . Y = c^{Y} . Y . \left( 1 + m^{up} + dm^{up} \right)
+\end{equation}
+
+- **International trade**
+
+
+**Imports**
+
+\begin{equation}
+M = \left( Y + M \right) . \varphi^{M} . \left( \frac{pm}{p} \right) ^ {\left( -\rho^{M} \right)}
+\end{equation}
+
+**Exports**
+
+\begin{equation}
+X = WD . \left( \frac{py}{pw} \right) ^ {\left( -\rho^{X} \right)}
+\end{equation}
+
+**Saving of the Rest of the World**
+
+\begin{equation}
+SAV^{ROW} = pm . M - py . X
+\end{equation}
+
+
+
+# Macroeconomic results (Open economy)
+
+## Considered shocks
+
+- Shock of 1% GDP point on G (public spending)      
+- Shock of 1% GDP point on wd (world demand)                    
+      
+
+## Contributions to GDP (Import and Export separately)
+
+```{r contrib in GDP opened economy with X and M, echo=FALSE, fig.height=6, fig.width=14}
+
+contrib_comp <- c( "CH", "I", "G", "X", "M")
+contrib_comp_label <- c("Households consumption", "Investment", "Public spending", "Exports", "Imports")
+
+data_plot <-  contrib(data_full,"Y", contrib_comp, scenar = c("baseline",scenario_to_analyse), neg.value = "M")
+
+A <- contrib.plot(data_plot, series = contrib_comp,label_series = contrib_comp_label,
+             startyear = startyear, endyear = endyear, titleplot = " Contributions to change in GDP (in relative difference from baseline)", line_tot = TRUE)  
+
+
+B <- simpleplot(data_full, c("X", "M"), c("Exports", "Imports"), startyear, endyear, "gr", titleplot = "External trade (in growth rates)")
+
+ggarrange(A,B,
+          labels = c("(a)", "(b)"),
+          hjust = -0.5, vjust = 1.5,
+          ncol = 2, nrow = 1,
+          widths = 2,  heights = 1)
+
+
+```
+
+
+## Contributions to GDP (with trade balance)
+
+```{r contrib GDP with trade balance, echo=FALSE, fig.height=6, fig.width=14}
+
+variables_selection = c("Y","X", "M", "I", "CH","G")
+new_indicators <- data_full %>% 
+  # 1. Put in Wide format
+  wide_data(variables = variables_selection , out_format = "list") %>%  ## 1. passe en wide
+  # 2. Calculate indicators
+  map(~.x %>%          
+        mutate(
+          BAL_TRADE = X - M)) %>% long_data(sector_names_table=NULL,commodity_names_table=NULL) %>% select(-sector,-commodity)
+
+contrib_comp <- c( "I", "CH", "G", "BAL_TRADE")
+contrib_comp_label <- c( "Investment", "Households consumption", "Public spending", "Trade balance")
+
+data_plot <-  contrib(new_indicators,"Y", contrib_comp, scenar = c("baseline",scenario_to_analyse))
+
+A <- contrib.plot(data_plot, series = contrib_comp,label_series = contrib_comp_label,
+             startyear = startyear, endyear = endyear, titleplot = "Contributions to change in GDP (in difference from baseline)", line_tot = TRUE)
+
+contrib_comp <- c( "X", "M")
+contrib_comp_label <- c("Exports", "Imports")
+
+data_plot <-  contrib(new_indicators,"BAL_TRADE", contrib_comp, scenar = c("baseline",scenario_to_analyse), indicator = "rel.diff", neg.value = "M")
+
+B <- contrib.plot(data_plot, series = contrib_comp,label_series = contrib_comp_label,
+             startyear = startyear, endyear = endyear, titleplot = "Contributions to change in trade balance (in difference from baseline)", line_tot = TRUE)
+
+ggarrange(A,B,
+          labels = c("(a)", "(b)"),
+          hjust = -0.5, vjust = 1.5,
+          ncol = 2, nrow = 1,
+          widths = 2,  heights = 1)
+
+```
+
+
+
+## GDP and its components 
+
+```{r Graph contrib, echo=FALSE, fig.height=6, fig.width=14}
+
+variable_macro <- c( "Y", "CH", "I", "G", "M", "X")
+label_macro <- c("GDP", "Households consumption", "Investment", "Public spending", "Imports", "Exports")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components (in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 )
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "gr", titleplot =  " GDP and its components (in growth rate)")
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+## Save image on disk for further use (ready to be activated)
+# ggsave("macro.svg", device = svg, width = 32,  height = 16, units = c("cm"))
+
+## See the graph in Mark-down
+macro
+
+```
+
+
+## Ratio between exports and imports
+
+```{r creation ratio  export to import, echo=FALSE, fig.height=6, fig.width=14}
+
+variables_selection = c("X","M")
+new_indicators <- data_full %>% wide_data(variables = variables_selection,out_format = "list") %>%
+  map(~.x %>% mutate(RATIO_X_M= X/M)) %>% long_data(sector_names_table=NULL,commodity_names_table=NULL) %>% select(-sector,-commodity)
+
+A <- simpleplot(new_indicators, c("RATIO_X_M"), c("X/M"), startyear, endyear, "reldiff", titleplot = " Ratio  exports to imports(in relative difference from baseline)")
+
+B <- simpleplot(new_indicators, c("RATIO_X_M"), c("X/M"), startyear, endyear, "level", titleplot = " Ratio exports to imports(in relative difference from baseline)", unit = 1, decimal = 0.01) 
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+macro
+```
+
+## Production, capital and investment 
+
+```{r Graph K and I, fig.height=6, fig.width=14}
+
+variable_macro <- c( "K","K_N","I")
+label_macro <- c("Capital",  "Notional Capital", "Investment")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP, Capital and Investment (in relative difference from baseline) " )
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "gr", titleplot = " GDP, Capital and Investment (in growth rate)",
+           unit = "percent", decimal = 0.1 )
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+## Save image on disk for further use (ready to be activated)
+# ggsave("macro.svg", device = svg, width = 32,  height = 16, units = c("cm"))
+
+## See the graph in Mark-down
+macro
+
+```
+
+## Labor and Unemployment 
+
+```{r Graph L and U, fig.height=6, fig.width=14}
+
+variable_macro <- c( "L","L_N")
+label_macro <- c("Labor",  "Notional labor")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " Effective and notional labor (in relative difference from baseline)" )
+
+B <- simpleplot(data_full,"U", "Unemployment rate", startyear, endyear,  transformation = "level", titleplot = " Unemployment rate (in level)",
+           unit = "percent", decimal = 0.1 )
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+## Save image on disk for further use (ready to be activated)
+# ggsave("macro.svg", device = svg, width = 32,  height = 16, units = c("cm"))
+
+## See the graph in Mark-down
+macro
+
+```
+
+
+## Prices and wages 
+
+```{r Graph Prices, fig.height=6, fig.width=14}
+
+A <- simpleplot(data_full,c("P", "W"), c("Price", "Wages"), startyear, endyear, "reldiff", titleplot = " Prices and wages (in relative difference from baseline)")
+
+B <- simpleplot(data_full,c("P", "W"), c("Price", "Wages"), startyear, endyear,  transformation = "gr", decimal= 0.1, unit="percent",  titleplot =  "  Prices and wages (in growth rates)" )
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+```
+
+## Mark-up
+
+```{r Mark-up,fig.height=6, fig.width=14 }
+A <- simpleplot(data_full,c("M_UP"), c("Mark-up"), startyear, endyear, "level", titleplot = " Mark-up (in level)")
+
+B <- simpleplot(data_full,c("M_UP"), c("Mark-up"), startyear, endyear, "diff", unit = "percent", decimal = 0.1,  titleplot = " Mark-up (in difference from baseline)")
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+```
+
+
+## Interest rate
+
+```{r Graph Interest rate, fig.height=6, fig.width=14}
+
+A <- simpleplot(data_full,c("R"), c("Interest rate"), startyear, endyear, "level", titleplot = " Interest rate (Level) ")
+
+B <- simpleplot(data_full,c("R"), c("Interest rate"), startyear, endyear, "diff", titleplot = " Interest rate (in difference from baseline)")
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+```
+
+
+## Propensity to save
+
+```{r Propensity to save , fig.height=6, fig.width=14}
+A <- simpleplot(data_full,c("SIGMA"), c("Propensity to save"), startyear, endyear, "level", unit = "percent", decimal = 0.1,  titleplot = " Propensity to save (in level)")
+
+B <- simpleplot(data_full,c("SIGMA"), c("Propensity to save"), startyear, endyear, "diff", titleplot = " Propensity to save (in difference from baseline)")
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+```
+
+
+## Debt to GDP ratio
+
+```{r creation variable debt to gdp, fig.height=6, fig.width=14}
+variables_selection <- c("Y", "DEBT_G", "P")
+new_indicators <- data_full%>%
+wide_data(variables = variables_selection, out_format = "list")%>%
+map(~.x %>% mutate (Ratio_debt_gdp = DEBT_G/(P*Y)))%>%
+long_data(sector_names_table = NULL, commodity_names_table = NULL)%>%
+select(-sector,-commodity)
+
+A <- simpleplot (new_indicators, c("Ratio_debt_gdp"), c("DEBT_G/(P*Y)"), startyear, endyear,"level", unit = "percent", decimal = 0.1, titleplot = "Debt to GDP ratio (in level)")
+
+
+B <- simpleplot(new_indicators, c("Ratio_debt_gdp"), c("DEBT_G/(P*Y)"), startyear, endyear, "diff", titleplot = "Debt to GDP ratio (in difference from baseline)")
+
+macro <- ggarrange(A, B,
+labels= c("(a)", "(b)"), 
+hjust = -0.5, vjust = 1.5,
+ncol= 2, nrow=1, 
+widths =2 , heights = 2)
+
+macro
+
+```
+
+
+## Mains impacts of a shock on G
+
+- **The third model (Open economy):**
+
+  - Same effects in a close economy with an increase of exports contribution to GDP
+  - Positive effect on GDP on the long run
+  
+
+
+
+
+```{r Exit Knit: rest of the markdown ignored}
+knit_exit()
+```
+
+
+
+# PLots "Neo-Keynesian" closure open (overleaf)
+
+
+## Contribution to GDP open economy (overleaf)
+
+```{r contrib GDP with trade balance open ovr,  fig.height=6, fig.width=14}
+
+variables_selection = c("Y","X", "M", "I", "CH","G")
+new_indicators <- data_full %>% 
+  # 1. Put in Wide format
+  wide_data(variables = variables_selection , out_format = "list") %>%  ## 1. passe en wide
+  # 2. Calculate indicators
+  map(~.x %>%          
+        mutate(
+          BAL_TRADE = X - M)) %>% long_data(sector_names_table=NULL,commodity_names_table=NULL) %>% select(-sector,-commodity)
+
+contrib_comp <- c( "I", "CH", "G", "BAL_TRADE")
+contrib_comp_label <- c( "Investment", "Households consumption", "Public spending", "Trade balance")
+
+data_plot <-  contrib(new_indicators,"Y", contrib_comp, scenar = c("baseline",scenario_to_analyse))
+
+Contrib_GDP_NeoKey_op <- contrib.plot(data_plot, series = contrib_comp,label_series = contrib_comp_label,
+             startyear = startyear, line_tot = TRUE, custom_x_breaks = 5) + theme(axis.text.y = element_text(size = 28)) +
+theme(axis.text.x = element_text(size = 28)) +
+theme(text = element_text(size = 28)) +
+theme(legend.text= element_text(size = 28))
+
+## Save image on disk for further use (ready to be activated)
+ggsave("Contrib_GDP_NeoKey_op.png",width = 48,  height = 28, units = c("cm"))
+
+
+## See the graph in Mark-down
+Contrib_GDP_NeoKey_op
+
+```

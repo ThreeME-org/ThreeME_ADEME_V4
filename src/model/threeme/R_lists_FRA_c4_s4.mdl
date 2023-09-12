@@ -1,0 +1,17 @@
+%list_sec := sind strp sser senj
+
+%list_com := cind ctrp cser cenj
+
+%list_com_MAT := cind ctrp cser
+
+%list_com_MATO := cind cser
+
+%list_com_TRSP := ctrp
+
+%list_com_E := cenj
+
+%list_com_NCES := cveh ccon ctrp cenj
+
+chous_inv in ccon
+
+ctrsp_inv in cveh

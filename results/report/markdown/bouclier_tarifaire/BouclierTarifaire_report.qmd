@@ -1,0 +1,557 @@
+---
+title: "Bouclier Tarifaire et simulations macroéconomiques"
+author: "Meriem Hamdi-Chérif,\nPaul Malliet,\nAnissa Saumtally"
+date: "`r Sys.Date()`"
+abstract: |
+    La hausse des produits de l'energie a conduit le gouvernement français à mettre en place une politique ambitieuse de maîtrise des coûts de la hausse de l'energie pour les particuliers par la mise en place d'un bouclier tarifaire. Ce bouclier finance la hausse des prix . Nous proposons dans ce document une analyse de ses effets économiques à l'aide du modèle ThreeME. 
+format:
+  html: 
+    toc: true
+    theme: simplex
+    self-contained: true
+    fig-dpi: 300
+    fig-format: svg
+    fig-width: 10
+  pdf:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    number-depth: 1 
+    documentclass: scrartcl
+    mainfont: Nunito
+    papersize: a4
+    fontsize: 9pt
+    fig-cap-location: top
+    include-in-header: 'report/preamble.tex'
+    extra_dependencies: ["float"]
+    fig-dpi: 300
+    fig-format: png
+    cite-method: natbib
+editor_options: 
+    markdown: 
+      wrap: 100
+params:
+  startyear: 2015
+  endyear: 2025
+  template_default: ofce
+  classification: c28_s32
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+path_main <-  stringr::str_remove(getwd(), "results/report/markdown")
+
+redirect <- function(normal_path, redirect = path_main){
+  file.path(paste0(path_main), normal_path)  |>  normalizePath()
+}
+
+
+startyear <- params$startyear
+endyear <- params$endyear
+template_default <- params$template_default
+
+classification <- params$classification
+
+source(redirect("src/functions.R"))
+purrr::map(list.files(redirect("/src/functions_src/")),
+           ~source(file.path(redirect("/src/functions_src/"),.x)))
+
+source(redirect("Extra_data_BT/src/data_loader.R"))
+
+```
+
+```{r}
+#| label: data construction function
+dat_db <- function(df_1, df_2){
+  df_1 <- df_1 %>% select(date = period,ippi = value)
+  df_2 <- df_2 %>% select(date = period, ipch = value)
+  
+  df <- merge(df_1, df_2, by = "date")
+  return(df)
+}
+
+# Function to quickly plot a serie
+ploot <- function(data = database, 
+                  date_col = "date", cols= NULL,
+                  date_start = "1900-01-01",
+                  date_end = "2200-12-31",
+                  multi = NULL
+){
+  
+  if(is.null(multi)){multi = FALSE}
+  if(is.null(cols)){cols= c("ippi", "ipch")}
+  
+  if (multi == TRUE){
+    data <- data %>% pivot_longer(cols = cols,names_to = "index", values_to = "value") %>% 
+      rename(date = all_of(date_col))  %>% 
+      filter(date >= date_start) %>% 
+      filter(date <= date_end)
+    
+    ggplot(data,
+           aes(x = date, y = value, color = index)) + 
+      geom_line()
+  } else{
+    
+    ggplot(data |>  rename(date = all_of(date_col)),
+           aes(x = data, y = value)) + 
+      geom_line()
+  }
+}
+
+```
+
+```{r}
+#| label: Passthrough function
+passthrough <- function(data = database , 
+                        market_price = "ippi", final_price = "ipch", date_col = "date",
+                        compute_gr_rate = TRUE, # TRUE if growth rates of price index needs to be computed (ie final and market price are given in levels)
+                        gr_interval = 12 ,# for calculating different types of growth rate
+                        date_start = "1900-01-01",
+                        date_end = "2200-12-31", 
+                        area = NULL,
+                        table = NULL, 
+                        index = NULL
+){
+  
+  if (is.null(table)) {table = FALSE}
+  if (is.null(index)) {index = FALSE}
+  if (is.null(area)) {area = FALSE}
+  
+  data_passthru <- data  %>% 
+    select(all_of(c(date_col,market_price, final_price)) ) %>% 
+    
+    rename(date = all_of(date_col), 
+           ref_price = all_of(market_price),
+           fin_price = all_of(final_price)) 
+  
+  if(compute_gr_rate){
+    data_passthru <- data_passthru %>% 
+      mutate(across(c(ref_price , fin_price),
+                    ~(.x/lag(.x,gr_interval)-1)*100), 
+             coeff_diff = fin_price * 100/ref_price,
+             area = ifelse(ref_price >= 0, "boom", "bust"))
+  }
+  
+  data_passthru <- data_passthru %>% 
+    mutate(coeff_diff = fin_price * 100/ref_price,
+           area = ifelse(ref_price >= 0, "boom", "bust")) %>% 
+    filter(date >= date_start) %>% 
+    filter(date <= date_end) 
+  
+  
+  
+  if (index == FALSE) {
+    
+    diff_plot <- na.omit(data_passthru)  |>  
+      ggplot() +
+      geom_rect(aes(xmin = date,xmax = date+31,
+                    ymin = min(coeff_diff)-10, ymax = max(coeff_diff)+50, 
+                    fill = area)) +
+      
+      geom_point(aes(x=date, y = coeff_diff)) +
+      geom_line(aes(x=date,y = coeff_diff)) +
+      geom_hline(yintercept = 100, color = "#696969", linewidth = .5, linetype = "dashed") + 
+      #geom_hline(yintercept = 0, color = "#474747", size = .3, linetype = "solid") + 
+      geom_point(aes(x=date, y = coeff_diff)) +
+      geom_line(aes(x=date,y = coeff_diff)) +
+      
+      if (area == TRUE){
+        diff_plot <- diff_plot + scale_fill_manual(values = c("bust" = "#ff7575",
+                                                              "boom" = "#639fff"))
+      }
+    
+    
+    diff_plot <- diff_plot + theme(legend.position = "none")
+    
+  } else 
+  {
+    data <- data_passthru |> select(-coeff_diff) |> pivot_longer(cols = c(ref_price, fin_price), names_to = "price",values_to = "value")
+    
+    diff_plot <- ggplot(na.omit(data)) +
+      geom_rect(aes(xmin = date,xmax = date + 31 ,
+                    ymin = min(value)-10, ymax = max(value)+10, 
+                    fill = area)) +
+      geom_hline(yintercept = 0, color = "#696969", linewidth = .5, linetype = "dashed") + 
+      #geom_vline(xintercept = 100, color = "#696969", linewidth = .5, linetype = "dashed") + 
+      geom_line(aes(x=date,y = value, group = price, color = price)) +
+      scale_color_manual(values = c(fin_price = "#707070",
+                                    ref_price = "#080808")) 
+    if (area == TRUE){
+      diff_plot <-    diff_plot + scale_fill_manual(values = c("bust" = "#ff7575",
+                                                               "boom" = "#639fff"))
+    }
+    
+    diff_plot
+    if (table == FALSE){
+      return(diff_plot)
+    } else{
+      
+      return(list(diff_plot,data_passthru))  
+    }
+  }
+}
+```
+
+
+
+```{r donnees_simulations,  echo =FALSE}
+
+
+donnees_sim <-readRDS(file=redirect(file.path("data","output","nrjbt_fra_c28_s32.rds"))) %>% mutate(year = year - 3)
+
+
+source(redirect(paste0("src/bridges/bridge_",classification,".R")))
+source(redirect(paste0("src/bridges/codenames_",classification,".R")))
+
+```
+
+
+L'objectif de ces simulations est quantifier l'impact de la hausse des prix de l'électricité et du gaz ainsi que de mesures des "boucliers tarifaires" sur divers indicateurs macroéconomiques.
+
+En bref les hypothèses retenues :
+
+### Scénario Baseline ThreeME :
+
+Il s'agit du steady-state ThreeME avec une hausse des prix gaz et electricite spot cale sur le ttf et une hausse des prix de conso electricite calculee a partir du contrefactuel des la CRE pour le calcul du TRV
+
+
+
+### Bouclier tarifaire
+
+Dans ces simulations on entend par bouclier tarifaire la réglementation des prix de consommation du gaz et de l'électricité pour les ménages. Les hypothèses retenues sont :
+
+-   Pour 2022 :
+
+    -   Le prix de consommation de l'électricité est fixé à +4 % du prix de 2021
+      -   Le prix de consommation du gaz est fixé à +4 % du prix de 2021
+
+-   Pour 2023 :
+
+    -   Le prix de consommation du gaz est fixé à +15 % du prix de 2022
+
+    -   Le prix de consommation de l'électricité est fixé à +15 % du prix de 2022
+
+**Attention : il ne s'agit pas d'une borne supérieure (comme pourrait laisser l'entendre l'appellation de "bouclier"), mais bien d'une augmentation déterminée à l'avance des prix.**
+
+# Calibration du choc : données historiques
+
+Un choc de prix importé sur l'électricité et le gaz est simulé en prenant comme référence le prix moyen annuel du prix spot ,et en supposant un pass-through de 30%^[Des estimations économétriques  sur la valeur de ce coefficient sont en cours] sur les prix de production.
+
+Nous prenons comme référence de prix spot pour les deux biens celui du gaz sur le marché Dutch TTF. 
+
+
+## *Le marché du gaz*
+
+```{r}
+#| label: Cap prix du gaz
+gas_data <-readRDS(file = redirect( "Extra_data_BT/data/France/gas.rds"))
+
+
+gas_cap <- gas_data %>% 
+select(date, year, insee=value, cre = peg_spot_cre, dutch_ttf_month, dutch_ttf_year) %>%
+as.data.frame() %>% 
+mutate(insee_yearly = ave(insee, year, FUN=mean),
+insee_new_base_2015 = 100 * insee/insee_yearly[which(year == 2015)],
+
+insee_yearly = 100*insee_yearly/insee_yearly[which(year == 2015)],
+scaled_dutch_ttf = 100*dutch_ttf_month/dutch_ttf_year[which(year == 2015)],
+scaled_dutch_ttf_year = 100*dutch_ttf_year/dutch_ttf_year[which(year == 2015)],
+scaled_cre = 100*cre/cre[which(year == 2015)],
+coeff_cre = cre / scaled_cre
+) %>% select(-insee) #%>% pivot_longer(cols = c("insee_yearly","insee_new_base_2015","scaled_cre"), names_to = "var")
+
+coeffs_sec_axis <- get_linear_coeffs( 
+A = c(gas_cap$cre[which(gas_cap$date == "2015-01-01")]  , 
+gas_cap$scaled_cre[which(gas_cap$date == "2015-01-01")]  ) ,
+
+B = c(gas_cap$cre[which(gas_cap$date == "2016-01-01")]  , 
+gas_cap$scaled_cre[which(gas_cap$date == "2016-01-01")]  )
+)
+
+eq_200 <- (180 *coeffs_sec_axis$a) + coeffs_sec_axis$b
+lab_leg <- c("IPPI gaz \n(Prix de marché Gaz manufacturé)","IPPI gaz moyenne annuelle \n(Prix de marché Gaz manufacturé)","Prix Dutch TTF (échelle de droite)" ,"Prix spot (PEG, moyenne annuelle, échelle de droite) ", "Moyenne annuelle Dutch ttf")
+
+
+
+gas_cap %>% 
+mutate_at(c("insee_yearly","scaled_cre", "dutch_ttf_year", "scaled_dutch_ttf_year"), ~ifelse(month(date)==1,NA,.x))%>% 
+
+pivot_longer(cols = c("insee_new_base_2015","insee_yearly","scaled_cre", "scaled_dutch_ttf", "scaled_dutch_ttf_year"), names_to = "var") %>%  
+
+mutate(type = ifelse(var %in% c("insee_new_base_2015", "scaled_dutch_ttf"),"monthly", "annual") ) %>% 
+
+ggplot(aes(x=date)) +
+geom_line(aes(y=value, color = var, shape = type)) +
+scale_linetype_manual(values= purrr::set_names(c("solid","dashed"), c("monthly", "annual")))+
+scale_colour_manual(values= purrr::set_names(c("seagreen3","seagreen4","gold","royalblue","purple"),
+c("insee_new_base_2015","insee_yearly","scaled_dutch_ttf","scaled_cre", "scaled_dutch_ttf_year")) ,
+
+labels = purrr::set_names(lab_leg,c("insee_new_base_2015","insee_yearly","scaled_dutch_ttf","scaled_cre","scaled_dutch_ttf_year"))) +
+
+geom_abline(intercept = eq_200, slope = 0,colour = "red3" , linetype = "dashed", size = 0.3)  +
+scale_x_date(date_breaks = "year",date_labels = "%Y")+
+scale_y_continuous(sec.axis = sec_axis(~ (.-coeffs_sec_axis$b) / coeffs_sec_axis$a))+
+theme(legend.position = "bottom", 
+legend.title = element_blank())+
+
+labs(title = "Prix de marché et de production du gaz",
+subtitle =  "en indice, base 100 en janvier 2015" ,caption = " Sources : Insee, CRE",
+x= "",y="indice, base 100 moyenne 2015", sec.y = "€ / MwH") +
+guides(colour = guide_legend(nrow = 2))
+
+
+
+
+df <- passthrough(dat_db(ippi.gas_01_series, ippi.gas_02_series),
+                  final_price = "ipch", compute_gr_rate = T, gr_interval = 12,
+                  date_start = "2015-12-01",
+                  date_end = "2023-02-01",table = FALSE, index = T)  
+df + scale_color_manual(values = c(fin_price = "#707070",
+                                   ref_price = "#080808"), 
+                        labels = c("Prix spot", "Prix de marché")) + theme(legend.title = element_blank()) +
+  labs(xlab = "", 
+       title = "Taux de variation YoY des prix spot et de gros du gaz", 
+       subtitle = "en %") 
+
+
+
+```
+
+
+
+## *Le marché de l'électricité*
+
+```{r}
+#| label: series indice serie prix
+
+elec_data <-readRDS(file = redirect( "Extra_data_BT/data/France/electricity.rds"))
+
+
+
+# Objectif ici : graph avec les series insee pour le spot elec pour caler la serie ippi en indice avec des vrais chiffres (et visualiser le gaph)
+
+```
+
+```{r}
+#| label: calage price cap
+
+
+elec_cap <- elec_data %>% 
+select(date, year, insee=value, cre = elec_spot_cre) %>% 
+as.data.frame() %>% 
+mutate(insee_yearly = ave(insee, year, FUN=mean),
+insee_new_base_2015 = 100 * insee/insee_yearly[which(year == 2015)],
+insee_yearly = 100*insee_yearly/insee_yearly[which(year == 2015)],
+scaled_cre = 100*cre/cre[which(year == 2015)],
+coeff_cre = cre / scaled_cre
+) %>% select(-insee) #%>% pivot_longer(cols = c("insee_yearly","insee_new_base_2015","scaled_cre"), names_to = "var")
+
+coeffs_sec_axis <- get_linear_coeffs( A = c(elec_cap$cre[which(elec_cap$date == "2015-01-01")]  , 
+elec_cap$scaled_cre[which(elec_cap$date == "2015-01-01")]  ) ,
+B = c(elec_cap$cre[which(elec_cap$date == "2016-01-01")]  , 
+elec_cap$scaled_cre[which(elec_cap$date == "2016-01-01")]  )
+)
+
+
+
+eq_200 <- (180 *coeffs_sec_axis$a) + coeffs_sec_axis$b
+lab_leg <- c("IPPI Électricité\n(vendue en gros au prix spot)","IPPI Électricité moyenne annuelle \n(vendue en gros au prix spot)","Prix spot (moyenne annuelle, CRE, échelle de droite) ")
+
+elec_cap %>% 
+mutate_at(c("insee_yearly","scaled_cre"), ~ifelse(month(date)==1,NA,.x))%>% 
+
+pivot_longer(cols = c("insee_new_base_2015","insee_yearly","scaled_cre"), names_to = "var") %>%  
+
+mutate(type = ifelse(var == "insee_new_base_2015","monthly", "annual") ) %>% 
+
+ggplot(aes(x=date)) +
+geom_line(aes(y=value, color = var, shape = type)) +
+scale_linetype_manual(values= purrr::set_names(c("solid","dashed"), c("monthly", "annual")))+
+
+scale_colour_manual(values= purrr::set_names(c("salmon","seagreen4","royalblue"), c("insee_new_base_2015","insee_yearly","scaled_cre")) ,
+
+labels = purrr::set_names(lab_leg,c("insee_new_base_2015","insee_yearly","scaled_cre")))+
+
+geom_abline(intercept = eq_200, slope = 0,colour = "gold3" , linetype = "dashed", size = 0.3)  +
+scale_x_date(date_breaks = "year",date_labels = "%Y") +
+scale_y_continuous(sec.axis = sec_axis(~ (.-coeffs_sec_axis$b) / coeffs_sec_axis$a)) +
+theme(legend.position = "bottom", 
+legend.title = element_blank()) +
+
+labs(title = "Prix de marché et de production de l'électricité",
+subtitle =  "en indice, base 100 en janvier 2015" ,caption = " Sources : Insee, CRE",
+x= "",y="indice, base 100 moyenne 2015", sec.y = "€ / MwH") +
+guides(colour = guide_legend(nrow = 2))
+
+
+df <- passthrough(dat_db(ippi.elec_01_series, ippi.elec_02_series),
+                  final_price = "ipch", compute_gr_rate = T, gr_interval = 12,
+                  date_start = "2015-12-01",
+                  date_end = "2023-02-01",table = FALSE, index = T)  
+df + scale_color_manual(values = c(fin_price = "#707070",
+                                   ref_price = "#080808"), 
+                        labels = c("Prix spot", "Prix de marché")) + theme(legend.title = element_blank()) +
+  labs(xlab = "", 
+       title = "Taux de variation YoY des prix spot et de gros de l'électricité", 
+       subtitle = "en %") 
+
+
+```
+
+
+
+# Résultat des simulations sur les prix
+
+## Electricité
+
+```{r impact bt prix elec}
+donnees_sim %>% simpleplot(series = c("PYQ_CELE","PCH_CELE","PWD_CELE"),label_series = c("Prix de production (marché)", "Prix à la consommation", "Prix monde (Dutch TTF)"),startyear = 2015,endyear = 2025,transformation = "level",scenario = c("nrjbt_fra"),unit = 1,titleplot = "Impact du bouclier tarifaire sur les prix à la consommation en électricité \n(en niveau, simulations ThreeME avec choc des prix de l'électricité)")
+
+```
+
+## Gaz
+
+```{r impact bt prix gaz}
+donnees_sim %>% simpleplot(series = c("PYQ_CGAS","PCH_CGAS","PWD_CGAS"),label_series = c("Prix de production (marché)", "Prix à la consommation", "Prix monde (Dutch TTF)"),startyear = 2015,endyear = 2025,transformation = "level",scenario = c("nrjbt_fra"),unit = 1,titleplot = "Impact du bouclier tarifaire sur les prix à la consommation en gaz \n(en niveau, simulations ThreeME avec choc des prix du gaz)")
+donnees_sim %>% simpleplot(series = c("PYQ_CGAS","PCH_CGAS"),label_series = c("Prix de production (marché)", "Prix à la consommation"),startyear = 2015,endyear = 2025,transformation = "gr",scenario = c("nrjbt_fra"),titleplot = "Impact du bouclier tarifaire sur les prix à la consommation en gaz \n(taux de croissance)", percent_label = TRUE)
+
+donnees_sim %>% simpleplot(series = c("PYQ_CGAS","PCH_CGAS"),label_series = c("Prix de production (marché)", "Prix à la consommation") ,startyear = 2015,endyear = 2025,scenario = c("nrjbt_fra"),titleplot = "Impact du bouclier tarifaire sur les prix à la consommation en gaz\n(en différence relative au baseline sans bouclier tarifaire)")
+```
+
+## Prix de consommation théoriques vs prix réglementés
+
+```{r prix conso}
+
+
+donnees_sim %>% simpleplot(series = c("PCH_CGAS","PCH_CELE"),label_series = c("Gaz (prix théorique en pointillés)", "Électricité (prix théorique en pointillés)"),startyear = 2015,endyear = 2025,transformation = "level",scenario = c("nrjbt_fra"),unit = 1,titleplot = "Prix réglementés dans le scénario avec choc des prix, en niveau")
+```
+
+# Tableaux récapitulatifs
+
+```{r }
+
+recap_delta_bt <-table.output(data = donnees_sim, scenario = "nrjbt_fra", 
+             full.table = TRUE, export.doc = FALSE, langue = "fr",
+             title = 'Impact du bouclier tarifaire par rapport à un baseline avec choc de prix sans bouclier')
+
+recap_delta_bt
+```
+
+# Impacts macroéconomiques
+
+
+
+## Impact du bouclier tarifaire
+
+```{r PIB bt }
+label_macro <- c("PIB", "Consommation des ménages", "Investissement", "Dépense publique (en valeur)")
+simpleplot(donnees_sim,c("GDP", "CH", "I", "SPEND_G_VAL"), label_macro, startyear, endyear, titleplot = "Impact du bouclier tarifaire : PIB et ses composantes intérieures\n(en difference par rapport au baseline avec choc des prix)",scenario = "nrjbt_fra")
+
+```
+
+# Effets sur les prix
+
+```{r impact bt prix bis}
+
+
+donnees_sim %>% simpleplot(series = c("PCH","PCH_CELE","PYQ_CELE"),
+                      label_series = c("Prix à la consommation des ménages", "Prix à la consommation en électricité" , "Prix de production (marché)", "Prix à la consommation"),
+                      startyear = 2015,endyear = 2025,
+                      scenario = c("nrjbt_fra"),
+                      titleplot = "Impact du bouclier tarifaire sur les prix à la consommation \n(en différence au baseline ThreeME avec choc des prix)")+
+   guides(colour = guide_legend(nrow = 2))
+
+```
+
+# Dette publique
+
+```{r dette BT}
+
+donnees_sim %>% filter( year %in% c(2022, 2023) ) %>% 
+  filter(variable %in% c("RDEBT_G_VAL") ) %>% mutate(diff =nrjbt_fra - baseline) %>% 
+  ggplot(aes(x= year)) +
+  geom_col(aes(y = diff,fill=variable)) + 
+  scale_y_continuous(labels = scales::percent_format()) + 
+  scale_x_discrete(labels = c("2022", "2023"), limits = c(2022, 2023)) + 
+  theme(legend.title = element_blank(), 
+        legend.position = "none", 
+         axis.title.y = element_blank(), 
+        axis.title.x = element_blank()) +
+      labs(
+        title= "Dette publique en valeur", 
+        subtitle= "(en différence de points de PIB au baseline ThreeME avec choc de prix)", 
+        caption="",
+        x= "",#str_c("In % variation of ",s),
+        y= " "
+      ) 
+    
+
+```
+
+## Déficit public
+
+```{r deficit BT}
+
+donnees_sim %>% filter( year %in% c(2022, 2023) ) %>% 
+  filter(variable %in% c("RBAL_G_TOT_VAL") ) %>% mutate(diff = nrjbt_fra - baseline) %>% 
+  ggplot(aes(x= year)) +
+  geom_col(aes(y = diff,fill=variable)) + 
+  scale_y_continuous(labels = scales::percent_format()) + 
+  scale_x_discrete(labels = c("2022", "2023"), limits = c(2022, 2023)) + 
+  theme(legend.title = element_blank(), 
+        legend.position = "none", 
+         axis.title.y = element_blank(), 
+        axis.title.x = element_blank()) +
+      labs(
+        title= "Déficit public en valeur", 
+     subtitle= "(en différence de points de PIB au baseline ThreeME avec choc de prix)", 
+        caption="",
+        x= "",#str_c("In % variation of ",s),
+        y= " "
+      ) 
+    
+
+```
+
+## Coût de la mesure du bouclier tarifaire
+
+```{r Chiffrage BT}
+
+donnees_sim %>% filter( year %in% c(2022, 2023) ) %>% 
+  filter(variable %in% c("BT_VAL_CELE","BT_VAL_CGAS") )%>%mutate_at(c("baseline", "nrjbt_fra"), ~.x/1000) %>% 
+  
+  ggplot() +
+  geom_col(aes(x= as.factor(year),y = nrjbt_fra, fill=variable) ) + 
+  scale_fill_manual(values=purrr::set_names(c("seagreen3","royalblue3"),c("BT_VAL_CELE","BT_VAL_CGAS")), labels = purrr::set_names(c("Électricité","Gaz"),c("BT_VAL_CELE","BT_VAL_CGAS")))+
+  theme(legend.title = element_blank(), 
+        legend.position = "bottom",  
+        axis.title.x = element_blank()) +
+      labs(
+        title= 'Coût de la mesure du "bouclier tarifaire"', 
+        caption="Simulations ThreeME",
+        x= "",#str_c("In % variation of ",s),
+        y= "Milliards €"
+      ) 
+
+```
+
+# Impact environmental
+
+## Emissions gaz à effet de serre
+
+```{r emissions}
+contrib_comp <- c("EMS_CI", "EMS_Y", "EMS_CH","EMS")
+contrib_comp_label <- c("Consommations intermédiaires", "Production", "Consommation finale des ménages","Total GHG emssions")
+
+
+
+simpleplot(donnees_sim, 
+                contrib_comp, contrib_comp_label, startyear, endyear, titleplot = "Impact du bouclier tarifaire sur les émissions de gaz à effet de serre \n(en différence avec le scénario choc des prix)", scenario = "nrjbt_fra")+
+   guides(colour = guide_legend(nrow = 2))
+
+
+```

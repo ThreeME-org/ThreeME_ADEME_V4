@@ -1,0 +1,170 @@
+include ..\model\lists
+#------------------------------------------------------------------- 
+## Model parameters
+
+# Depreciation rate
+delta[a] := 0.05
+
+# K-L elasticity of substitution
+rho := 0.1
+
+# Adjustment parameters
+ADJUST1_|V| := 0.1 where V in p CH L K
+
+ADJUST2_|V| := 1 where V in p CH L K
+ADJUST3_|V| := 0 where V in p CH L K
+ADJUST4_|V| := 0 where V in p CH L K
+
+# mark-up equation parameters                                                  ## If keynes
+alpha_1 := 0.1
+alpha_2 := 0.1
+
+# Wage equation parameters                                                    ## If keynes
+GR_w_nml := (1 + GR_PROD_L) * (1 + GR_PRICE) - 1
+RHO_1 := 1
+RHO_2 := 1
+RHO_3 := 0.2
+RHO_4 := 0
+RHO0 := log(1 + GR_W_nml) - RHO_1 * log(1 + GR_PRICE) - RHO_2 * log(1 + GR_PROD_L) + RHO_3 * U
+
+# Interest rate equation parameters (Taylor fonction)                          ## If Keynes
+gamma_1 := 1.5
+gamma_2 := 0.05 ## Does not work with 0.5
+
+# Propensity to save equation parameters (Ricardien effect)                      ## If Keynes 
+theta_1 := 0.5
+
+## Long term equilibrium
+
+# Growth rate of labor productivity
+GR_PROD_L := 0.01
+GR_PROD_L[a] := GR_PROD_L
+
+# Growth rate of population
+GR_POP := 0.005
+
+# Growth rate of prices (Inflation)
+GR_PRICE := 0.02
+
+# Interest rate
+r := 0.1
+r[a] := r
+
+# Long-term growth
+mu := (1 + GR_PROD_L)*(1 + GR_POP) - 1
+
+#-------------------------------------------------------------------  
+
+## Variables calibrated on real data
+
+# Labor
+L[a] := SUPPLY_USE(3,$a)*(1 + GR_POP) ^ (@year - %baseyear)
+LF := L / (1 - 0.1)	## Unemployment rate: U = 0.1
+
+# Investment (add in matrix)
+I[a] := SUPPLY_USE(5,$a) *(1 + mu) ^ (@year - %baseyear)
+
+# Wage (add in matrix)
+w[a] := SUPPLY_USE(4,$a) * (1 + GR_w_nml)^(@year - %baseyear)
+
+#-------------------------------------------------------------------   
+
+## Calibration of Intermediary consumption
+
+#Production of commodity c by activity a
+Y[c, a] := SUPPLY_USE($c,$a)*(1 + mu) ^ (@year - %baseyear)
+
+# Intermediary consumption c consummed by activity a
+CI[c,a] := SUPPLY_USE($c, $a + 2)*(1 + mu) ^ (@year - %baseyear)
+
+# Consumption
+CH[c] := SUPPLY_USE($c, 5)*(1 + mu)^(@year - %baseyear)
+
+# Investment
+I[c] := SUPPLY_USE($c, 6)*(1 + mu)^(@year - %baseyear)
+
+# Public spending
+G[c] := SUPPLY_USE($c, 7)*(1 + mu)^(@year - %baseyear)
+
+# Price
+p := 1 * (1 + GR_PRICE)^(@year - %baseyear)
+p[a] := p
+
+# Labour productivity
+PROD_L[a] := KL[a] / L[a]
+
+# Capital productivity
+PROD_K[a] := KL[a] / K[a]
+
+#-------------------------------------------------------------------
+
+## Calibration of the other variables 
+
+# Production of commodity c 
+Y[c] := CI[c] + CH[c] + I[c] + G[c] 
+
+# Price of commodity c
+p[c] * Y[c] := sum(p[a] * Y[c,a] on a) 
+
+# Production of commodity c by activity a
+phi_Y[c,a] := Y[c,a] / Y[c]    ##### Inversion equation
+
+# Total production of activity a
+Y[a] := sum(Y[c,a] on c) 
+
+## Equations for intermediary consumption
+# Intermediary consumption c consummed by activity a
+phi_CI[c,a] := CI[c,a] / Y[a] 
+
+# Total intermediary consumption of commodity c
+CI[c] := sum(CI[c,a] on a)
+
+# Total intermediary consumption comsummed by a (in volume and value)
+CI[a] := sum(CI[c,a] on c) 
+
+pci[a] * CI[a] := sum(p[c] * CI[c,a] on c) 
+
+(1 + m_up[a]) := P_n[a] * Y[a] / (c_Y[a] * Y[a])  ##### Inversion equation
+
+c_Y[a] * Y[a] := c_KL[a] * KL[a] + pci[a] * CI[a]
+
+KL[a] * c_KL[a] := w[a] * L_n[a] + pi * (delta[a] + r[a]) * K_n[a] ##### Inversion equation
+c_KL[a] := p
+
+Beta_CH[c] := CH_n[c] * p[c] / ((1 - sigma) * (sum(w[a] * L[a] + pi * r[a] * K[a] + c_Y[a] * Y[a] * m_up[a] on a)))   ##### Inversion equation
+
+(1 - sigma) := pch * CH / (sum(w[a] * L[a] + pi * r[a] * K[a] + c_Y[a] * Y[a] * m_up[a] on a)) ### Modification equation!!
+
+phi_KL[a] := KL[a] / Y[a]   ##### Inversion equation
+
+Phi_L[a] ^ rho := L_n[a] / (KL[a] / PROD_L[a]) / ((w[a]    				 / c_KL[a] / PROD_L[a]) ^ (-rho)) ##### Inversion equation
+
+Phi_K[a] ^ rho := K_n[a] / (KL[a] / PROD_K[a] ) / ((pi * (delta[a] + r[a]) / c_KL[a] / PROD_K[a]) ^ (-rho)) ##### Inversion equation
+
+K[a] := I[a] * (1 + mu) / (mu + delta[a]) 								## From steady state relation
+
+I := sum(I[a] on a)
+Beta_I[c] := I[c] / I   			##### Inversion equation
+pi*I := sum(p[c] * I[c] on c)
+
+|V|_n[c] := |V|[c] where V in CH 
+|V|_n[a] := |V|[a] where V in p L K
+
+|V|_e[c] := |V|[c] where V in CH 
+|V|_e[a] := |V|[a] where V in p L K
+
+
+U := 1 - L/LF
+
+pch * CH := sum(p[c] * CH[c] on c) 
+
+
+# Agregate variables
+|V| := sum(|V|[c] on c) where V in CI CH G 
+
+|V| := sum(|V|[a] on a) where V in L 
+
+
+Y := CI + CH + I + G
+
+

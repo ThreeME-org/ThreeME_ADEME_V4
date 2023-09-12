@@ -1,0 +1,30 @@
+\newcommand*{\plogo}{\fbox{$\mathcal{PL}$}} % Generic dummy publisher logo
+
+% Add any tex header commands here
+
+\usepackage{titlepic}
+\usepackage{tikz}
+\usepackage{titling}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{fontspec}
+\usepackage{placeins}
+\usepackage{graphbox}
+\usepackage[french]{babel}
+\usepackage[useregional]{datetime2}
+\usepackage{subcaption}
+\usepackage{geometry}
+\geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ right=20mm,
+ top=30mm,
+ bottom=30mm
+ }
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LO, RE]{Modèle ThreeME}
+\fancyfoot[L]{\small{\today{}}}
+\fancyfoot[R]{\small{\thepage}}

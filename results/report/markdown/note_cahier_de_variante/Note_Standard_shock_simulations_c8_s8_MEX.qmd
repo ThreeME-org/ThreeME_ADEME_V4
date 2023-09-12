@@ -1,0 +1,664 @@
+---
+title: "Result analysis of standard shock simulations "
+#subtitle: "Livrable L2 : Note on model improvements"
+author: "ThreeME Model Mexico"
+date: 'Printemps 2023'
+format:
+  html: 
+    toc: true
+    theme: simplex
+    self-contained: true
+    fig-dpi: 300
+    fig-format: svg
+    fig-width: 5
+    comments:
+      hypothesis: true
+  pdf:
+    documentclass: scrartcl
+    classoption: 
+    - DIV=12
+    template-partials:
+      - "before-body.tex"
+      - "_titlepage.tex"
+    include-in-header: "in-header.tex"
+    number-sections: true
+    number-depth: 2
+    toc: true
+    toc-depth: 2
+    toc-title: "Table des matières"
+    papersize: a4
+    fontsize: 9pt
+    fig-cap-location: top
+    extra_dependencies: ["float"]
+    fig-dpi: 600
+    fig-format: svg
+editor_options: 
+    markdown: 
+      wrap: 100
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.pos="htb",
+  out.extra="",
+  dev="ragg_png",
+  out.width="100%",
+  fig.showtext=TRUE,
+  cache=FALSE)
+```
+
+```{r datainit, include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(glue)
+library(ggh4x)
+library(ofce)
+library(showtext)
+library(markdown)
+library(plotly)
+library(scales)
+if (F){
+  devtools::install_github("ofce/ofce")
+}
+sysfonts::font_add_google('Roboto')
+showtext_opts(dpi = 300)
+showtext_auto()
+# objects <- load("../data/sorties.rdata")
+options(ofce.background_color = "#F9F4ED")
+options(ofce.base_family = "Nunito")
+options(ofce.base_size = 7)
+```
+
+{{< pagebreak >}}
+
+# Introduction[^1]
+
+[^1]: The quarto script of this document can be found in  [branch "ThreeME-R_V3-OPC" of the repository
+    GitHub "fosem"]{style="color: blue"}, in the folder "reports"
+
+This report presents an analysis of variants that can be simulated with the ThreeME model, which is a Neo-Keynesian macroeconometric computable general equilibrium model.\footnote{The equations contained in ThreeME are not directly estimated econometrically. However, model calibration takes account of adjustment lags, and elasticity values are assigned on the basis of estimates from the econometric literature.}
+The version of ThreeME used here provides sectoral disaggregation, with 8 sectors and 8 commodities, but limited development of the behavioral equations, in particular the absence of a detailed energy model.
+energy model. Wage setting follows a WS equation
+\footnote{See ThreeME model documentation for more details, available at
+https://www.threeme.org/documentation. The name of variables is defined in the glossary, page 168.}.
+
+Several versions of the model are possible, depending on the modelling options chosen:
+
+-   An LES utility function, i.e. representing constant elasticities of substitution between
+    constant commodities
+
+-   A nested utility function, which considers energy as a direct consumption item
+
+-   A KLEM production function nested on 3 levels
+
+-   A hybrid version of the model, which develops household consumption choices in housing and transport with a *bottom-up* modelisation
+
+This "standar shock simulation" is based on the LES version of the model.
+
+## Caracteristics of the reference scenario 
+
+For this analytical exercise, the reference path is assumed to correspond to a Solow-style
+growth path (*steady state*): all volume variables grow at the same rate as GDP
+and all prices grow at the same rate of inflation.
+
+The scenario used as a reference for the study of the variants presented in this standard shock simulation is based on the following assumptions:
+
+-   GDP is assumed to grow at 2.8% per year. The long-term trend growth rate corresponds to the sum of the population growth rate and technical progress (respectively 1% and 1.8%)
+-   Prices grow at a rate of 3.5% per year.
+-   The unemployment rate is assumed constant and equal to 3.5%.
+-   The trade balance is negative and assumed constant (around -0.5 points of GDP).
+-   On the long term, GHG emissions rise in line with GDP, by 2.8% per year, because
+    the technical progress of the energy factor and the emission intensity of energy commodities are assumed constant.
+
+The variants implemented here are called "naive", i.e. they consist of modifying a single exogenous variable, the others being assumed to be constant; in contrast to the
+variants called "realistic",for which all exogenous variables that are likely to be influenced by the considered shock are modified, to assess all macroeconomic effects as realistically as possible.
+
+
+# Analysis and results of simulations
+
+In this section, we present one by one the simulated shock using ThreeME. These simulation consist of uni-variable shocks aimed at understanding the dynamic functioning of ThreeME. A total of 12 variants are available. They can be grouped into 4 categories, with shocks affecting public finances, foreign trade, energy prices, and productivity. For each variant, we provide the specific implementation of the shock, along with the resulting mechanisms and quantitative outcomes it triggers. Some simulation are presented as a shock of one variable equivalent to a 1% of GDP. This means that the magnitude of the shock is calibrated based on the GDP value in the first year of the shock and remains constant throughout the period (and does not vary with GDP at each time step).
+
+## Permanent increase of public spending by 1 GDP point (EXPG1)
+
+### Implementation
+
+The considered variant is a permanent positive shock of 1% of GDP on government final consumption, calibrated based on the GDP of the first year of the shock. The shocked variable is *EXPG* and is defined by equation  \ref{eq:1}:
+
+\textcolor{blue}{Final consumption of commodity c by public administrations.}
+
+```{=tex}
+\begin{equation}\label{eq:1}
+\varDelta \left(\operatorname{log} G_{c}\right) = \varDelta \left(\operatorname{log} EXPG\right)
+\end{equation}
+```
+### Mechanisms
+
+As public spending is a component of GDP (see the accounting equation \ref{eq:2}),an increase in public spending directly contributes to the growth of GDP. The magnitude of this increase depends on the value of the multiplier. This effect is particularly beneficial when it comes to expenditures related to the production of non-tradable services (education, healthcare, etc.).
+
+\textcolor{blue}{GDP (definition of expenditures)} \begin{equation}\label{eq:2}
+GDP = CH + G + I + X + DS - M
+\end{equation}
+
+However, a portion of public consumption is imported. Therefore, an increase in public spending leads to a rise in imports (M) and a decline in exports (X) due to the inflationary consequences of increased demand, which in turn raises wages and production costs. This results in a deterioration of the trade balance (X-M), expressed as a percentage of GDP, reducing the significance of the multiplier and mitigating the positive effect on GDP.
+
+### Results
+
+We observe an immediate impact on GDP, which increases by 1.3% in the first year. This effect intensifies up to 5 years after the shock but weakens in the long term, decreasing to +0.7% compared to the reference scenario by 2050. The multiplier is less than 1 due to the deterioration of the trade balance, which has a negative contribution to GDP, amounting to 0.1 points in both the short and long terms. However, investment and household final consumption positively contribute to GDP, increasing by 0.6% and 0.5%, respectively, compared to the reference scenario on the long term.
+
+The increase in the economic activity leads to a decrease in the unemployment rate, which declines by 1.6 percentage points 5 years after the shock and by 0.5 percentage points in the long term. Wages experience a long-term increase of 0.8%. The inflationary impact results in a long-term rise in consumer prices of 0.3%.
+
+Due to the initial increase in public spending, the public deficit is deteriorated, resulting in a decrease in the government's budget balance by 0.6% of GDP in the short term. However, the budget balance improves in the long term due to the multiplier effect, stabilizing at around 0.2% of GDP.
+
+
+## Permanent decrease in employer social contributions by 1 GDP point (RRSC1)
+
+### Implementation
+
+This simulation involves a permanent reduction in the employer social contribution rate. This reduction is calibrated such as the total revenue from employer social contributions is decreased by 1% of GDP (based on the GDP in the first year of the shock). This rate corresponds to the variable *RRSC*, with an average value of 0.04% across all sectors. 
+
+
+
+### Mechanisms
+
+The reduction in the RRSC social contribution rate leads to a decrease in the total social contributions paid by employers (equation \ref{eq:4}), resulting in a reduction in the overall cost of labor (equation \ref{eq:5}).
+
+\textcolor{blue}{Employer contributions to social security paid by the sector \textit{s}}
+\begin{equation}\label{eq:4}
+RSC_{s} \; PRSC_{s} = W_{s} \; F_{L, s} \; RRSC_{s}
+\end{equation}
+
+\textcolor{blue}{Labor cost in the sector \textit{s}} \begin{equation}\label{eq:5}
+C_{L, s} \; F_{L, s} = W_{s} \; F_{L, s} + RSC_{s} \; PRSC_{s}
+\end{equation}
+
+As a result, the production costs, encompassing all factors *f*, decrease (equation \ref{eq:6}), which also leads to a decrease in production prices (equation \ref{eq:6b}).
+
+\textcolor{blue}{Unit production cost in the sector \textit{s}}
+\begin{equation}\label{eq:6}
+CU^{n}_{s} \; Y_{s} = \sum_{f} C_{f, s} \; F^{n}_{f, s} + NTAXS^{VAL}_{s}
+\end{equation}
+
+\textcolor{blue}{Production price in the sector \textit{s} (with mark-up $\mu_s$)}
+\begin{equation}\label{eq:6b}
+PY^{n}_{s}  = CU^n_s (1 + \mu_s)
+\end{equation}
+
+The decrease in production prices is transmitted to other prices, including export prices, which improves competitiveness and increases exports. It also affects consumer prices, increasing real household income and consequently their consumption. The reduction in labor costs alters the relative prices of factors of production and promotes the substitution of capital with labor, leading to an increase in employment and a decrease in investment. The magnitude of this effect depends on the values of elasticities, which are reported below and remain the same across all variants.
+
+\textcolor{blue}{Élasticity of substitution (ES) between production factors \textit{f} et \textit{ff} in the sector \textit{s}}
+
+ES\[f, ff, s\] = 0,5
+
+### Results
+
+A positive, slow and gradual effect is observed on GDP, with an increase of 0.4% in the year of the shock, rising to 1.6% in the long term. The progressive nature of  GDP increase is due to the delayed adjustment of prices, which reflects the decrease in production costs with a delay. Consumer prices decrease by 0.6% in the first year of the shock and up to 1.8% in the long term. Similarly, employment increases by 2% in the long term, equivalent to 1 784 900 new jobs, driven by increased economic activity and the decline in nominal wages. The rise in economic activity tends to stimulate investment, which increases by 1.7% in the long term. In the long term, the trade balance deteriorates by 0.2 percentage points.
+
+The decrease in tax revenue resulting from the reduction in the employer contribution rate deteriorates the state's budget balance, with a si;
+
+{{< pagebreak >}}
+
+## Permanent decrease of VAT by 1 GDP point (VAT1)
+
+### Implementation
+
+The aim is to decrease the VAT rate by an amount such that the total VAT revenue is reduced by 1% of GDP. To achieve this, the variables RVATD and RVATM (average VAT rates on domestic and imported commodities, respectively) are uniformly shocked for all commodities in the model (equations \ref{eq:7} and \ref{eq:8}), at a level of 2.1 percentage points.
+
+\textcolor{blue}{Market price of final consumption \textit{c} produced at the national level.}
+\begin{equation}\label{eq:7}
+PCHD_{c} = PYQSBVAT_{c} \; \frac{1 + RVATD_{c}}{1 + RVATD_{c, t_0}}
+\end{equation}
+
+\textcolor{blue}{Market price of imported final consumption \textit{c}}
+\begin{equation}\label{eq:8}
+PCHM_{c} = PMSBVAT_{c} \; \frac{1 + RVATM_{c}}{1 + RVATM_{c, t_0}}
+\end{equation}
+
+The tax incidence of the VAT reduction is assumed to be complete, which means that the entire reduction is passed on to consumers without companies taking advantage of it to increase their profit margins. Additionally, VAT is only applicable to final consumption products and not to intermediate consumption, investment, or exports (which are exempt from VAT).
+
+### Mechanisms
+
+As simulated in this case, the reduction in VAT leads to a decrease in consumer prices (equation \ref{eq:8b}), resulting in a direct increase in consumption. Therefore, it represents a positive demand shock.
+
+\textcolor{blue}{Aggregate market price for household final consumption (IPC)}
+\begin{equation}\label{eq:8b}
+PCH.CH =  PCHD . CHD + PCHM . CHM
+\end{equation}
+
+This increase in demand leads to a general increase in economic activity, including investment. However, over time, wages decrease as they are indexed to consumer prices. As a result, production costs decrease, leading to increased competitiveness and exports.
+
+However, since the increase in consumption also involves an increase in imports, the long-term growth of GDP is limited.
+
+### Results
+
+We observe an immediate repercussion of the VAT reduction on consumer prices, which decrease by 1.8% in the first year of the shock. Consumption, adjusting to the increase in real income, increases up to 1.5% in the initial years following the shock. Its long-term growth is moderated (+1.3%) due to the decrease in wages, which are indexed to the consumer price index. However, investment is supported by the increase in economic activity and settles at +1.1% in the long term. Moreover, the decrease in wages and the rise in economic activity contribute to a long-term reduction in the unemployment rate by 1.2 percentage points.
+
+As a consequence of the decrease in wages and the improvement in price competitiveness, exports increase. A long-term increase of 0.5% in exports is sustained. However, this increase is not strong enough to offset the rise in imports, which initially experiences a significant surge due to increased demand. As a result, the trade balance moderately deteriorates throughout the period, by approximately 0.2 percentage points.
+
+GDP gradually increases over the period, stabilizing at +1.3% in the long term. However, the long-term GDP growth is not sufficient to compensate for the loss of tax revenue for the government due to the VAT reduction. As a result, the budget balance decreases by 0.2 percentage points of GDP.
+
+### Comparison with other models
+
+-   The variant estimated in the Mésange model is an increase in VAT by 1%, not a decrease. Considering the assumption of perfect symmetry (where the tax incidence is similar for both increases and decreases), we observe that the results of the two models mainly differ in the long term. This can be explained by the fact that in Mésange, the decrease in unemployment significantly increases labor costs (wages), thereby reversing the decrease in prices that favored consumption. Consequently, the increase in GDP is less pronounced. This effect is less visible in ThreeME.
+
+{{< pagebreak >}}
+
+## Permanent decrease of household income tax by 1 GDP point (INCT1)
+
+### Implementation
+
+This shock consists of reducing the tax rate on households' disposable income, *RINC_SOC_TAX*, such that the income derived from this tax permanently decreases by an amount equivalent to 1 GDP point, starting from the first year of the shock (equation \ref{eq:9}). This shock represents a decrease of 1.12 percentage points in this rate, which affects only households.
+
+\textcolor{blue}{axes and social contributions expressed in value} \begin{equation}\label{eq:9}
+INC^{SOC,TAX,VAL} = RINC^{SOC,TAX} . DISPINC^{BT,VAL}
+\end{equation}
+
+### Mechanisms
+
+A decrease in the amount paid for household income taxes directly leads to an increase in their disposable income (equation \ref{eq:10}) and therefore an increase in consumption, distributed between domestic and imported consumption. The consequences on national activity depend greatly on the share of imports in household consumption, which is around 20% in France[^4].
+
+[^4]: The share of imports in final household consumption was 20.8% in 2020 according to the ThreeME model data. This share was 19% in 2015 according to a study by INSEE (Bourgeois and Briand, 2019).
+    
+{{< pagebreak >}}
+
+\textcolor{blue}{Disposable income after tax expressed in value} \begin{equation}\label{eq:10}
+DISPINC^{AT,VAL} = DISPINC^{BT,VAL} - INC^{SOC,TAX,VAL}
+\end{equation}
+
+The resulting increase in demand leads to higher consumer and production prices, which reduces exports and limits long-term GDP growth despite an increase in investment
+
+### Results
+
+We observe a significant and sustained effect of the income tax reduction on GDP, with a 0.5% increase in the first year of the shock and a long-term increase of 0.9%. The increase in households' disposable income initially drives this GDP growth by stimulating consumption (which increases by +2.6% in the fifth year following the shock and stabilizes at +2.2% in the long term). However, this positive effect is offset in the long term by a deterioration in the trade balance due to the increase in imported goods consumption and the rise in production prices.
+
+In the long term, the increase in investment takes over from the increase in consumption to support GDP, with a long-term increase of 1.2%. However, the rise in production prices undermines competitiveness, leading to a decline in exports from the fifth year onward and dampening the increase in economic activity. Despite this slowdown in activity in the long term, the dynamics of the shock remains sufficient to increase employment by 0.7% in the long term.
+
+The tax gains resulting from the additional economic activity are not enough to offset the losses caused by the income tax reduction. The budget balance decreases by 0.4 percentage points of GDP.
+
+### Comparison with other models
+
+-   Comparatively to Mésange, ThreeME simulates a significantly stronger effect of the income tax reduction on household disposable income, particularly after a decade (+3.4% vs +2.1%). This results in a larger increase in consumption in ThreeME compared to Mésange, and consequently a slightly higher GDP. However, this difference is less significant for other macroeconomic indicators.
+
+## Permanent depreciation of 10% in the euro (EXR10)
+
+### Implementation
+
+To represent a permanent depreciation of the euro by 10%, we directly shock the variable *EXR*, which is defined as the exchange rate of the euro with currencies from the rest of the world. We assume that a 10% decrease in the euro's exchange rate against all currencies represents an approximately 5% depreciation in the effective exchange rate. Therefore, the EXR exchange rate is increased by 5%. The assumed elasticity of exports is uniform across all sectors and commodities, and is set at 0.8 (i.e., a positive effect of the euro depreciation on the economy).
+
+### Mechanisms
+
+As a consequence of the euro depreciation, the relative prices of imported products from foreign competitors increase (equation \ref{eq:11}). This has a dual effect on the economy. On one hand, there is a negative impact on activity due to the rise in import prices, leading to a decrease in real income for agents. On the other hand, there is a positive effect on price competitiveness compared to foreign competitors: exports increase and imports decrease in favor of domestic producers. The final impact depends on the levels of import and export elasticity (Marshall-Lerner critical elasticities theorem).
+
+\textcolor{blue}{Price of imported commodity \textit{c} expressed at base prices}
+\begin{equation}\label{eq:11}
+PM_{c} = EXR . PWD_{c}
+\end{equation}
+
+There is a substitution effect that occurs as a consequence of the exchange rate variation (equations \ref{eq:12} and \ref{eq:13}). Some of the imported production is substituted by domestic production. Competitiveness in the foreign market also increases. However, the effect is not permanent as the increase in import prices gradually translates into higher production prices. In the long term, the impact of the competitiveness increase is almost negligible. Therefore, it is a transitory effect.
+
+\textcolor{blue}{Foreign demand for commodity exports \textit{c}}
+\begin{equation}\label{eq:12}
+\varDelta \left(\operatorname{log} X_{c}\right) = \varDelta \left(\operatorname{log} WD_{c}\right) + \varDelta \left(SUBST^{X}_{c}\right)
+\end{equation}
+
+\textcolor{blue}{Theoretical substitution effect induced by a change in the relative price between export prices (converted into national currency) and international prices of the commodity c}
+\begin{equation}\label{eq:13}
+\varDelta \left(SUBST^{X,n}_{c}\right) = -\eta^{X}_{c} \; \varDelta \left(\operatorname{log} PX_{c} - \operatorname{log} \left(EXR . PWD_{c}\right)\right)
+\end{equation}
+
+### Results
+
+We observe a positive effect on GDP during the first five years, around 0.9%, which is neutralized in the long term (+0.1%), as well as an increase in employment. In the short term, exports increase up to 1.7% at 5 years. However, this effect on exports diminishes in the long term (+0.2%) due to the simultaneous increase in production prices (+4.6%) and wages (+4.8%). Imports decrease in the years following the shock, eventually returning to the level of the reference scenario in the long term. As a result, the trade balance converges towards the level of the reference scenario in the long term.
+
+The europ depreciation allows for an increase in the government's budget balance in the medium term (+0.5% of GDP at 10 years) due to the rise in economic activity and the absence of a decrease in endogenous revenue. However, this effect does not persist in the long term, and the budget balance returns to its level in the reference scenario.
+
+### Comparison with other models
+
+-   In ThreeME, the distinction between imports coming from Europe and those originating from the rest of the world is not explicitly modeled.
+-   In the Mésange model, the increase in exports due to a 10% depreciation of the euro is more pronounced (around 2.31% at 5 years) both in the short term and the long term. This can be explained by the fact that import prices have a higher adjustment delay and therefore increase more gradually in Mésange. Additionally, export prices adjust more slowly in Mésange, making French products more competitive over a longer period.
+
+{{< pagebreak >}}
+
+## Permanent increase of 1% in global demand (WD1)
+
+### Implementation
+
+A permanent increase of 1% in global demand addressed to France is represented by uniformly shocking the variable *WD* for all commodities and sectors (equation \ref{eq:14}). It's important to note that this also applies to the financial sectors, which are not explicitly modeled.
+
+\textcolor{blue}{Foreign demand for exports of commodity \textit{c}}
+\begin{equation}\label{eq:14}
+\varDelta \left(\operatorname{log} X_{c}\right) = \varDelta \left(\operatorname{log} WD_{c}\right) + \varDelta \left(SUBST^{X}_{c}\right)
+\end{equation}
+
+### Mechanisms
+
+The increase in global demand leads to an increase in exports, which has positive effects on overall economic activity. The exports include a portion of re-exports. On average, the share of imports in exported products is 8.7% (XM/X). This mechanism explains the initially observed positive effect on imports. Simultaneously, there is an increase in employment and investment. This raises the real disposable income of households, leading to increased consumption, which also contributes to the rise in imports.
+
+### Results
+
+Exports increase by approximately 1% over the period, with a modest slowdown in the long term due to the increase in production prices, following the rise in intermediate consumption prices and wages. This increase stimulates productive activity, and GDP follows a similar trend, with magnitudes around +0.3%. Initially, the trade balance improves due to the increase in exports. However, this effect is limited in the long term because of the increase in imports (0.6% in the long term) associated with the increase of consumption (0.2% in the long term) and prices (0.2% in the long term) resulting from the rise in activity. The improvement in the trade balance decreases from 0.2 points in the first year to 0.1 points in the long term. Employment and nominal wages increase by 0.3% and 0.4% respectively in the long term. The rise in labor costs gradually increases investment over the period to substitute capital for labor.
+
+This shock has a positive effect on the government's budget balance, which increases by a constant 0.2 points over the period.
+
+### Comparison with other models
+
+-   The effects of this shock are more positive in ThreeME compared to Mésange (+0.4% vs +0.17% respectively at 10 years). This can be explained by several factors. In Mésange, the shock to the level of exports is not fully transmitted due to the adjustment delays in French supply (exports only increase by 0.72% instead of 1% in the first year of the shock). Additionally, the inflationary consequences of this increase in activity are more pronounced in Mésange. This is partially due to the fact that import prices increase (due to the rise in global demand) in Mésange, while they remain stable (as exogenous) in ThreeME, which affects production prices differently.
+{{< pagebreak >}}
+
+## 10% increase in fossil fuel prices (FF10)
+
+### Implementation
+
+The fossil fuels considered for this variant are oil and gas. The corresponding price variables are PWD_CFUT for oil and PWD_CGAS for gas, both of which are permanently shocked by +10%. These fossil fuel price variables are calibrated in the reference scenario to grow at a rate of 2%, similar to other prices. This shock amplifies this growth, and the price per tonne of oil increases from €391.6 in 2020 to €466 in 2021, reaching €1,009 in the long term\footnote{Expressed in 2015 euros, with an average Brent crude oil price of €55 in 2015 (equivalent to $49.49 in 2015).}.
+
+### Mechanisms
+
+The increase in fossil fuel prices represents both a negative supply and demand shock due to the inflationary effect caused by higher import prices. On one hand, the increase in gas and oil prices raises production costs for businesses. On the other hand, it raises consumer prices for households. As a result, we observe a decrease in economic activity, the magnitude of which depends on the substitution between capital-energy and labor. The corresponding substitution elasticities are reported below. If this substitution is strong, then the negative impacts on GDP are small or even absent. This is because the substitution leads to an increase in employment and investment, which can offset the negative effects of this shock. However, the extent of substitution and its effects may not always be significant depending on the selected elasticities. Here, the elasticity of substitution between energy intermediate consumption is 0.2.
+
+This variant is sometimes referred to as "naïve" because foreign prices and global demand are assumed to remain unchanged. However, the increase in global fossil fuel prices also affects economic activity in the rest of the world. As a result, the relative loss of competitiveness is less pronounced, leading to a less significant deterioration in the trade balance. However, the global demand addressed to France is also weaker, and imported inflation is stronger.
+
+
+### Results
+
+The shock has a negative but very weak effect. GDP does not differ from the reference scenario during the early years following the shock and decreases by 0.1% in the long term. Initially, only consumption and imports decrease (-0.1%), while other macroeconomic indicators remain stable. After a decade following the shock, consumer and production prices increase by approximately 0.4% due to insufficient capital-energy substitution. In the long term, this slightly reduces employment and exports (-0.1% for both).
+
+Given the low magnitude of these effects, the impacts on the trade balance and the government's budget balance are almost negligible compared to the scenario without the shock.
+
+### Comparison with other models
+
+-   The variant considered by Mésange is a specific 20% increase in the price of oil only (and not all fossil fuels), so it is not directly comparable to the current scenario. For a more relevant comparison of the variant, refer to Callonnec et al. (2016). 
+
+{{< pagebreak >}}
+
+## Permanent increase of carbone tax by 1 GDP point (CT1)
+
+### Implementation
+
+This variant consists of a permanent increase in the amount of the carbon tax RCO2TAX_VOL, such that the revenue generated from carbon taxation increases by 1 percentage point of GDP (taken in the first year of the shock). The scope of this tax includes emissions related to intermediate consumption, materials, production, and household consumption (variables *EMS_CI_CO2, EMS_MAT_CO2, EMS_Y_CO2*, and *EMS_CH_CO2* respectively).
+
+This increase corresponds to the implementation of a carbon tax of €62.3/tCO2, which is not present in the reference scenario. This increase is implemented without a carbon border adjustment mechanism. The tax revenue is not recycled and is entirely allocated to reduce the public deficit.
+
+### Mechanisms
+
+The effect of implementing a carbon tax is an increase in the prices of carbon-intensive commodities (equation  \ref{eq:15} and \ref{eq:16}). Its macroeconomic effects are similar to those of an increase in oil prices, with the difference that the implementation of a carbon tax generates additional tax revenue, which can be used to reduce the public deficit in the absence of recycling.
+
+The increase in consumer prices reduces households' real wages and consumption while increasing nominal wages. This leads to an increase in production costs, driven by the higher prices of intermediate consumption, which are also subject to the carbon tax. Consequently, there is a loss of competitiveness and a decrease in exports (equation \ref{eq:17} and \ref{eq:18}). In case of strong substitution between  production factors, the increase in investment may compensate for the decrease in household consumption, in addition to the decrease in imports due to their higher cost.
+
+
+\textcolor{blue}{ Market price of final household consumption of the domestically producedcommodity \textit{c}}
+\begin{equation}\label{eq:15}
+PCHD_{c} = PYQSBVAT_{c} \; \frac{1 + RVATD_{c}}{1 + RVATD_{c, t_0}} + \frac{T2VAL_CH[c]}{CH[c]}
+\end{equation}
+
+\textcolor{blue}{Market price of final household consumption of the imported commodity \textit{c}}
+\begin{equation}\label{eq:16}
+PCHM_{c} = PMSBVAT_{c} \; \frac{1 + RVATM_{c}}{1 + RVATM_{c, t_0}} + \frac{T2VAL_CH[c]}{CH[c]}
+\end{equation}
+
+\textcolor{blue}{Market price of intermediate consumption of the domestically produced commodity \textit{c} purchased by the sector \textit{s}}
+\begin{equation}\label{eq:17}
+PCID_{c, s} = PYQSBVAT_{c} + \frac{T2VAL^{CI}_{c, s}}{CI_{c, s}}
+\end{equation}
+
+\textcolor{blue}{Market price of intermediate consumption of the imported commodity \textit{c} and purchased by the sector \textit{s}}
+\begin{equation}\label{eq:18}
+PCIM_{c, s} = PMSBVAT_{c} + \frac{T2VAL^{CI}_{c, s}}{CI_{c, s}}
+\end{equation}
+
+### Results
+
+GDP decreases by 0.2% in the first year and continues to decline throughout the period, resulting in a decrease of 0.9% by 2060. Consumption decreases (-0.8% in the long term) due to the increase in consumer and production prices. Additionally, the low level of substitution between capital and energy (ES = 0.5) does not support investment, which also decreases, accompanying the decline in economic activity. Due to the price increase, wages rise, further exacerbating the decrease in employment alongside the decline in activity (in the long term, an increase of 0.7 percentage points in the unemployment rate). Despite a significant decrease in exports (-1.5% in the long term) due to reduced competitiveness, the simultaneous decrease in imports (-0.7%) allows for an improvement in the trade balance over the period, by approximately 0.4 percentage points.
+
+Despite the decline in GDP, the new tax revenue generated from the carbon tax increase allows the government to improve its budget balance, initially quite significantly (+0.7 percentage points of GDP in the first year of the shock), and more modestly in the long term (+0.3 percentage points of GDP).
+
+### Comparison with other models
+
+-   Overall, the effects of this variant on GDP are similar across Mésange, ThreeME, Némésis, and Imaclim-R France.
+-   In the medium term, ThreeME and Mésange show similar results  in terms of job losses, real wages, and consumer prices. However, in the long term, consumer prices continue to increase in ThreeME-WS (the version used here) [^5], which reinforces the decrease in employment, while they stabilize at a modest inflation level in Mésange and ThreeME-Phillips, accentuating the decrease in wages, stabilizing job destruction, and slowing down the decline in economic activity.
+-   In Némésis, the price increase is more pronounced (around 3.4% over the period), which significantly decreases real wages and thus stabilizes job losses.
+-   In Imaclim-R, the decline in GDP is more pronounced in the short term but diminishes to almost reach the reference level in the long term. This is due to the fact that Imaclim-R incorporates more short-term rigidities, which means that quantities take more time to adjust to price shocks.
+-   The reductions in greenhouse gas (GHG) emissions in ThreeME are insensitive to the choice of wage equation and are around -10% in the long term (France Stratégie, 2015). Since the Mésange model does not contain a detailed energy module, it is not possible to obtain this kind of information for this model. The decrease in emissions in Némésis is slightly more pronounced in the short term but slightly less pronounced in the long term. In Imaclim-R, emissions decrease modestly in the short term but reach the same level as ThreeME in the long term. However, the modalities of emission reductions differ among the three models: in ThreeME, this decrease is achieved through substitutions of transportation or heating modes in household choices and between energy types in production choices, with an exogenous energy mix, while this mix varies endogenously in Némésis and is the cause of the emission decrease, with a rather stable energy consumption.
+-   These different economic effects are obviously conditioned by the presence and modalities of carbon tax revenue recycling.
+
+[^5]: Two labor market modeling approaches are possible in ThreeME: the wage-setting curve (WS) approach and the Phillips curve approach. These versions are referred to as ThreeME-WS and ThreeME-Phillips, respectively.
+
+{{< pagebreak >}}
+
+## Increase in capital productivity by 10% (PRODK10)
+
+### Implementation
+
+the effect of a permanent long-term increase of 10% in capital productivity is simulated. The dynamics of capital's technical progress, represented by the variable *PROG_K*, are modeled through an equation that incorporates a growth rate of technical progress for this factor, denoted as *GR_PROG_EXO_K*. In the reference scenario, the value of this growth rate is zero. However, in the variant, it is uniformly increased to 10% for all sectors..
+
+### Mechanisms
+
+Given that capital demand is negatively correlated with its productivity (equation \ref{eq:19}), an increase in capital's technical progress leads to a decrease in its demand and consequently its price. However, this effect is offset by a substitution effect. When the relative cost of a production factor decreases, the demand for that factor increases as it is perceived as cheaper compared to other factors. The magnitude of this substitution effect largely depends on the chosen elasticities (equation \ref{eq:20}). In this case, an elasticity value of 0.5 is used.
+
+\textcolor{blue}{Demand for the production factor \textit{f} by the sector \textit{s}}
+\begin{equation}\label{eq:19}
+\varDelta \left(\operatorname{log} F^{n}_{f, s}\right) = \varDelta \left(\operatorname{log} Y_{s}\right) - \varDelta \left(\operatorname{log} PROG_{f, s}\right) + \varDelta \left(SUBST^{F}_{f, s}\right)
+\end{equation}
+
+\textcolor{blue}{Substitution between the input \textit{f} and the orher inputs \textit{ff}}
+\begin{equation}\label{eq:20}
+\varDelta \left(SUBST^{F,n}_{f, s}\right) = \sum_{ff} -ES_{f, ff, s} \; \varphi_{ff, s, t-1} \; \varDelta \left(\operatorname{log} \frac{C_{f, s}}{PROG_{f, s}} - \operatorname{log} \frac{C_{ff, s}}{PROG_{ff, s}}\right)
+\end{equation}
+
+Initially, the adopted elasticities are sufficiently high to trigger substitutions in favor of increased demand for capital due to the decrease in its relative price. Production prices decrease (as the unit cost of production decreases, equation \ref{eq:21}), and investment increases in the medium term. However, over the longer term, the effect of decreased capital demand due to productivity gains prevails, leading to substitutions away from capital, especially considering that the cost of labor has also decreased due to the price decline. As a result of declining wages, household real income decreases in the long term, ultimately affecting consumption.
+
+In the long term, the increase in GDP is driven by the growth in exports coupled with a decrease in imports, resulting from the decline in production prices and the decrease in consumption, respectively.
+
+
+\textcolor{blue}{Unit production cost in the sector s} \begin{equation}\label{eq:21}
+CU^{n}_{s} \; Y_{s} = \sum_{f} C_{f, s} \; F^{n}_{f, s} + NTAXS^{VAL}_{s}
+\end{equation}
+
+The increase in capital productivity enhances production capacity for a given level of capital (equation \ref{eq:22}). As a result, the utilization rate of production capacity decreases (equation \ref{eq:23}) along with the profit margin (equation \ref{eq:25}). Due to the cost decrease, production prices decline due to the lower profit margin (equation \ref{eq:24}), reinforcing the observed effect. This also leads to a decrease in imports. This improvement in the trade balance contributes to the long-term increase in GDP.
+
+
+\textcolor{blue}{Production capacity of sector s} \begin{equation}\label{eq:22}
+\varDelta \left(\operatorname{log} YCAP_{s}\right) = \sum_{f} \varphi_{f, s, t-1} \; \varDelta \left(\operatorname{log} \left(F_{f, s} \; PROG_{f, s}\right)\right) + \alpha^{YCAP,Y}_{s} \; \left( \operatorname{log} Y_{s, t-1} - \operatorname{log} \left(YCAP_{s, t-1} \; CUR_{s, t_0}\right) \right)
+\end{equation}
+
+\textcolor{blue}{Capacity utilization rate of sector s}
+\begin{equation}\label{eq:23}
+CUR_{s} = \frac{Y_{s}}{YCAP_{s}}
+\end{equation}
+
+\textcolor{blue}{Notional margin of sector s} \begin{equation}\label{eq:25}
+\varDelta \left(\operatorname{log} \left(1 + \mu^{n}_{s}\right)\right) = \rho^{\mu,Y} . \varDelta \left(\operatorname{log} CUR_{s}\right)
+\end{equation}
+
+\textcolor{blue}{Production price of sector s} \begin{equation}\label{eq:24}
+PY^{n}_{s} = CU^{n}_{s} \; \left( 1 + \mu_{s} \right)
+\end{equation}
+
+### Results
+
+GDP increases by approximately 1.1% in 10 years and also in the long term. Substitutions occur slowly, resulting in an increase in investment during the early years (up to 1% at 5 years) followed by a decrease in the long term, reaching -5.1%. Employment slightly increases following the shock (up to +0.5% at 20 years), but returns to its reference level in the long term. Production prices decline throughout the period, reaching -7.4% in the long term. Consumer prices decrease by 4.2% at 5 years, allowing households to initially increase their consumption before having to reduce it due to the decrease in wages that adjust to the price decline.
+
+Exports increase, and the trade balance improves to reach a value around +0.5 percentage points of GDP in the long term. As for imports, they increase by 0.2% in the initial years following the shock, and then decrease by 2.9% in the long term.
+
+Despite the increase in GDP and production, the absence of job creation and the decrease in households' disposable income do not allow the government to generate a significant budget surplus following the increase in capital productivity. Therefore, the long-term budget balance level remains unchanged compared to the reference scenario.
+
+### Comparison with other models
+
+--
+
+{{< pagebreak >}}
+
+## Increase in energy productivity by 10% (PRODE10)
+
+### Implementation
+
+The long-term productivity of the energy factor is not solely defined by the exogenous growth rate *GR_PROG_EXO_E* as in the previous variant but also by an endogenous component. This component represents endogenous energy efficiency gains, which depend on a constant *RHO_PROG_E_PE* initialized at 0.1, and the real price of energy: when the energy price increases, energy efficiency improves (in an irreversible manner). In this variant, a permanent increase of approximately 10% in the exogenous part of energy productivity is considered. Therefore, the growth rate of energy technical progress *GR_PROG_EXO_E* is uniformly raised to 10% for all sectors.
+
+### Mechanisms
+
+The underlying mechanisms are similar to those observed in the productivity shock of capital. In the case of the energy productivity variant, substitutions occur in the opposite direction, which tends to decrease investment and potentially employment, thus affecting consumption. The effect on GDP is the result of these conflicting effects, depending on their respective magnitudes.
+
+If energy demand decreases, imports also decrease (as energy is largely an imported good), while exports increase due to the decline in production prices. Consequently, the effect on the trade balance would be positive.
+
+### Results
+
+Initially, the effect of the decrease in the relative price of energy seems to prevail, with negative substitution effects  for labor and capital (-0.1% in employment and investment in the first year of the shock). However, very quickly, the effect of the decrease in energy demand appears to dominate, bringing employment and investment back to their reference level after 5 and 10 years, respectively, especially as the relative cost of labor has also decreased.
+
+The effect on the decrease in production prices is lasting and increasing, with prices declining by 0.8% in the long term, which allows for a 0.1% increase in consumption despite the wage decrease. This decline in production prices also contributes to an increase in exports (+0.7% in the long term), which, combined with the decrease in imports (partly due to the decrease in energy demand), slightly improves the trade balance.
+
+In the short term, the energy productivity gains significantly reduce greenhouse gas emissions (-3%), but this effect diminishes with the decrease in energy demand, which substitutes for capital, potentially emitting more.
+
+The increase in economic activity following this energy productivity shock does not significantly improve the government's budget balance in the long term (+0.1 percentage point of GDP).
+
+### Comparison with other models
+
+--
+
+{{< pagebreak >}}
+
+## Increase in labor productivity by 10% (PRODL10)
+
+### Implementation
+
+This variant considers a 10% increase in the long-term productivity of labor. While the dynamics of labor's technical progress are defined in the same manner as that of capital, the growth rate of labor's technical progress *GR_PROG_L* is not zero in the reference scenario but set at 1%. This variable is uniformly increased by 10% for all sectors.
+
+### Mechanisms
+
+The increase in labor productivity reduces the demand for workers, resulting in a decrease in employment and an increase in the unemployment rate. However, due to a moderate substitution elasticity between production factors, the decrease in the relative cost of labor can help mitigate or offset this decline in employment.
+
+Moreover, as labor productivity increases, the wage rate also increases, supporting higher consumption. This effect mitigates the impact of the decrease in the relative cost of labor. Substitution with capital and energy does not favor labor, and investment increases. This increase in economic activity promotes exports. Consequently, the effect on GDP is positive.
+
+### Results
+
+Initially, wages increase significantly (+3.5% in the year following the shock), which exacerbates the decrease in labor demand, reaching its lowest level 5 years after the shock (-7.9%, resulting in the destruction of over 2 million jobs). However, this phenomenon leads to a decrease in production prices (-4.9% at 5 years), which in turn increases exports and reduces consumer prices, stimulating consumption (+0.5% at 5 years).
+
+In a second phase, this price decline contributes to wage moderation (only +0.7% in the long term) due to wage indexation to prices. This helps alleviate the increase in unemployment (which remains around +6 percentage points in the long term), but it is not sufficient to significantly reduce the relative cost of labor. As a result, investment increases by up to +1.8% in the long term, also stimulated by the increase in economic activity.
+
+As a result, GDP in the long term increases by 2.5%, driven by gradually growing consumption (due to lower consumer prices and higher wages), and more significantly by increased investment to meet the rising consumption and exports. The decrease in imports also contributes to improving the trade balance (negative values in the table only represent price effects).
+
+The increase in unemployment and the decrease in household disposable income prevent the government's budget balance from benefiting significantly from the long-term GDP growth. Thus, the budget balance is 0.4 percentage points lower than in the reference scenario at the end of the period.
+
+### Comparison with other models
+
+--
+
+{{< pagebreak >}}
+
+## Increase in total factor productivity by 10%. (TPF10)
+
+### Implementation
+
+This variant, which involves a 10% increase in the total factor productivity (TFP) of production, combines the three previous variants. This means that the growth rates of capital, labor, and energy technical progress (represented by *GR_PROG_EXO_K, GR_PROG_EXO_L*, and *GR_PROG_EXO_E* respectively) are uniformly increased by 10% for all sectors. Therefore, it represents a shock to the overall productivity of the factors of production, including energy.
+
+### Mechanisms
+
+The effects of a 10% increase in total factor productivity (TFP) are a combination of the effects observed in the three previous variants. The long-term effect on GDP is positive and significant. Initially, this increase is driven by consumption (due to the decrease in consumer prices, although subsequently offset by wage decreases and increased unemployment), followed by investment (due to capital productivity gains), and an improvement in the trade balance (due to lower production costs). In the long term, the improvement in the trade balance, driven by labor productivity gains, leads to an increase in the public primary balance.
+
+### Results
+
+The GDP increases by 0.6% in the first year of the shock, and by approximately 1.6% in the long term. Initially, the increase in consumption (+0.5%) due to the decrease in production and consumer prices (reductions of 1.4% and 1.2% respectively) resulting from the increase in capital and energy productivity, generates economic activity and boosts investment.
+
+In the subsequent phase, wages decrease (-3.1% at 5 years) primarily due to the decline in prices, which, combined with the increase in labor productivity, reduces the relative cost of labor. This leads to a decrease in unemployment in the medium term (-0.4 percentage points at 10 years) and a reduction in investment (-5% in the long term) due to substitution effects. However, the continuous decline in wages negatively impacts long-term consumption, which decreases by 0.3%. As a result, the increase in GDP is slowed down, mainly driven by the rise in exports (+6.2%) and the decrease in imports (-3.4%), significantly improving the trade balance (+0.6 percentage points).
+
+However, the government's budget balance does not benefit from the long-term increase in economic activity (mainly driven by external trade), and its level in the long term is equivalent to that of the reference scenario.
+
+### Comparison with other models
+
+--
+
+{{< pagebreak >}}
+
+## Summary of the Mésange-ThreeME Comparison
+
+| Variant   | Indicato r    | Mésange | ThreeME-WS |
+|-----------|---------------|:-------:|:----------:|
+| **EXPG1** | GDP           |  \+ +   |     \+     |
+|           | Prod. price   | \+ + +  |    \+ +    |
+|           | Cons. price   | \+ + +  |    \+ +    |
+| **RRSC1** | GDP           |  \+ +   |     \+     |
+|           | Dispo. income |   \+    |     \-     |
+|           | Cons. price   |   \-    |     \-     |
+|           | Unemployment  |   \-    |     \-     |
+|           | Cons.         |  \+ +   |     \+     |
+| **VAT1**  | GDP           |   \+    |    \+ +    |
+|           | Unemployment  |   \-    |     \-     |
+|           | Wage          |   \+    |     \-     |
+|           | Cons. price   |   \-    |    \- -    |
+| **INCT1** | Dispo. income |   \+    |    \+ +    |
+|           | Conso.        |   \+    |    \+ +    |
+|           | GDP           |   \+    |    \+ +    |
+| **EXR10** | Export        | \+ + +  |     \+     |
+|           | Export price  |   \+    |    \+ +    |
+|           | Import price  |   \+    |    \+ +    |
+| **WD1**   | GDP           |   \+    |    \+ +    |
+|           | Export        |   \+    |    \+ +    |
+|           | Cons. price   |  \+ +   |     \+     |
+|           | Import price  |   \+    |     \~     |
+| **CT1**   | Employment    |   \~    |     \-     |
+|           | Wage          |   \-    |     \+     |
+|           | Cons. price   |   \+    |    \+ +    |
+
+: Comparison of the direction and magnitude of the effects of variants between Mésange and ThreeME
+
+The sign "+" or "-" indicates whether the effect of the variant on the indicator is positive or negative compared to the reference scenario. The number of signs indicates the intensity of the effect ("-" or "+" denotes a modest effect, "---" or "+++" denotes a pronounced effect, and "\~" denotes no difference from the reference scenario).
+
+
+{{< pagebreak >}}
+
+## Extension of analysis
+
+### Focus 1: GES emissions in ThreeME
+
+GES emissions are integrated in ThreeME according to equation \ref{eq:GES}.
+\begin{equation}\label{eq:GES}
+\varDelta \left(\operatorname{log} EMS^X_{ghg,c,s}\right) = \varDelta \left(\operatorname{log} (X_{c,s}\times IEMS^X_{ghg,c,s})\right)
+\end{equation}
+
+With $X$ a generic term used to represent the quantity of energy demanded for intermediate consumption (CI), materials (MAT), production (Y), and final consumption of households (CH). $IEMS$ represents the emission intensity for these four emission categories. The emission coefficients are exogenous and specific to each economic actor, sector, and energy source.
+
+Several mechanisms of energy consumption variation are modeled in ThreeME. These mainly include:
+
+-   Substitutions between capital, labor, and energy, as well as between energy sources at the firm level.
+
+-   Substitutions between modes of transportation, commodities, and energy investment classes for households in the hybrid version of the model.
+
+-   Energy efficiency gains
+
+These mechanisms operate based on relative energy prices. Additionally, the level of detail in the substitutions and energy consumption behaviors depends on the version of the model used.
+
+As seen in the results of the previous variants, greenhouse gas (GHG) emissions are correlated with energy consumption. In most variants, as consumption increases, GHG emissions also tend to increase. Conversely, emissions decrease in variants with higher fossil fuel prices, carbon tax, and energy efficiency improvements.
+
+The latter case represents the only variant where an increase in consumption is accompanied by a decrease in emissions. This is due to the fact that, for the same level of demand, energy efficiency gains reduce energy consumption and therefore emissions. As the increase in final consumption is modest in this case, the decrease in emissions is significant (-1.2% in the long term).
+
+Emission reductions are stronger in the carbon tax variant compared to the 10% increase in fossil fuel prices. However, the trend is similar, with a significant decrease in the first five years, followed by a plateau where emission reductions stabilize in the long term (around -0.8% for CT1 and -8.5% for FF10).
+
+This difference can be attributed to the scope of application and the intensity of the price increase. The carbon tax affects the prices of all commodities with non-zero carbon intensity, while the increase in fossil fuel prices primarily impacts the prices of two commodities (natural gas and oil). As a result, the relative price change is more significant in the carbon tax variant. This leads to a significantly higher increase in production and consumption prices compared to the variant with only a fossil fuel price increase (0.3% vs. 2% and 0.5% vs. 2.2% in the long term). Substitution effects between commodities (with a modest elasticity value of 0.5) result in higher prices for carbon-intensive commodities, leading to a decrease in their consumption.
+
+### Focus 2: Key elements for sectoral analysis
+
+-    In order to ensure readability of the results, sectoral analyses are presented at an aggregation level of 8 sectors, even though the model contains 32 sectors. The results are of two types. Firstly, the relative variations compared to the reference scenario for each sector. Secondly, the relative contribution of each sector to the overall variation (which allows for an understanding of the relative importance of each sector in the structure of the French economy). The main indicators of interest are production, value added, prices at production, employment, and investment, as well as the levels of final demand and intermediate consumption for commodities (which correspond to the different sectors).
+
+-   There are two types of variants with different interpretive mechanisms. On one hand, there are shocks that primarily affect quantity variables, and on the other hand, there are shocks that directly affect price variables. In the first case, the production and value added of sectors are more closely influenced by the level of demand, particularly intermediate consumption, rather than price levels. For example, in most variants, the fossil fuels sector shows a more moderate increase in production prices compared to other sectors, due to the fact that these prices largely depend on the price of imported energy, which is exogenous and constant. However, this relative price decrease does not imply a higher level of production for this sector.
+
+-   Investment and employment in different sectors are strongly correlated with their respective levels of production. Specifically, the observations suggest that when production increases, it is a result of increased demand for that sector. Consequently, employment and investment also increase simultaneously. The phenomenon of substitution between capital and labor, which suggests an inverse relationship between investment and employment within the same sector, is not significantly observed.
+
+-   Due to the structure of the economy, the sectors that contribute the most to macroeconomic variations are services, construction, and non-energy industries in the case of shocks to quantity variables. In the case of shocks to price/monetary variables, the sectors that contribute the most are services, non-energy industries, and energy industries.
+
+{{< pagebreak >}}
+
+# References
+
+Bardaji J., B. Campagne, M.-B. Khder, Q. Lafféter et O. Simon - DG Trésor : A.-S. Dufernez, C.
+Élezaar, P. Leblanc, E. Masson et H. Partouche (2017), « Le modèle macroéconométrique Mésange :
+réestimation et nouveautés », *Insee Document de travail*, n° G2017/04, Insee.
+
+Bourgeois A. et A. Briand (2019), « Le «made in France» : 81% de la consommation totale des ménages,
+mais 36% seulement de celle des biens manufacturés », *Insee Première*, n°1756, Insee.
+
+Callonnec G., G. Landa Rivera, P. Malliet, A. Saussay et F. Reynes (2016), « Les propriétés
+dynamiques et de long terme du modèle ThreeME. Un cahier de variantes », *Revue de l'OFCE*, vol.
+149, no 5.
+
+France Stratégie (2015), « La transition énergétique vue par les modèles macroéconomiques »,
+*Document de travail*, N°2015-05/Octobre.

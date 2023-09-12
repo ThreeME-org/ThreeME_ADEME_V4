@@ -1,0 +1,422 @@
+---
+title: "Simulation d'une taxe carbon identique sur des pays européens"
+subtitle: "Scenario: `r params$scenario_name`"
+author: "ThreeME team"
+date: "`r format(Sys.Date(), '%d %B %y')`"
+output:
+  html_document:
+    number_sections: yes
+    theme: cerulean
+    toc: yes
+    toc_float: yes
+    df_print: paged
+    code_folding: show
+  word_document: default
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
+params:
+  startyear: 2020
+  endyear: 2050
+  scenario_name: carbontax
+  classification: c28_s32
+  template_default: classic
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	results = "hide"
+)
+```
+
+```{r Plots default options}
+
+
+
+startyear <- params$startyear
+endyear <- params$endyear
+scenario_name <- params$scenario_name
+classification <- params$classification
+template_default <- params$template_default
+
+```
+
+The template is employed to better visualize the results of the first tests of ThreeME models done by Jin. The tested models include: Austria, Germany, Spain, Finland, Greece, Switzerland, Denmark, Estonia and Great Britain. 
+
+I introduce, for all countries under the test, the same carbon tax (except Austria, where the level of carbon tax seems too high for this country) in order to check if there are anomalies in terms of resolution of Eviews as well as its outputs, with which we could find, by comparing outputs between different countries, potential errors in the calibration framework.
+
+The level of the tax imposed here is only to diagnose the functioning of these models.
+
+```{r Required packages, message=FALSE, warning=FALSE}
+source("src/functions.R")
+
+#Definition of country and indicators to analysis
+country_list           <- c("aut","che","deu","dnk","esp","est","fin","gbr","grc")
+#country_list <- c("aut","che","deu","dnk","esp","est","fin","gbr","grc","bel","lux","hun","ita","pol","fra","lva","prt","swe")
+country_names          <- c("Austria","Switzerland","Germany","Denmark","Spain","Estonia","Finland","Great Britain","Greece")
+#country_names          <- c("Austria","Switzerland","Germany","Denmark","Spain","Estonia","Finland","Great Britain","Greece","Belgique","Luxembourg","Hungry","Italy","Poland","France","Lettovia","Portugal","Sweden")
+indicateur_list        <- c("GDP","I","DISPINC_AT_VAL","EMS_CO2","CH","X","M","G","DS")
+sector_indicateur_list <- c("Y","VA","F_L","F_E","F_K","EMS")
+```
+
+
+```{r}
+#Creation of database for agregation analysis
+data_full <- matrix(nrow = 0, ncol = 0)
+
+for (i in country_list) {
+  data_pays        <- readRDS(file = paste0("databases/carbontax_",i,"_c28_s32.rds"))
+  Jin              <- data_pays %>%
+                      filter(variable %in% indicateur_list)
+  colnames(Jin)[4] <- "carbontax"
+  Jin$variable     <- paste0(Jin$variable,"_",i)
+  data_full        <- rbind(data_full,Jin)
+  rm(data_pays,Jin)
+}
+
+#Creation of database for sectorial analysis
+data_sector <- matrix(nrow = 0, ncol = 0)
+
+for (i in country_list) {
+  data_pays                <- readRDS(file = paste0("databases/carbontax_",i,"_c28_s32_commodities_sectors.rds"))
+  colnames(data_pays)[4]   <- "carbontax"
+  if ("EMS" %in% sector_indicateur_list){
+    data_temp              <- data_pays %>% 
+                              filter(grepl("^EMS_.+_CO2_S.*$",variable))  %>% 
+                              mutate(variable = str_remove(variable,"_(CI|MAT|Y)"))
+    data_CO2               <- data_pays %>% 
+                              filter(grepl("^EMS_CI_CO2_S.*$",variable))  %>%  
+                              mutate(baseline  = aggregate(baseline ~ year + variable,data = data_temp,sum)$baseline,
+                              carbontax = aggregate(carbontax ~ year + variable,data = data_temp,sum)$carbontax,
+                              variable = str_remove(variable,"_(CI|MAT|Y)"))
+    data_CO2$variable      <- paste0(data_CO2$variable,"_",i)
+    data_sector            <- rbind(data_sector,data_CO2)
+    sector_ind_No_EMS      <- sector_indicateur_list[-which(sector_indicateur_list=="EMS")]
+    rm(data_temp,data_CO2)
+  }
+  var_vec                  <- unique(data_pays$variable)
+  liste_var                <- var_vec[grep(paste0("^",sector_ind_No_EMS[1],"_S[A-Z0-9]{3}$"),var_vec)]
+  for (j in sector_ind_No_EMS) {
+      wang                 <- var_vec[grep(paste0("^",j,"_S[A-Z0-9]{3}$"),var_vec)]
+      liste_var            <- c(liste_var,wang)
+  }
+  liste_var                <- unique(liste_var)
+  Jin                      <- data_pays %>%
+                              filter(variable %in% c(liste_var,sector_ind_No_EMS))
+  Jin$variable             <- paste0(Jin$variable,"_",i)
+  data_sector              <- rbind(data_sector,Jin)
+  rm(data_pays,Jin)
+}
+```
+
+
+# Impact at national level
+
+The following are the key macroeconomic and national-level emissions indicators of the carbon tax tested.
+
+## Indicators in level
+
+```{r}
+
+A <- simpleplot(data_full,paste0("GDP","_",country_list), country_names, startyear, endyear, scenario = "carbontax",transformation = "level", unit = 1, titleplot = "GDP in level for different countries (Dashed line for BAU)")
+
+B <- simpleplot(data_full,paste0("I","_",country_list), country_names, startyear, endyear, scenario = "carbontax", transformation = "level", unit = 1,  titleplot = "Investment in level for different countries  (Dashed line for BAU)")
+
+C <- simpleplot(data_full,paste0("DISPINC_AT_VAL","_",country_list), country_names, startyear, endyear, scenario = "carbontax", transformation = "level", unit = 1, titleplot = "Household disponible revenue in level for different countries (Dashed line for BAU)")
+
+D <- simpleplot(data_full,paste0("EMS_CO2","_",country_list), country_names, startyear, endyear, scenario = "carbontax", transformation = "level", unit = 1, titleplot = "CO2 emissions in level for different countries (Dashed line for BAU)")
+
+A
+B
+C
+D
+
+```
+
+## Indicators in percent difference from baseline 
+
+```{r}
+
+A <- simpleplot(data_full,paste0("GDP","_",country_list), country_names, startyear, endyear, scenario = "carbontax", titleplot = "GDP impact for different countries  (in difference from baseline)")
+
+B <- simpleplot(data_full,paste0("I","_",country_list), country_names, startyear, endyear, scenario = "carbontax", titleplot = "Investment impact for different countries  (in difference from baseline)")
+
+C <- simpleplot(data_full,paste0("DISPINC_AT_VAL","_",country_list), country_names, startyear, endyear, scenario = "carbontax", titleplot = "Household disponible revenue impact for different countries  (in difference from baseline)")
+
+D <- simpleplot(data_full,paste0("EMS_CO2","_",country_list), country_names, startyear, endyear, scenario = "carbontax", titleplot = "CO2 emissions impact for different countries  (in difference from baseline)")
+
+#macro <- ggarrange(A,B,C,D,
+#                   labels = c("(a)", "(b)", "(c)", "(d)"),
+#                   hjust = -0.5, vjust = 1.5,
+#                   ncol = 2, nrow = 2,
+#                   widths = 2,  heights = 1)
+
+ ## Save image on disk for further use (ready to be activated)
+ # ggsave("macro.svg", device = svg, width = 32,  height = 16, units = c("cm"))
+
+## See the graph in Mark-down
+#  macro
+
+A
+B
+C
+D
+
+```
+
+
+```{r eval=FALSE, include=FALSE}
+#Decomposition of GDP growth rate for tested countries
+
+GDP_comp <- c( "CH","X","M", "I", "G","DS")
+GDP_comp_label <- c( "Households consumption","Exports","Imports", "Investment", "Public spending","Stock variation")
+
+data_plot <-  contrib_country(data_full,"GDP", GDP_comp, country = "esp", scenar = c("baseline","carbontax"))
+
+A <- contrib.plot(data_plot, series = paste0(GDP_comp,"_","esp"), 
+             label_series = GDP_comp_label,
+                      startyear = 2020, titleplot = "Contributions to GDP gowth in Spain (in difference from baseline)")
+
+A
+```
+
+
+# Impact in sectorial level
+
+```{r}
+
+Fig_Y_sec <- list()
+for (i in 1:length(country_list)){
+  Fig_Y_sec <- c(Fig_Y_sec,list(curve_sc_plot_country(data_sector,"Y",country = country_list[i],scenario = "carbontax",
+                                                growth.rate = FALSE,diff = FALSE,abs.diff = FALSE, 
+                                                title = paste0("Production in level by sector in ",country_names[i]))))
+}
+
+#pictures <- ggarrange(A,B,C,D,
+#                   labels = c("(a)", "(b)", "(c)", "(d)"),
+#                   hjust = -0.5, vjust = 1.5,
+#                   ncol = 2, nrow = 2,
+#                   widths = 1.5,  heights = 1,
+#                   common.legend = TRUE, legend = "top")
+
+#pictures
+```
+
+
+```{r}
+
+
+Fig_L_sec <- list()
+for (i in 1:length(country_list)){
+  Fig_L_sec <- c(Fig_L_sec,list(curve_sc_plot_country(data_sector,"F_L",country = country_list[i],scenario = "carbontax",
+                                                growth.rate = FALSE,diff = FALSE,abs.diff = FALSE, 
+                                                title = paste0("Employment in level by sector in ",country_names[i]))))
+}
+
+```
+
+```{r eval=FALSE, include=FALSE}
+data_plot <- contrib.sub_country(data_sector,var1 =  "F_L", country = "deu",
+                        group_type = "sector", scenar = c("baseline", "carbontax"))
+
+A <- contrib.sub.plot(data_plot, template = "ofce", startyear = 2020, endyear = 2050, line_tot =  TRUE, titleplot = "Total production and sectorial decomposition  (in difference from baseline)")
+
+A
+```
+
+```{r}
+
+LY <- constructratio(data_sector, rationame = "LY", numerator = "F_L", denominator = "Y", country = country_list)
+
+Fig_LY <- list()
+for (i in 1:length(country_list)){
+
+  Fig_LY <- c(Fig_LY,list(curve_sc_plot_country(LY,"LY",country = country_list[i],scenario = "carbontax",
+                                                growth.rate = FALSE,diff = FALSE,abs.diff = FALSE, 
+                                                title = paste0("Sectorial labour intensity over production for ",country_names[i]))))
+}
+
+#pictures <- ggarrange(plotlist = Fig_LY,
+#                      labels = country_list,
+#                      nrow = 3, ncol = 3,
+#                      hjust = -0.5, vjust = 1.5,
+#                      widths = 2,  heights = 1)
+#pictures
+```
+
+```{r}
+
+KY <- constructratio(data_sector, rationame = "KY", numerator = "F_K", denominator = "Y", country = country_list)
+
+
+Fig_KY <- list()
+for (i in 1:length(country_list)){
+  Fig_KY <- c(Fig_KY,list(curve_sc_plot_country(KY,"KY",country = country_list[i],scenario = "carbontax",
+                                                growth.rate = FALSE,diff = FALSE,abs.diff = FALSE, 
+                                                title = paste0("Sectorial capital intensity over production for ",country_names[i]))))
+}
+
+#pictures <- ggarrange(plotlist = Fig_LY,
+#                      labels = country_list,
+#                      nrow = 3, ncol = 3,
+#                      hjust = -0.5, vjust = 1.5,
+#                      widths = 2,  heights = 1)
+#pictures
+```
+
+```{r}
+
+EnY <- constructratio(data_sector, rationame = "EnY", numerator = "F_E", denominator = "Y", country = country_list)
+
+Fig_EnY <- list()
+for (i in 1:length(country_list)){
+  Fig_EnY <- c(Fig_EnY,list(curve_sc_plot_country(EnY,"EnY",country = country_list[i],scenario = "carbontax",
+                                                growth.rate = FALSE,diff = FALSE,abs.diff = FALSE, 
+                                                title = paste0("Sectorial energy intensity over production for ",country_names[i]))))
+}
+
+#pictures <- ggarrange(plotlist = Fig_LY,
+#                      labels = country_list,
+#                      nrow = 3, ncol = 3,
+#                      hjust = -0.5, vjust = 1.5,
+#                      widths = 2,  heights = 1)
+#pictures
+```
+
+```{r}
+
+EY <- constructratio(data_sector, rationame = "EY", numerator = "EMS_CO2", denominator = "Y", country = country_list)
+
+Fig_EY <- list()
+for (i in 1:length(country_list)){
+  Fig_EY <- c(Fig_EY,list(curve_sc_plot_country(EY,"EY",country = country_list[i],scenario = "carbontax",
+                                                growth.rate = FALSE,diff = FALSE,abs.diff = FALSE, 
+                                                title = paste0("Sectorial emission intensity over production for ",country_names[i]))))
+}
+
+#pictures <- ggarrange(plotlist = Fig_LY,
+#                      labels = country_list,
+#                      nrow = 3, ncol = 3,
+#                      hjust = -0.5, vjust = 1.5,
+#                      widths = 2,  heights = 1)
+#pictures
+```
+
+## Austria
+
+```{r}
+Fig_Y_sec[[grep("aut",country_list)]]
+Fig_L_sec[[grep("aut",country_list)]]
+Fig_LY[[grep("aut",country_list)]]
+Fig_KY[[grep("aut",country_list)]]
+Fig_EnY[[grep("aut",country_list)]]
+Fig_EY[[grep("aut",country_list)]]
+
+
+pic <- ggarrange(Fig_Y_sec[[grep("aut",country_list)]],
+Fig_L_sec[[grep("aut",country_list)]],
+Fig_LY[[grep("aut",country_list)]],
+Fig_KY[[grep("aut",country_list)]],
+Fig_EnY[[grep("aut",country_list)]],
+Fig_EY[[grep("aut",country_list)]],
+                   hjust = -0.5, vjust = 1.5,
+                   ncol = 2, nrow = 3,
+                   widths = 1.5,  heights = 1,
+                   common.legend = TRUE, legend = "top")
+
+pic
+
+```
+
+## Switzerland
+
+```{r}
+Fig_Y_sec[[grep("che",country_list)]]
+Fig_L_sec[grep("che",country_list)]
+Fig_LY[grep("che",country_list)]
+Fig_KY[grep("che",country_list)]
+Fig_EnY[grep("che",country_list)]
+Fig_EY[grep("che",country_list)]
+```
+
+## Germany
+
+```{r}
+Fig_Y_sec[grep("deu",country_list)]
+Fig_L_sec[grep("deu",country_list)]
+Fig_LY[grep("deu",country_list)]
+Fig_KY[grep("deu",country_list)]
+Fig_EnY[grep("deu",country_list)]
+Fig_EY[grep("deu",country_list)]
+
+```
+
+## Denmark
+
+```{r}
+Fig_Y_sec[grep("dnk",country_list)]
+Fig_L_sec[grep("dnk",country_list)]
+Fig_LY[grep("dnk",country_list)]
+Fig_KY[grep("dnk",country_list)]
+Fig_EnY[grep("dnk",country_list)]
+Fig_EY[grep("dnk",country_list)]
+```
+
+## Spain
+
+```{r}
+Fig_Y_sec[grep("esp",country_list)]
+Fig_L_sec[grep("esp",country_list)]
+Fig_LY[grep("esp",country_list)]
+Fig_KY[grep("esp",country_list)]
+Fig_EnY[grep("esp",country_list)]
+Fig_EY[grep("esp",country_list)]
+```
+
+## Estonia
+
+```{r}
+Fig_Y_sec[grep("est",country_list)]
+Fig_L_sec[grep("est",country_list)]
+Fig_LY[grep("est",country_list)]
+Fig_KY[grep("est",country_list)]
+Fig_EnY[grep("est",country_list)]
+Fig_EY[grep("est",country_list)]
+```
+
+## Finland
+
+```{r}
+Fig_Y_sec[grep("fin",country_list)]
+Fig_L_sec[grep("fin",country_list)]
+Fig_LY[grep("fin",country_list)]
+Fig_KY[grep("fin",country_list)]
+Fig_EnY[grep("fin",country_list)]
+Fig_EY[grep("fin",country_list)]
+```
+
+## Great Britain
+
+```{r}
+Fig_Y_sec[grep("gbr",country_list)]
+Fig_L_sec[grep("gbr",country_list)]
+Fig_LY[grep("gbr",country_list)]
+Fig_KY[grep("gbr",country_list)]
+Fig_EnY[grep("gbr",country_list)]
+Fig_EY[grep("gbr",country_list)]
+```
+
+## Greece
+
+```{r}
+Fig_Y_sec[grep("grc",country_list)]
+Fig_L_sec[grep("grc",country_list)]
+Fig_LY[grep("grc",country_list)]
+Fig_KY[grep("grc",country_list)]
+Fig_EnY[grep("grc",country_list)]
+Fig_EY[grep("grc",country_list)]
+```

@@ -1,0 +1,300 @@
+#####  Taxes on commodities & Prices per uses
+
+## There are two versions regarding the specification of prices and taxes on commodities: (1) the basic version where taxes are not differentiated between uses (e.g. intermediary, final consumption, export, etc.) and type (e.g. VAT, subsidies, etc.); (2) the advanced version where this differentiation is made. \\
+
+## This file provides the equations defining with more detail taxes and prices. In the basic version, taxes on commodities are not differentiated between uses. A constant average tax rate on each commodity is assumed. This has the advantage to require less data for the calibration. But this assumption is often unrealistic since taxes on commodities are generally differentiated per uses. For instance, VAT applies on household's final consumption but not on intermediary consumption or exports. Subsidies are generally higher for domestic than imported products. When the equations of this section are activated in ThreeME, the heterogeneity regarding the tax rates is taken into account. Additional data are required to disaggregate taxes. The average tax rate is not constant anymore and becomes an endogenous variable that depends on the evolution of structure of taxes and subsidies. To preserve the accountancy consistency of the model, prices have also to be amended compared to the basic version. \\
+
+####  Taxes on commodities
+
+##! Average tax rate on domestically produced commodity $c$
+RNTAXCD[c] = NTAXCD_VAL[c] / (PYQ[c] * YQ[c])     if YQ[c] <> 0
+
+## This rate become now endogenous by inverting the equation of $NTAXCD^{VAL}_{c}$. This specification ensures the accounting equality between the various GDP definition. \\
+
+##! Average tax rate on imported commodity $c$
+RNTAXCM[c] = NTAXCM_VAL[c] / (PM[c]  * M[c] )   if M[c] <> 0
+
+##! Net taxes on domestically produced commodity $c$ expressed in value
+@over NTAXCD_VAL[c] = NTAXCID_VAL[c] + NTAXCHD_VAL[c] + NTAXGD_VAL[c] + NTAXID_VAL[c] + NTAXXD_VAL[c] + NTAXDSD_VAL[c] 
+
+## This is not defined anymore by simply assuming a constant rate over the production value: $NTAXCD^{VAL}_{c} = RNTAXCD_{c}*PYQ_{c}*YQ_{c}$. Different taxes are now defined depending on their basis which may differ between user (see below).  \\
+
+##! Net taxes on domestically produced commodity $c$ expressed in volume
+@over NTAXCD[c] = NTAXCID[c] + NTAXCHD[c] + NTAXGD[c] + NTAXID[c] + NTAXXD[c] + NTAXDSD[c] 
+
+##! Net taxes on imported produced commodity $c$ expressed in value
+@over NTAXCM_VAL[c] = NTAXCIM_VAL[c] + NTAXCHM_VAL[c] + NTAXGM_VAL[c] + NTAXIM_VAL[c] + NTAXXM_VAL[c] + NTAXDSM_VAL[c] 
+
+##! Net taxes on imported produced commodity $c$ expressed in volume
+@over NTAXCM[c] = NTAXCIM[c] + NTAXCHM[c] + NTAXGM[c] + NTAXIM[c] + NTAXXM[c] + NTAXDSM[c] 
+
+##! Net taxes on domestically intermediary consumption of commodity $c$ expressed in value
+NTAXCID_VAL[c] = sum(NTAXCID_VAL[c,s] on s)
+
+##! Net taxes on domestically intermediary consumption of commodity $c$ expressed in volume
+NTAXCID[c] = sum(NTAXCID[c,s] on s)
+
+##! Net taxes on imported intermediary consumption of commodity $c$ expressed in value
+NTAXCIM_VAL[c] = sum(NTAXCIM_VAL[c,s] on s)
+
+##! Net taxes on imported intermediary consumption of commodity $c$ expressed in volume
+NTAXCIM[c] = sum(NTAXCIM[c,s] on s)
+
+### Tax incomes per commodity and use
+##! Net taxes on domestically intermediary consumption of commodity $c$ of sector $s$ expressed in value
+NTAXCID_VAL[c,s] =       RNTAXCID[c,s]*PYQ[c] *CID[c,s] / (1 + @elem(RNTAXCID[c,s], %baseyear))	    if CID[c]  <> 0
+
+##! Net taxes on domestically intermediary consumption of commodity $c$ of sector $s$ expressed in volume
+NTAXCID[c,s]     = @elem(RNTAXCID[c,s],%baseyear)*CID[c,s] / (1 + @elem(RNTAXCID[c,s], %baseyear))  if CID[c]  <> 0
+
+##! Net taxes on imported intermediary consumption of commodity $c$ of sector $s$ expressed in value
+NTAXCIM_VAL[c,s] =       RNTAXCIM[c,s]*PM[c]     *CIM[c,s] / (1 + @elem(RNTAXCIM[c,s], %baseyear))  if CIM[c]  <> 0
+
+##! Net taxes on imported intermediary consumption of commodity $c$ of sector $s$ expressed in volume
+NTAXCIM[c,s]     = @elem(RNTAXCIM[c,s],%baseyear)*CIM[c,s] / (1 + @elem(RNTAXCIM[c,s], %baseyear))  if CIM[c]  <> 0
+
+##! Net taxes on domestically households' consumption of commodity $c$ expressed in value
+NTAXCHD_VAL[c] =       RNTAXCHD[c]*PYQ[c]    *CHD[c] / (1 + @elem(RNTAXCHD[c], %baseyear))  if CHD[c]  <> 0
+
+##! Net taxes on domestically households' consumption of commodity $c$ expressed in volume
+NTAXCHD[c]     = @elem(RNTAXCHD[c],%baseyear)*CHD[c] / (1 + @elem(RNTAXCHD[c], %baseyear))  if CHD[c]  <> 0
+
+##! Net taxes on imported households' consumption of commodity $c$ expressed in value
+NTAXCHM_VAL[c] =       RNTAXCHM[c]*PM[c]     *CHM[c] / (1 + @elem(RNTAXCHM[c], %baseyear))  if CHM[c]  <> 0
+
+##! Net taxes on imported households' consumption of commodity $c$ expressed in volume
+NTAXCHM[c]     = @elem(RNTAXCHM[c],%baseyear)*CHM[c] / (1 + @elem(RNTAXCHM[c], %baseyear)) if CHM[c]  <> 0
+
+##! Net taxes on domestically investment in commodity $c$ expressed in value
+NTAXID_VAL[c] =       RNTAXID[c]*PYQ[c]    *ID[c] / (1 + @elem(RNTAXID[c], %baseyear)) if ID[c]  <> 0
+
+##! Net taxes on domestically investment in commodity $c$ expressed in volume
+NTAXID[c]     = @elem(RNTAXID[c],%baseyear)*ID[c] / (1 + @elem(RNTAXID[c], %baseyear)) if ID[c]  <> 0
+
+##! Net taxes on imported investment in commodity $c$ expressed in value
+NTAXIM_VAL[c] =       RNTAXIM[c]*PM[c]     *IM[c] / (1 + @elem(RNTAXIM[c], %baseyear)) if IM[c]  <> 0
+
+##! Net taxes on imported investment in commodity $c$ expressed in volume
+NTAXIM[c]     = @elem(RNTAXIM[c],%baseyear)*IM[c] / (1 + @elem(RNTAXIM[c], %baseyear)) if IM[c]  <> 0
+
+##! Net taxes on domestically government final consumption of commodity $c$ expressed in value
+NTAXGD_VAL[c] =       RNTAXGD[c]*PYQ[c]   *GD[c]  / (1 + @elem(RNTAXGD[c], %baseyear))   if GD[c]  <> 0
+
+##! Net taxes on domestically government final consumption of commodity $c$ expressed in volume
+NTAXGD[c]     = @elem(RNTAXGD[c],%baseyear)*GD[c] / (1 + @elem(RNTAXGD[c], %baseyear))   if GD[c]  <> 0
+
+##! Net taxes on imported governmet final consumption of commodity $c$ expressed in value
+NTAXGM_VAL[c] =       RNTAXGM[c]*PM[c]     *GM[c] / (1 + @elem(RNTAXGM[c], %baseyear))     if GM[c]  <> 0
+
+##! Net taxes on imported governmet final consumption of commodity $c$ expressed in volume
+NTAXGM[c]     = @elem(RNTAXGM[c],%baseyear)*GM[c] / (1 + @elem(RNTAXGM[c], %baseyear))   if GM[c]  <> 0
+
+##! Net taxes on domestically produced exports of commodity $c$ expressed in value
+NTAXXD_VAL[c] =       RNTAXXD[c]*PYQ[c]    *XD[c] / (1 + @elem(RNTAXXD[c], %baseyear))   if XD[c]  <> 0
+
+##! Net taxes on domestically produced exports of commodity $c$ expressed in volume
+NTAXXD[c]     = @elem(RNTAXXD[c],%baseyear)*XD[c] / (1 + @elem(RNTAXXD[c], %baseyear))   if XD[c]  <> 0
+
+##! Net taxes on imported exports (re-exports)  of commodity $c$ expressed in value
+NTAXXM_VAL[c] =       RNTAXXM[c]*PM[c]     *XM[c] / (1 + @elem(RNTAXXM[c], %baseyear))   if XM[c]  <> 0
+
+##! Net taxes on imported exports (re-exports)  of commodity $c$ expressed in volume
+NTAXXM[c]     = @elem(RNTAXXM[c],%baseyear)*XM[c] / (1 + @elem(RNTAXXM[c], %baseyear))   if XM[c]  <> 0
+
+##! Net taxes on domestically changing stock of commodity $c$ expressed in value
+NTAXDSD_VAL[c] =      RNTAXDSD[c]*PYQ[c]   *DSD[c] / (1 + @elem(RNTAXDSD[c], %baseyear))  if DSD[c]  <> 0
+
+##! Net taxes on domestically changing stock of commodity $c$ expressed in volume
+NTAXDSD[c]     = @elem(RNTAXDSD[c],%baseyear)*DSD[c] / (1 + @elem(RNTAXDSD[c], %baseyear)) if DSD[c]  <> 0
+
+##! Net taxes on imported changing stock of commodity $c$ expressed in value
+NTAXDSM_VAL[c] =       RNTAXDSM[c]*PM[c]   *DSM[c]  / (1 + @elem(RNTAXDSM[c], %baseyear))  if DSM[c]  <> 0
+
+##! Net taxes on imported changing stock of commodity $c$ expressed in volume
+NTAXDSM[c]     = @elem(RNTAXDSM[c],%baseyear)*DSM[c] / (1 + @elem(RNTAXDSM[c], %baseyear)) if DSM[c]  <> 0
+
+### Detailled tax rates on commodities
+##  When relevant we disaggregate here further the net tax rate per commodities into the different type fiscal instruments composing it (e.g. VAT, subsidies, carbon tax, excise duties, etc.). \\
+
+##! Rate of net taxes on domestically intermediary consumption of commodity $c$ of sector $s$
+RNTAXCID[c,s] = RNTAXCID_OTH[c,s] + T2VAL_CI[c,s] / CI[c,s] * ((1+@elem(RNTAXCID[c,s], %baseyear)) / PYQ[c]) if CID[c,s] <> 0
+
+##! Rate of net taxes on imported intermediary consumption of commodity $c$ of sector $s$
+RNTAXCIM[c,s] = RNTAXCIM_OTH[c,s] + T2VAL_CI[c,s] / CI[c,s] * ((1+@elem(RNTAXCIM[c,s], %baseyear))/PM[c]) if CIM[c,s] <> 0
+
+##! Rate of net taxes on domestically households' consumption of commodity $c$
+RNTAXCHD[c] = RNTAXCHD_OTH[c] + RVAT[c] + T2VAL_CH[c] / CH[c] * ((1+@elem(RNTAXCHD[c], %baseyear))/PYQ[c]) if CHD[c] <> 0
+
+##! Rate of net taxes on imported households' consumption of commodity $c$
+RNTAXCHM[c] = RNTAXCHM_OTH[c] + RVAT[c] + T2VAL_CH[c] / CH[c] * ((1+@elem(RNTAXCHM[c], %baseyear))/PM[c]) if CHM[c] <> 0
+
+##! Rate of net taxes on domestically produced exports of commodity $c$
+RNTAXXD[c] = RNTAXXD_OTH[c] + T2VAL_X[c] / X[c] * ((1+@elem(RNTAXXD[c], %baseyear))/PYQ[c]) if XD[c] <> 0
+
+##! Rate of net taxes on imported exports of commodity $c$
+RNTAXXM[c] = RNTAXXM_OTH[c] + T2VAL_X[c] / X[c] * ((1+@elem(RNTAXXM[c], %baseyear))/PM[c]) if XM[c] <> 0
+
+
+### Value-added tax (value & volume)
+## We assume that the VAT rates are equal between domestic and imported product. \\
+
+##! Price of value-added tax on domestically produced commodity $c$
+PVATD[c]    * VATD[c]   =       RVAT[c] * PYQ[c]  * CHD[c]  / (1 + @elem(RNTAXCHD[c], %baseyear))  if VATD[c]       <> 0
+
+##! Value-added tax on domestically produced commodity $c$
+VATD[c]                 = @elem(RVAT[c],%baseyear)     * CHD[c]  / (1 + @elem(RNTAXCHD[c], %baseyear))  if VATD[c]       <> 0
+
+##! Price of value-added tax on imported commodity $c$
+PVATM[c]    * VATM[c]   =       RVAT[c]  * PM[c]  * CHM[c]  / (1 + @elem(RNTAXCHM[c], %baseyear))  if VATM[c]       <> 0
+
+##! Value-added tax on imported commodity $c$
+              VATM[c]   = @elem(RVAT[c],%baseyear)     * CHM[c]  / (1 + @elem(RNTAXCHM[c], %baseyear))  if VATM[c]       <> 0
+
+##! Price of value-added tax on commodity $c$
+PVAT[c] * VAT[c] = PVATD[c] * VATD[c] + PVATM[c] * VATM[c]      if VAT[c]    <> 0
+
+##! Value-added tax on domestically produced commodity $c$
+          VAT[c] =            VATD[c] +            VATM[c]      if VAT[c]    <> 0
+
+##! Aggregate market price for Value-added Tax on total households final consumption
+PVAT * VAT = sum(PVAT[c] * VAT[c] on c)  if VAT   <> 0
+
+##! Aggregate Value-added Tax on total households final consumption
+       VAT = sum(          VAT[c] on c)  if VAT   <> 0
+
+#### Carbon tax
+
+### Incomes generated by intermediary consumption emissions
+
+##! Carbon tax in value on intermediary consumption emissions depending on $ghg$ emission types, commodity $c$ in sector $s$
+T2VAL_CI[ghg,c,s] =       R2_CI[ghg,c,s] * EMS_CI[ghg,c,s]             if EMS_CI[ghg,c,s] <> 0
+
+##! Carbon tax in value on intermediary consumption emissions depending on $ghg$ emission types and commodity $c$
+T2VAL_CI[ghg,c] = sum(T2VAL_CI[ghg,c,s] on s)
+
+##! Carbon tax in value on intermediary consumption emissions depending on $ghg$ emission types and sector $s$
+T2VAL_CI[ghg,s] = sum(T2VAL_CI[ghg,c,s] on c)
+
+##! Carbon tax in value on intermediary consumption emissions depending on commodity $c$ and sector $s$
+T2VAL_CI[c,s] = sum(T2VAL_CI[ghg,c,s] on ghg)
+
+##! Carbon tax in value on intermediary consumption emissions depending on $ghg$ emission types
+T2VAL_CI[ghg] = sum(T2VAL_CI[ghg,c] on c)
+
+##! Carbon tax in value on intermediary consumption emissions depending on commodity $c$
+T2VAL_CI[c] = sum(T2VAL_CI[ghg,c] on ghg)
+
+##! Carbon tax in value on intermediary consumption emissions depending on sector $s$
+T2VAL_CI[s] = sum(T2VAL_CI[ghg,s] on ghg)
+
+##! Carbon tax in value on intermediary consumption emissions
+T2VAL_CI = sum(T2VAL_CI[s] on s)
+
+### Incomes generated by material emissions
+
+##! Carbon tax in value on material emissions depending on $ghg$ emission types, commodity $c$ in sector $s$
+T2VAL_MAT[ghg,s] = R2_MAT[ghg,s] * EMS_MAT[ghg,s]                   if EMS_MAT[ghg,s] <> 0
+
+##! Carbon tax in value on material emissions depending on $ghg$ emission types
+T2VAL_MAT[ghg] = sum(T2VAL_MAT[ghg,s] on s)
+
+##! Carbon tax in value on material emissions depending on commodity $c$
+T2VAL_MAT[s] = sum(T2VAL_MAT[ghg,s] on ghg)
+
+##! Carbon tax in value on material emissions
+T2VAL_MAT = sum(T2VAL_MAT[s] on s)
+
+#### Incomes generated by production emissions
+
+##! Carbon tax in value on production emissions depending on $ghg$ emission types, commodity $c$ in sector $s$
+T2VAL_Y[ghg,s] = R2_Y[ghg,s] * EMS_Y[ghg,s]                 if EMS_Y[ghg,s]  <> 0
+
+##! Carbon tax in value on production emissions depending on $ghg$ emission types
+T2VAL_Y[ghg] = sum(T2VAL_Y[ghg,s] on s)
+
+##! Carbon tax in value on production emissions depending on sector $s$
+T2VAL_Y[s] = sum(T2VAL_Y[ghg,s] on ghg)
+
+##! Carbon tax in value on production emissions
+T2VAL_Y = sum(T2VAL_Y[s] on s)
+
+### Incomes generated by production emissions, intermediary consumption emissions and material emissions
+
+##! Total carbon tax in value collected depending on sector s
+T2VAL_SEC[s] = T2VAL_Y[s] + T2VAL_CI[s] + T2VAL_MAT[s]
+
+##! Total carbon tax in value collected over firms
+T2VAL_SEC = sum(T2VAL_SEC[s] on s)
+
+### Incomes generated by households' emissions
+
+##! Carbon tax in value on households' consumption depending on $ghg$ emission types and commodity $c$
+T2VAL_CH[ghg,c] = R2_CH[ghg,c] * EMS_CH[ghg,c]                  if EMS_CH[ghg,c] <> 0
+
+##! Carbon tax in value on households' consumption depending on $ghg$ emission types
+T2VAL_CH[ghg] = sum(T2VAL_CH[ghg,c] on c)
+
+##! Carbon tax in value on households' consumption depending on commodity $c$
+T2VAL_CH[c] = sum(T2VAL_CH[ghg,c] on ghg)
+
+##! Carbon tax in value on households' consumption depending on $ghg$ emission types and commodity $c$
+T2VAL_CH = sum(T2VAL_CH[c] on c)
+
+### Incomes generated by exported' emissions
+
+##! Carbon tax in value on exports depending on $ghg$ emission types and commodity $c$
+T2VAL_X[ghg,c] = R2_X[ghg,c] * EMS_X[ghg,c] 					if EMS_X[ghg,c] <> 0
+
+##! Carbon tax in value on exports depending on $ghg$ emission types
+T2VAL_X[ghg] = sum(T2VAL_X[ghg,c] on c)
+
+##! Carbon tax in value on exports depending on commodity $c$
+T2VAL_X[c] = sum(T2VAL_X[ghg,c] on ghg)
+
+##! Carbon tax in value on exports depending on $ghg$ emission types and commodity $c$
+T2VAL_X = sum(T2VAL_X[c] on c)
+
+
+##! Total carbon tax incomes
+
+T2VAL = T2VAL_CI + T2VAL_Y + T2VAL_MAT + T2VAL_CH + T2VAL_X
+
+
+#### Prices of commodities
+
+##! Market price of domestically produced intermediate consumption $c$ purchased by sector $s$
+@over PCID[c, s] = PYQ[c] * (1 + RNTAXCID[c,s]) / (1 + @elem(RNTAXCID[c,s], %baseyear))                     if CID[c, s] <> 0
+
+##! Market price of imported intermediate consumption $c$ purchased by sector $s$
+@over PCIM[c, s] = PM[c] * (1 + RNTAXCIM[c,s]) / (1 + @elem(RNTAXCIM[c,s], %baseyear))                     if CIM[c, s] <> 0
+
+##! Market price of domestically produced households final consumption $c$
+@over PCHD[c]    = PYQ[c] * (1 + RNTAXCHD[c]) / (1 + @elem(RNTAXCHD[c], %baseyear))  if CHD[c]    <> 0
+
+##! Market price of imported households final consumption $c$
+@over PCHM[c]    = PM[c]  * (1 + RNTAXCHM[c]) / (1 + @elem(RNTAXCHM[c], %baseyear)) if CHM[c]    <> 0
+
+##! Market price of domestically produced Government final consumption $c$
+@over PGD[c]    = PYQ[c] * (1 + RNTAXGD[c]) / (1 + @elem(RNTAXGD[c], %baseyear))  if GD[c]    <> 0
+
+##! Market price of imported Government final consumption $c$
+@over PGM[c]    = PM[c]  * (1 + RNTAXGM[c]) / (1 + @elem(RNTAXGM[c], %baseyear)) if GM[c]    <> 0
+
+##! Market price of domestically produced investment $c$ purchased by sector $s$
+@over PID[c]    = PYQ[c] * (1 + RNTAXID[c]) / (1 + @elem(RNTAXID[c], %baseyear))  if ID[c]    <> 0
+
+##! Market price of imported investment $c$ purchased by sector $s$
+@over PIM[c]    = PM[c]  * (1 + RNTAXIM[c]) / (1 + @elem(RNTAXIM[c], %baseyear)) if IM[c]    <> 0
+
+##! Market price of domestically produced exports $c$
+@over PXD[c]    = PYQ[c] * (1 + RNTAXXD[c]) / (1 + @elem(RNTAXXD[c], %baseyear))  if XD[c]    <> 0
+
+##! Market price of imported exports (re-exports) $c$
+@over PXM[c]    = PM[c]  * (1 + RNTAXXM[c]) / (1 + @elem(RNTAXXM[c], %baseyear)) if XM[c]    <> 0
+
+##! Market price of domestically produced change in inventories $c$
+@over PDSD[c]    = PYQ[c] * (1 + RNTAXDSD[c]) / (1 + @elem(RNTAXDSD[c], %baseyear))  if DSD[c]    <> 0
+
+##! Market price of imported change in inventories $c$
+@over PDSM[c]    = PM[c]  * (1 + RNTAXDSM[c]) / (1 + @elem(RNTAXDSM[c], %baseyear)) if DSM[c]    <> 0
+

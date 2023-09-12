@@ -1,0 +1,25 @@
+
+### Population growth rate
+@over GR_POP    := 0.0025 # Average growth rate 2015-2019 in France
+
+### Growth rate of technical progress for capital, labor, energy and material
+@over GR_PROG[L] := 0.009 # OFCE projection for France
+
+
+### Fitting baseline GDP
+
+##! Labor technical progress gain
+GR_PROG[L,s] = GR_PROG_L
+#log(1 + GR_PROG[L, s]) = d(log(GDP_trend)) - d(log(POP))
+
+
+
+##! Government expenditures
+d(log(EXPG)) = log(1 + GR_PROG_L) + d(log(POP))
+#d(log(EXPG)) = d(log(GDP_trend)) + 0.5 * GDP_fit
+
+
+##! World demand 
+@over d(log(WD[c])) = log(1 + GR_PROG_L) + d(log(POP))
+#d(log(WD[c])) = d(log(GDP_trend)) + 0.5 * GDP_fit
+

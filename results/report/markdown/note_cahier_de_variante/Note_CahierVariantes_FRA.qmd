@@ -1,0 +1,1276 @@
+---
+title: "Analyse des résultats du cahier de variantes"
+#subtitle: "Livrable L2 : Note sur les améliorations du modèle"
+author: "Modèle ThreeME France"
+date: 'Printemps 2023'
+format:
+  html: 
+    toc: true
+    theme: simplex
+    self-contained: true
+    fig-dpi: 300
+    fig-format: svg
+    fig-width: 5
+    comments:
+      hypothesis: true
+  pdf:
+    documentclass: scrartcl
+    classoption: 
+    - DIV=12
+    template-partials:
+      - "before-body.tex"
+      - "_titlepage.tex"
+    include-in-header: "in-header.tex"
+    number-sections: true
+    number-depth: 2
+    toc: true
+    toc-depth: 2
+    toc-title: "Table des matières"
+    papersize: a4
+    fontsize: 9pt
+    fig-cap-location: top
+    extra_dependencies: ["float"]
+    fig-dpi: 600
+    fig-format: svg
+editor_options: 
+    markdown: 
+      wrap: 100
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.pos="htb",
+  out.extra="",
+  dev="ragg_png",
+  out.width="100%",
+  fig.showtext=TRUE,
+  cache=FALSE)
+```
+
+```{r datainit, include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(glue)
+library(ggh4x)
+library(flextable)
+library(ofce)
+library(showtext)
+library(markdown)
+library(plotly)
+library(scales)
+if (F){
+  devtools::install_github("ofce/ofce")
+}
+
+#sysfonts::font_add_google('Roboto')
+showtext_opts(dpi = 300)
+showtext_auto()
+#objects <- load("../data/sorties.rdata")
+options(ofce.background_color = "#F9F4ED")
+options(ofce.base_family = "Nunito")
+options(ofce.base_size = 7)
+
+load("results/graphs_tables_banks/standard_shocks_france_graphics_and_tables.rda")
+
+```
+
+{{< pagebreak >}}
+
+# Introduction[^1]
+
+[^1]: Le script quarto de ce document se trouve sur la [branche "ThreeME-R_V3-OPC" du répertoire
+    GitHub "fosem"]{style="color: blue"}, dans le dossier "reports"
+
+Ce rapport présente une analyse de variantes pouvant être simulées avec le modèle ThreeME, qui est
+un modèle
+macro-économétrique\footnote{Les équations contenues dans ThreeME ne sont pas directement estimées économétriquement. Toutefois, la calibration du modèle tient compte des délais d’ajustement et les valeurs des élasticitiés sont attribuées à partir d'estimations de la littérature économétrique.}
+d'équilibre général calculable d'inspiration néo-keynésienne. La version de ThreeME utilisée ici
+présente une désagrégation sectorielle importante, avec 32 secteurs et 28 commodités, mais un
+développement des équations comportementales limité, en particulier ne contenant pas le modèle
+énergétique détaillé. La fixation des salaires suit une équation WS
+\footnote{Voir documentation du modèle ThreeME pour plus de détails, disponible sur https://www.threeme.org/documentation. Le nom des variables est défini dans le glossaire, page 168.}.
+
+Plusieurs versions du modèles sont possibles selon les options de modélisation choisies parmi :
+
+-   Une fonction d'utilité LES, c'est-à-dire représentant des élasticités de substitutions entre
+    commodités constantes
+
+-   Une fonction d'utilité imbriquée, qui considère l'énergie comme un poste direct de consommation
+
+-   Une fonction de production KLEM imbriquée à 3 niveaux
+
+-   Une version hybride du modèle, qui développe les choix de consommations des ménages dans le
+    logement et les transports avec modélisation *bottom up*.
+
+Ce cahier de variantes a été établi à partir de la version LES du modèle.
+
+## Caractéristiques du scénario de référence
+
+Pour cet exercice analytique, le sentier de référence est supposé correspondre à un sentier de
+croissance équilibré (*steady state*) à la Solow : toutes les variables en volume croissent au taux
+de croissance du PIB et tous les prix croissent au même rythme d'inflation.
+
+Le scénario qui sert de référence pour l'étude des variantes présentées dans ce cahier est construit
+suivant les hypothèses suivantes :
+
+-   Le PIB est supposé croître à 1,3% par an. Cela correspond à une hausse moyenne de 1,6% entre
+    2015 et 2060. Le taux de croissance tendanciel de long terme correspond à la somme du taux de
+    croissance de la population et du progrès technique (respectivement de 0,25% et de 1%).
+-   Les prix croissent au rythme de 2% par an.
+-   Le taux de chômage est supposé constant et égal à 8,4%.
+-   La balance commerciale est négative et supposé constante (autour de -1,2 point de PIB).
+-   Sur le long terme, les émissions de GES augmentent comme le PIB de 1,6% entre 2015 et 2060 car
+    le progrès technique du facteur énergie et l'intensité en émission des commodités énergétiques
+    sont supposés constants.
+
+Les variantes réalisées ici sont dites "naïves", c'est-à-dire qu'elles consiste en la modification
+d'une seule variable exogène, les autres étant supposées constantes; contrairement aux variantes
+dites "réalistes", pour lesquelles toutes les exogènes du modèle susceptibles d'être influencées par
+le choc effectué sont modifiées, afin d'évaluer l'ensemble des effets macroéconomiques, de la
+manière la plus réaliste possible.
+
+## Modèles utilisés pour la comparaison des résultats
+
+Nous comparons les résultats des variantes du modèles ThreeME avec trois autres modèles similaires
+utilisés pour évaluer les effets macroéconomiques de politiques climatiques au niveau français ou
+européen:
+
+-   Le modèle MESANGE, développé et utilisé par la Direction Générale du Trésor et l'INSEE (Bardaji
+    *et al.*, 2017). Mésange est un modèle macro-économétrique trimestriel d'inspiration
+    néo-keynésienne, ce qui signifie que les trajectoires de long terme sont similaires au modèle
+    ThreeME. Toutefois, Mésange est moins développé, avec notamment une désagrégation sectorielle à
+    5 secteurs, avec un secteur de l'énergie peu détaillé. L'indice des prix à la consommation ainsi
+    que les prix des importations et exportations sont des équations comptables dans ThreeME tandis
+    qu'ils sont déterminés par des relations économétriques dans Mésange. De plus, l'équation des
+    salaires est déterminé par une courbe WS dans Mésange, mais qui dépend des termes de l'échange
+    intérieur et de la fiscalité, ce qui n'est pas le cas dans ThreeME pour ce dernier point. Or,
+    l'équation de salaire est centrale dans la dynamique du modèle afin de passer des effets de
+    court terme à un équilibre de long terme à la suite d'un choc[^2].
+-   Le modèle IMACLIM-R France, hébergé par le CIRED, qui est un modèle d'équilibre général
+    calculable hybride à 13 secteurs. Cela signifie que les secteurs énergétiques sont très
+    détaillés, avec une représentation fine des technologies existantes et des coûts associés, ainsi
+    que des quantités exprimées en unités physiques et pas uniquement monétaires. Il est résolu en
+    dynamique récursive, ce qui signifie que sa dynamique est donnée par une succession d'équilibres
+    statistiques, qui permettent de représenter différentes imperfections et rigidités de marché.
+-   Le modèle NEMESIS, développé par EURASME-SEURECO, qui est un modèle macro-économétrique au même
+    titre que Mésange. Il contient 30 secteurs, construits autour de fonctions de production CES,
+    avec une modélisation particulièrement détaillée des secteurs de production énergétique et des
+    substitutions possibles à ce niveau. Il représente les différentes régions de l'Union Européenne
+    et pas seulement l'échellon national français.
+
+[^2]: Pour une comparaison ThreeME -- Mésange sur la base de la même modélisation de la courbe WS,
+    voir Callonnec et al. (2016), pour les variantes de hausse du prix du pétrole et de baisse des
+    cotisations sociales employeurs
+
+{{< pagebreak >}}
+
+# Analyse et résultats des variantes
+
+Dans cette section, nous présentons une à une les variantes simulées à l'aide de ThreeME. Ces
+variantes consistent en des chocs uni-variable, visant à comprendre le fonctionnement dynamique de
+ThreeME. Elles sont au nombre de 12 et peuvent être regroupées en 4 groupes, avec des chocs touchant
+aux finances publiques, au commerce extérieur, au prix des énergies et à la productivité. La mise en
+oeuvre concrète du choc, ainsi que les mécanismes déclenchés par ce choc et les résultats
+quantitatifs associés sont présentés pour chaque variante. L'analyse des résultats de certaines
+variantes a pu être complétée par une comparaison avec les résultats d'autres modèles pour des chocs
+similaires. A noter que certaines variantes sont présentées comme un choc d'une variable équivalent
+à 1 point de PIB. Cela signifie que la magnitude du choc est calibrée sur la valeur du PIB pris à la
+première année du choc et que cette valeur est constante tout au long de la période (et ne varie pas
+avec le PIB à chaque pas de temps).
+
+## Hausse permanente des dépenses publiques d'un montant de 1 point de PIB (EXPG1)
+
+```{r}
+#| echo: false
+
+table_macro_EXPG1
+
+```
+
+### Mise en oeuvre
+
+La variante considérée est un choc positif permanent de 1 point de PIB sur les consommations finales
+du gouvernement, calibré sur le PIB de la première année du choc. La variable choquée est *EXPG*,
+définie par l'équation @eq-conso-adm-pub:
+
+\textcolor{blue}{Consommation finale de la commodité c par les administrations publiques}
+
+$$
+\varDelta \left(\operatorname{log} G_{c}\right) = \varDelta \left(\operatorname{log} EXPG\right)
+$$ {#eq-conso-adm-pub}
+
+### Mécanismes
+
+Du fait de l'équation comptable @eq-PIB-dep, une augmentation des dépenses publiques augmente
+directement le PIB, en tant que l'une de ses composantes. La magnitude de cette augmentation dépend
+de la valeur du multiplicateur budgétaire. Cet effet est particulièrement bénéfique lorsqu'il s'agit
+de dépenses liées à la production de services non-importables (éducation, santé, etc.)
+
+\textcolor{blue}{PIB (définition de dépenses)} 
+
+$$
+GDP = CH + G + I + X + DS - M
+$$ {#eq-PIB-dep}
+
+Néanmoins, une part des consommations publiques est importée. Par conséquent, l'augmentation des
+dépenses publiques entraîne une hausse des importations (M) ainsi qu'une baisse des exportations (X)
+du fait des conséquences inflationnistes de l'augmentation de la demande, ce qui augmente les
+salaires donc les coûts de production. Cela résulte en une dégradation de la balance commerciale
+(X-M), exprimée en % de PIB, qui diminue l'importance du multiplicateur et atténue l'effet positif
+sur le PIB.
+
+### Résultats
+
+On observe un impact immédiat sur le PIB qui augmente de 1,2% la première année. Cet effet s'accroit
+jusqu'à 5 années après le choc mais s'affaiblit à long terme, diminuant jusqu'à +0,7% par rapport au
+scénario de référence en 2060. Le multiplicateur est inférieur à 1 du fait de la dégradation de la
+balance commerciale, qui contribue négativement au PIB, à hauteur de 0,2 points à court terme aussi
+bien qu'à long terme. En revanche, l'investissement et la consommation finale des ménages
+contribuent positivement au PIB, en augmentant respectivement de 1% et de 0,6% par rapport au
+scénario de référence.
+
+L'augmentation de l'activité entraîne une baisse du taux de chômage, qui diminue jusqu'à 1,7 points
+5 ans après le choc puis de 0,8 points sur le long terme. Les salaires connaissent une hausse de
+1,1% sur le long terme. L'impact inflationniste se traduit par une hausse des prix à la consommation
+de 0.6% à long terme.
+
+Du fait de l'augmentation initiale des dépenses publiques, le déficit public est dégradé, ce qui
+signifie une baisse du solde budgétaire de l'Etat de 0,6 points de PIB à court terme. Ce solde
+s'améliore à long terme grâce à l'effet multiplicateur, pour s'établir autour de 0,2 points de PIB.
+
+### Comparaison avec d'autres modèles
+
+-   Mésange indique un effet sur le PIB plus positif que dans ThreeME, aussi bien instantanément
+    (+0,78% vs +1,2%) qu'après 1 décennie (+1,3% vs +0,53%). Pour les autres variables comme la
+    consommation et l'investissement, les tendances sont similaires entre les deux modèles mais les
+    ajustements sont beaucoup plus rapides dans Mésange : ces variables atteignent leur maximum au
+    bout de 3 ou 5 ans tandis que dans ThreeME, ces variables connaissent une réduction seulement
+    après 1 décennie. Une explication à cela pourrait être la hausse des prix à la production et à
+    la consommation plus significative et plus soutenue dans Mésange, alors que ces tensions
+    inflationnistes s'atténuent sur le long terme dans ThreeME.
+
+{{< pagebreak >}}
+
+## Baisse permanente des cotisations sociales employeurs de 1 point de PIB (RRSC1)
+
+```{r}
+#| echo: false
+
+table_macro_RRSC1
+
+```
+
+### Mise en oeuvre
+
+Cette variante consiste en une réduction pérenne du taux des cotisations sociales employeurs. Cette
+réduction est calibrée de telle sorte que le montant total des recettes des cotisations sociales
+employeurs soient réduites d'1 point de PIB (pris sur le PIB à la première année du choc). Ce taux
+correspond à la variable *RRSC*, dont la valeur moyenne entre les secteurs est de 27,4% [^3] pour
+l'ensemble des secteurs. La baisse de ce taux est de l'ordre de 1,94 points en moyenne, à partir de
+l'année choisie pour le choc.
+
+[^3]: Le taux de cotisations sociales employeurs est de 27,25% pour la plupart des secteurs, sauf
+    pour celui des transports routiers (23,57%) et ferroviaires (35,37%).
+
+### Mécanismes
+
+La baisse du taux de cotisations sociales RRSC entraîne une baisse du total des contributions
+sociales payées par les employeurs (équation @eq-cot-sec), ce qui a pour effet de diminuer le coût
+total du travail (équation @eq-main-oeuvre-sec).
+
+\textcolor{blue}{Cotisations patronales de sécurité sociale versées par le secteur \textit{s}}
+$$
+RSC_{s} \; PRSC_{s} = W_{s} \; F_{L, s} \; RRSC_{s}
+$$ {#eq-cot-sec}
+
+\textcolor{blue}{Coût de la main d’œuvre dans le secteur \textit{s}} 
+$$
+C_{L, s} \; F_{L, s} = W_{s} \; F_{L, s} + RSC_{s} \; PRSC_{s}
+$$ {#eq-main-oeuvre-sec}
+
+Par conséquent, les coûts de productions tous facteurs *f* confondus diminuent (équation
+@eq-cout-prod-sec), ce qui diminue également les prix à la production (équation @eq-prix-prod-sec).
+
+\textcolor{blue}{Coût unitaire de production dans le secteur \textit{s}}
+$$
+CU^{n}_{s} \; Y_{s} = \sum_{f} C_{f, s} \; F^{n}_{f, s} + NTAXS^{VAL}_{s}
+$$ {#eq-cout-prod-sec}
+
+\textcolor{blue}{Prix de production dans le secteur \textit{s} (avec taux de marge $\mu_s$)}
+$$
+PY^{n}_{s}  = CU^n_s (1 + \mu_s)
+$$ {#eq-prix-prod-sec}
+
+Cette baisse est transmisse aux autres prix, notamment aux prix à l'exportation, ce qui améliore la
+compétitivité et augmente les exportations; ainsi qu'aux prix à la consommation, ce qui augmente le
+revenu réel des ménages et donc leur consommation. La baisse des coûts du facteur travail modifient
+les prix relatifs des facteurs de production et favorise la substitution du capital par de la main
+d'œuvre, ce qui entraîne une hausse de l'emploi et une baisse de l'investissement. La magnitude de
+cet effet dépend des valeurs des élasticités (équation @eq-elast) et sont les mêmes dans
+toutes les variantes.
+
+\textcolor{blue}{Élasticité de substitution (ES) entre les facteurs de production \textit{f} et \textit{ff} dans le secteur \textit{s}}
+$$
+ES[f, ff, s] = 0,5
+$$ {#eq-elast}
+
+### Résultats
+
+Un effet positif, lent et progressif est observé sur le PIB -- une augmentation de 0,2% l'année du
+choc, qui monte jusqu'à 1% à le long terme. Le caractère progressif de cette hausse du PIB est dû au
+délai d'ajustement des prix qui répercutent la baisse du coût à la production avec retard. Les prix
+à la consommation diminuent de 0,3% la première année du choc et jusqu'à 1,4% à long terme. Il en va
+de même pour l'emploi, qui augmente de 1,1% sur le long terme ce qui correspond à 344 400 nouveaux
+emplois, du fait de la hausse de l'activité mais également de la baisse des salaires nominaux. Cette
+hausse de l'emploi ne s'accompagne pas d'une baisse de l'investissement sur le court terme. La
+hausse de l'activité tend à stimuler l'investissement, qui augmente de 0,9% sur le long terme.
+
+La baisse progressive des coûts de production augmente la compétitivité et donc les exportations, de
+0,1% à court terme et de 1,1% sur le long terme. Néanmoins, la hausse de l'emploi et la baisse des
+prix soutiennent la consommation des ménages, ce qui augmente les importations et sur-compense la
+hausse des exportations. Sur le long terme, la balance commerciale se dégrade de 0,2 points.
+
+La baisse des recettes fiscales induite par la baisse du taux de cotisations employeurs dégrade le
+solde budgétaire de l'Etat, assez fortement instantanément (de 0,7%) puis de manière plus modeste
+sur le long terme (0,2%) du fait d'une augmentations des recettes fiscales liées à la hausse de
+l'activité (équation @eq-rev-ag-etat).
+
+\textcolor{blue}{Revenus agrégés de l'Etat (exprimés en valeur) } 
+$$
+INC^{G,VAL}  = PNTAXC . NTAXC + NTAXS^{VAL} + INC^{SOC,TAX,VAL} + PRSC . RSC + PROP^{INC,G,VAL}
+$$ {#eq-rev-ag-etat}
+
+Les secteurs le plus bénéficies de cette baisse de cotisations sociales sont les secteurs transport
+et services, qui subissent une hausse de la production sur le long terme de 0.61% et de 0.55%
+respectivement. Seulement deux secteurs sur huit subissement des pertes de productivité, il s'agit
+des secteurs énergies fossiles et autres énergies (baisses de productivité sur le long terme de
+0.32% et de 0.12% respectivement). Si on analyse la hausse de la productivité globale, c'est le
+secteur services qui contribue le plus -- il explique autour de 86% de cette hausse. En ce qui
+concerne la valeur ajoutée, tous les secteurs subissent une hausse sur le long terme, à exception du
+secteur des énergies fossiles dont la VA diminue de 0.75% sur le long terme. Les secteurs transport
+et agriculture sont les plus bénéficiés, néanmoins, la contribution des services à l'augmentation
+globale de la VA reste supérieure à celle des autres secteurs (elle est de l'ordre de 84%). Par
+rapport à l'emploi, l'agriculture et le transport sont les deux secteurs les plus bénéficiés avec
+des hausses d'autour de 0.9% sur le long terme. Quant aux contributions à l'augmentation totale de
+l'emploi, c'est le secteur services qui l'emporte sur le reste. L'investissement augmente pour la
+plupart des secteurs, sauf pour les secteurs énergies fossiles et autres énergies. En ce qui
+concerne la hausse globale de l'investissement, les secteurs services et transports expliquent
+autour de 35%-40% chacun, suivis du secteur industrie énergivore qui est responsable
+d'approximativement 10%-15% de cette hausse.
+
+### Comparaison avec d'autres modèles
+
+-   Les effets économiques d'une baisse des cotisations sociales employeurs dans ThreeME sont moins
+    significatifs que dans Mésange, en particulier à partir d'une décennie, avec une hausse du PIB
+    de 1,29% contre 0,9% dans ThreeME. Cela peut s'expliquer par la formalisation des salaires selon
+    la courbe WS : les salaires (donc le revenu disponible et la consommation) diminuent dans
+    ThreeME, alors qu'ils augmentent dans Mésange. Cela peut s'expliquer par le fait que les
+    salaires sont davantage sensibles à l'évolution des prix (qui diminuent ici) qu'à celle du
+    chômage (qui diminue également dans ce cas) dans ThreeME, ce qui est l'inverse dans Mésange.
+    Ainsi, la hausse des revenus soutient la consommation et donc l'activité dans le long terme dans
+    Mésange ; ce qui est moins le cas dans ThreeME.\
+-   Dans la version de ThreeME avec courbe de Phillips, la hausse du PIB est inférieure sur le long
+    terme. La baisse du chômage provoque dans ce cas une hausse de l'inflation et une hausse des
+    salaires, ce qui nuit à la hausse de l'activité.
+
+{{< pagebreak >}}
+
+## Baisse permanente de la TVA de 1 point de PIB (VAT1)
+
+```{r}
+#| echo: false
+
+table_macro_VAT1
+
+```
+
+### Mise en oeuvre
+
+Il s'agit ici de diminuer le taux de TVA d'un montant tel que les recettes totales de la TVA soient
+réduites d'1 point de PIB. Pour cela, les variables *RVATD* et *RVATM* (taux moyen de TVA sur les
+commodités domestiques et importées respectivement) sont choquées de manière uniforme pour toutes
+les commodités du modèle (équations @eq-prix-conso-fin-nat et @eq-prix-conso-fin-imp), d'un niveau de 2,1 points.
+
+\textcolor{blue}{Prix du marché de la consommation finale \textit{c} produite au niveau national}
+$$
+PCHD_{c} = PYQSBVAT_{c} \; \frac{1 + RVATD_{c}}{1 + RVATD_{c, t_0}}
+$$ {#eq-prix-conso-fin-nat}
+
+\textcolor{blue}{Prix du marché de la consommation finale \textit{c} importée}
+$$
+PCHM_{c} = PMSBVAT_{c} \; \frac{1 + RVATM_{c}}{1 + RVATM_{c, t_0}}
+$$ {#eq-prix-conso-fin-imp}
+
+L'incidence fiscale de la baisse de la TVA est supposée complète, ce qui signifie que cette baisse
+est intégralement répercutée sur les consommateurs, sans que les entreprises n'en profitent pour
+augmenter leur taux de marge. De plus, la TVA ne porte que sur les produits de consommation finales,
+et non sur les consommations intermédiaires, l'investissement ou les exportations (exonérées de
+TVA).
+
+### Mécanismes
+
+Telle que simulée dans ce cas, la baisse de la TVA mène à une diminution des prix à la consommation
+(équation @eq-prix-conso-ag-men) induisant une hausse directe de la consommation. Il s'agit donc d'un choc de
+demande positif.
+
+\textcolor{blue}{Prix de marché agrégé pour la consommation finale des ménages (IPC)}
+$$
+PCH.CH =  PCHD . CHD + PCHM . CHM
+$$ {#eq-prix-conso-ag-men}
+
+Cette augmentation de la demande génère une hausse de l'activité générale, dont l'investissement.
+Dans un second temps, les salaires diminuent car indexés sur les prix à la consommation. Par
+conséquent, les coûts de productions diminuent, ce qui augmente la compétitivité et les
+exportations.
+
+Néanmoins, la hausse de la consommation se faisant également par une augmentation des importations,
+la hausse du PIB est contenue sur le long terme.
+
+### Résultats
+
+On observe une répercussion immédiate de la baisse de la TVA sur les prix à la consommation qui
+diminuent de 1,8% la première année du choc. La consommation, s'ajustant à la hausse du nouveau
+revenu réel, augmente jusqu'à 1,5% dans les premières années suivant le choc. Son augmentation est
+atténuée sur le long terme (+1,3%) du fait de la baisse des salaires, indéxés sur l'indice des prix
+à la consommation. En revanche, la hausse de l'investissement est soutenue par la hausse de
+l'activité, pour s'établir à +1,1% sur le long terme.Par ailleurs, le baisse des salaires et la
+hausse de l'activité permettent de diminue de taux de chômage de 1,2 points de pourcentage sur le
+long terme.
+
+Les exportations augmentent comme conséquence de la baisse des salaires et de l'amélioration de la
+compétitivité-prix. Une hausse de 0,5% des exportations est soutenue sur le long terme. Néanmoins,
+cette hausse n'est pas suffisament forte pour contrebalancer la hausse des importations qui dans un
+premier temps est forte du fait de l'augmentation de la demande. Ainsi, la balance commerciale se
+dégrade modestement tout au long de la période, d'environ 0,2 points environ.
+
+Le PIB augmente de façon progressive sur la période, jusqu'à se stabiliser à long terme à +1,3%. Sur
+le long terme, la hausse du PIB ne permet pas de compenser la perte de recettes fiscales pour l'Etat
+du fait de la baisse de la TVA. La solde budgétaire diminue donc de 0,2 points de PIB.
+
+### Comparaison avec d'autres modèles
+
+-   La variante estimée dans le modèle Mésange est une hausse de la TVA de 1% et non une baisse. En
+    résonnant sous l'hypothèse de symétrie parfaite (l'incidence fiscale est similaire à la hausse
+    et à la baisse), nous observons que les résultats des deux modèles diffèrent essentiellement sur
+    le long terme. Cela peut s'expliquer par le fait que dans Mésange, la baisse du chômage augmente
+    significativement le coût du travail (salaires) et donc fait refluer la baisse des prix qui
+    favorisait la consommation. Par conséquent, la hausse de PIB est moins marquée. Cet effet est
+    moins visible dans ThreeME.
+
+{{< pagebreak >}}
+
+## Baisse permanente de l'impôt sur le revenu des ménages de 1 point de PIB (INCT1)
+
+```{r}
+#| echo: false
+
+table_macro_INCT1
+
+```
+
+### Mise en oeuvre
+
+Ce choc consiste à diminuer le taux d'imposition sur le revenu disponible des ménages
+*RINC_SOC_TAX*, de telle sorte que les revenus tirés de cet impôt diminuent de manière pérenne d'un
+montant équivalent à 1 point de PIB, pris à la première année du choc (équation @eq-imp-css-val). Ce choc
+représente une baisse de 1,12 point de ce taux, qui touche uniquement les ménages.
+
+\textcolor{blue}{Impôts et cotissations sociales exprimés en valeur} 
+$$
+INC^{SOC,TAX,VAL} = RINC^{SOC,TAX} . DISPINC^{BT,VAL}
+$$ {#eq-imp-css-val}
+
+### Mécanismes
+
+Une baisse du montant payé au titre des impôts sur le revenu des ménages entraîne directement une
+hausse de leur revenu disponible (équation @eq-rev-disp-ap-imp) et donc une hausse de la consommation,
+répartie en consommation domestique et importée. Les conséquences sur l'activité nationale dépendent
+grandement de la part des importation dans la consommation des ménages, qui est de l'ordre de 20% en
+France[^4].
+
+[^4]: La part des importations dans la consommation finale des ménages est de 20,8% en 2020 selon
+    les données du modèle ThreeME. Cette part était de 19% en 2015 selon une étude de l'INSEE
+    (Bourgeois et Briand, 2019).
+    
+{{< pagebreak >}}
+
+\textcolor{blue}{Revenu disponible après impôt exprimé en valeur} 
+$$
+DISPINC^{AT,VAL} = DISPINC^{BT,VAL} - INC^{SOC,TAX,VAL}
+$$ {#eq-rev-disp-ap-imp}
+
+Par ailleurs, cette hausse de la demande mène à une augmentation des prix à la consommation et des
+prix de production, ce qui diminue les exportations et restreint la hausse du PIB sur le long terme
+malgré une augmentation de l'investissement.
+
+### Résultats
+
+On observe un effet significatif et soutenu de la baisse de l'impôt sur le revenu sur le PIB, de
+0,5% à la première année du choc, et de 0,9% à long terme. L'augmentation du revenu disponible des
+ménages porte cette hausse du PIB dans un premier temps, en stimulant la consommation (qui augmente
+de +2,6% la cinquième année suivant le choc, et se stabilise à +2,2% à long terme). Néanmoins, cet
+effet positif est contrebalancé sur le long terme par une dégradation de la balance commerciale, du
+fait de la hausse de la consommation de produits importés mais également la hausse des prix de
+production.
+
+Sur le long terme, la hausse de l'investissement prend le relai de la hausse de la consommation pour
+soutenir le PIB, en augmentant de 1,2% sur le long terme. Toutefois, la hausse des prix de
+production sape la compétitivité, ce qui fait diminuer les exportations dès la cinquième année, et
+atténue la hausse de l'activité. Malgré ce ralentissement de l'activité sur le long terme, la
+dynamique du choc reste suffisante pour augmenter l'emploi de 0,7% à long terme.
+
+Par ailleurs, les gains fiscaux liés au surplus d'activité ne permettent pas de compenser les pertes
+liés à la baisse de l'impôt sur le revenu. Le solde budgétaire diminue de 0,4 points de PIB.
+
+### Comparaison avec d'autres modèles
+
+-   Comparativement à Mésange, ThreeME simule un effet de la baisse de l'impôt sur le revenu
+    significativement plus fort sur le revenu disponible des ménages, en particulier à partir d'une
+    décennie (+3,4% vs +2,1%). Cela aboutit à une hausse de la consommation plus forte dans ThreeME
+    que dans Mésange, et donc un PIB légèrement plus élevé. Cette différence est moins significative
+    pour les autres indicateurs macroéconomiques.
+
+## Dépréciation permanente de 10% de l'euro (EXR10)
+
+```{r}
+#| echo: false
+
+table_macro_EXR10
+
+```
+
+### Mise en oeuvre
+
+Pour représenter une dépréciation permanente de l'euro de 10%, on choque directement la variable
+*EXR*, qui est définie comme le taux de change de l'euro avec les devises du reste du monde. On fait
+l'hypothèse qu'une baisse de 10% du taux de change de l'euro contre toutes les monnaies représente
+une dépréciation d'environ 5% du taux de change effectif. De fait, le taux de change EXR est donc
+augmenté de 5%. L'élasticité des exportations adoptée est unique pour toutes les secteurs et
+commodités et égale à 0.8 (i.e effet positif de la dépréciation de l'euro sur l'économie).
+
+### Mécanismes
+
+Comme conséquence de la dépréciation de l'euro, les prix relatifs des produits importés des
+compétiteurs étrangers augmentent (équation @eq-prix-c-base). Cela entraîne un effet double sur
+l'économie. D'un côté, un impact négatif sur l'activité du fait de la hausse du prix des
+importations et donc de la baisse du revenu réel des agent. De l'autre, un effet positif sur la
+compétitivité-prix par rapport aux concurrents étrangers : les exportations augmentent et les
+importations diminuent au profit des producteurs nationaux. L'impact final dépend des niveaux
+d'élasticité des importations et des exportations (théorème des élasticités critiques de
+Marshall-Lerner).
+
+\textcolor{blue}{Prix de la commodité importée \textit{c} exprimé au prix de base}
+$$
+PM_{c} = EXR . PWD_{c}
+$$ {#eq-prix-c-base}
+
+Il y a un effet de substitution qui intervient comme conséquence de la variation du taux de change
+(équation @eq-dem-etr-c et @eq-effet-subs). Une partie de la production importée est substituée par de la
+production nationale. La compétitivité sur le marché extérieur augmente aussi. Néanmoins, l'effet
+n'est pas permanent car la hausse des prix des importations se répercute progressivement sur les
+prix à la production. A long terme, l'impact de la hausse de la compétitivité est quasiment nul. Il
+s'agit donc d'un effet transitoire.
+
+\textcolor{blue}{Demande étrangère pour les exportations de la commodité \textit{c}}
+$$
+\varDelta \left(\operatorname{log} X_{c}\right) = \varDelta \left(\operatorname{log} WD_{c}\right) + \varDelta \left(SUBST^{X}_{c}\right)
+$$ {#eq-dem-etr-c}
+
+\textcolor{blue}{Effet de substitution théorique induit par un changement du prix relatif entre les prix à l’exportation (convertis en monnaie nationale) et les prix internationaux de la commodité c}
+$$
+\varDelta \left(SUBST^{X,n}_{c}\right) = -\eta^{X}_{c} \; \varDelta \left(\operatorname{log} PX_{c} - \operatorname{log} \left(EXR . PWD_{c}\right)\right)
+$$ {#eq-effet-subs}
+
+### Résultats
+
+On observe un effet positif sur le PIB pendant les cinq premières années, de l'ordre de 0,9%, qui
+est neutralisé à long terme (+0,1%), tout comme la hausse de l'emploi. Sur le court terme, il y a
+une hausse des exportations jusqu'à 1,7% à 5 ans. Cet effet sur les exportations s'amenuise sur le
+long terme (+0,2%), comme conséquence de l'augmentation des prix de production (+4,6%) conjointe à
+l'augmentation des salaires (+4,8%). Les importations diminuent dans les années suivants le choc,
+pour revenir au niveau du scénario de référence sur le long terme. Par conséquent, la balance
+commerciale sur le long terme converge vers le niveau du scénario de référence.
+
+Cette dépréciation permet d'augmenter le solde budgétaire de l'Etat à moyen terme (+0,5 points de
+PIB à 10 ans) du fait de la hausse de l'activité et de l'absence de baisse des recettes endogènes
+aux décisions de l'Etat, mais ne perdure pas à long terme (le solde budgétaire revient à son niveau
+du scénario de référence).
+
+### Comparaison avec d'autres modèles
+
+-   Dans ThreeME, la différence entre les imports qui viennent de l'Europe et ceux originaires du
+    reste du monde n'est pas modélisée.
+-   Dans le modèle Mésange, la hausse des exportations due à une dépréciation de 10% de l'euro est
+    plus marquée (autour de 2,31% à 5 ans vs 1,7%), aussi bien à court terme qu'à long terme. Cela
+    peut s'expliquer par le fait que les prix des importations ont un délai d'ajustement plus élevé
+    et donc augmente plus progressivement dans Mésange. De plus, les prix des exportations
+    s'ajustent plus lentement à la hausse dans Mésange, ce qui rend les produits français plus
+    compétitifs sur une période plus étendue.
+
+{{< pagebreak >}}
+
+## Hausse permanente de 1% de la demande mondiale (WD1)
+
+```{r}
+#| echo: false
+
+table_macro_WD1
+
+```
+
+### Mise en oeuvre
+
+Une augmentation de la demande mondiale adressée à la France de 1% est représentée en choquant la
+variable *WD* de manière uniforme pour toutes les commodités et tous les secteurs (équation @eq-dem-etr-c-2). A noter que cela concerne également les secteurs financiers, non explicités dans la
+modélisation.
+
+\textcolor{blue}{Demande étrangère pour les exportations de la commodité \textit{c}}
+$$
+\varDelta \left(\operatorname{log} X_{c}\right) = \varDelta \left(\operatorname{log} WD_{c}\right) + \varDelta \left(SUBST^{X}_{c}\right)
+$$ {#eq-dem-etr-c-2}
+
+### Mécanismes
+
+L'augmentation de la demande mondiale induit une hausse des exportations, qui a des effets positifs
+sur l'activité générale. Les exportations sont composées en partie par des réexportations. En
+moyenne, la part des importations dans les produits exportés est de 8,7% (XM/X). Ce mécanisme
+explique l'effet positif observé sur les importations, dans un premier temps du moins. Il y a
+conjointement une augmentation de l'emploi et de l'investissement. Cela augmente le revenu
+disponible réel des ménages, et donc la consommation, ce qui explique également une partie de
+l'augmentation des importations.
+
+### Résultats
+
+Les exportations augmentent autour de 1% tout au long de la période d'analyse, avec un modeste
+ralentissement de la tendance sur le long terme du fait de l'augmentation des prix de production,
+faisant suite à la hausse du prix des consommations intermédiaires et des salaires. Cette hausse
+stimule l'activité productive et la hausse du PIB suit une tendance similaire, dans des ordres de
+grandeur autour de +0.3%. Dans un premier temps, la balance commerciale s'améliore du fait de la
+hausse des exportations, néanmoins cet effet est limité sur le long terme car il y a une
+augmentation des importations (0.6% sur le long terme) liée à la hausse de la consommation (0,2% sur
+le long terme) et à l'augmentation des prix (0,2% sur le long terme), suite à la hausse de
+l'activité. La hausse de la balance commerciale passe donc de 0,2 points la première année à 0,1
+points sur le long terme. L'emploi et les salaires nominaux augmentent sur le long terme de 0,3% et
+0,4% respectivement. La hausse du coût du facteur travail augmente l'investissement progressivement
+sur la période, afin de substituer du capital au travail.
+
+Ce choc a un effet positif sur le solde budgétaire de l'Etat qui augmente de 0,2 points de manière
+constante sur la période.
+
+### Comparaison avec d'autres modèles
+
+-   Les effets de ce choc sont plus positifs dans ThreeME que dans Mésange (+0,4% vs +0,17% à 10
+    ans). Cela s'explique d'abord par le fait que dans Mésange, le choc sur le niveau d'exportation
+    n'est pas répercuté intégralement du fait des délais d'ajustements de l'offre française (les
+    exportations n'augmentent que de 0,72% et non de 1% la première année du choc). Ensuite, les
+    conséquences inflationnistes de cette hausse de l'activité sont plus marquées dans Mésange. Cela
+    s'explique en partie par le fait que le prix des importations augmente (du fait de la hausse de
+    la demande mondiale) dans Mésange tandis qu'ils sont stables (car exogènes) dans ThreeME, ce qui
+    impacte différemment les prix à la production.
+
+{{< pagebreak >}}
+
+## Hausse de 10% du prix des énergies fossiles (FF10)
+
+```{r}
+#| echo: false
+
+table_macro_FF10
+
+```
+
+### Mise en oeuvre
+
+Les énergies fossiles considérées pour cette variante sont le pétrole et le gaz. Les variables de
+prix correspondantes sont respectivement *PWD_CFUT* et *PWD_CGAS* et sont choquées de façon
+permanente de +10%. Ces variables de prix des énergies fossiles sont calibrées dans le scénario de
+référence de sorte à croitre à un rythme de 2%, comme les autres prix. Ce choc renforce donc cette
+croissance et le prix de la tonne de pétrole passe de 391,6€ en 2020 à 466€ en 2021 et atteint 1
+009€ sur le long
+terme\footnote{Exprimés en euro 2015, avec un prix moyen du baril de Brent à 55€ en 2015
+(soit 49,49\$ 2015).}.
+
+### Mécanismes
+
+La hausse du prix des énergie fossiles représente à la fois un choc négatif d'offre et de demande du
+fait du phénomène inflationniste dû à la hausse du prix des importations. D'une part, la hausse du
+prix du gaz et du pétrole accroît les coûts de production des entreprises et d'autre part, elle
+augmente les prix à la consommation pour les ménages. Par conséquent, on observe une baisse de
+l'activité, dont la magnitude dépend des substitutions entre capital-énergie et main d'œuvre. Les
+élasticités de substitution correspondantes sont reportées ci-dessous. Si cette substitution est
+forte, alors les impacts négatifs sur le PIB sont faibles voire absents. En effet, cette
+substitution induit une augmentation de l'emploi et de l'investissement, qui peut compenser les
+effets négatifs de ce choc. La substitution et ses effets ne sont pas toujours très marqués selon
+les élasticités retenues. Ici l'élasticité de substitution entre consommations intermédiaires
+d'énergie est de 0,2.
+
+Cette variante est parfois qualifiée de « naïve » car les prix étrangers et la demande mondiale sont
+supposés inchangés. Or, l'augmentation du prix des énergies fossiles au niveau mondial a également
+un effet sur l'activité dans le reste du monde. Ainsi, la perte de compétitivité relative est moins
+forte, et donc la dégradation de la balance commerciale moins marquée, mais la demande mondiale
+adressée à la France est également plus faible ainsi que l'inflation importée plus forte.
+
+### Résultats
+
+Il s'agit ici d'un choc négatif mais très faible. En effet, le PIB ne diffère pas du scénario de
+référence pendant les premières années suivant le choc et diminue de 0,1% sur le long terme. Dans un
+premier temps, seuls la consommation et les importations diminuent (-0,1%), tandis que les autres
+indicateurs macroéconomiques restent stables. Passée une décennie suivant le choc, les prix à la
+consommation et à la production augmentent, de l'ordre de 0,4% du fait d'une substitution
+capital-énergie trop faible. A long terme, cela diminue légèrement l'emploi et les exportations
+(-0,1% pour les deux).
+
+Ces effets étant de faible magnitude, les effets sur la balance commerciale et le solde budgétaire
+de l'Etat sont quasi-nuls comparativement au scenario sans choc.
+
+### Comparaison avec d'autres modèles
+
+-   La variante considérée par Mésange est une hausse de 20% du prix du pétrole uniquement (et non
+    des énergies fossiles) donc pas directement comparable. Pour une comparaison plus pertinente de
+    la variante, voir Callonnec et al. (2016).
+
+{{< pagebreak >}}
+
+## Hausse permanente de la taxe carbone de 1 point de PIB (CT1)
+
+```{r}
+#| echo: false
+
+table_macro_CT1
+
+```
+
+### Mise en oeuvre
+
+Cette variante consiste en une hausse durable du montant de la taxe carbone *RCO2TAX_VOL*, de telle
+sorte que le montant des revenus levés au titre de la taxation du carbone augmentent de 1 point de
+PIB (pris la première année du choc). Le périmètre d'application de cette taxe regroupe les
+émissions liées aux consommations intermédiaires, aux matériaux, à la production et à la
+consommation des ménages (variables *EMS_CI_CO2, EMS_MAT_CO2, EMS_Y\_CO2* et *EMS_CH_CO2*
+respectivement).
+
+Cette hausse correspond à l'instauration d'une taxe carbone de 62,3 €/tCO2, qui n'était pas présente
+dans le scénario de référence. Cette hausse se fait en dehors d'un mécanisme d'ajustement carbone
+aux frontière et les recettes de la taxe ne sont pas recyclées mais affectées intégralement à la
+réduction du déficit public.
+
+### Mécanismes
+
+L'effet de l'instauration d'une taxe carbone consiste en l'augmentation du prix des commodités
+intensives en carbone (équation @eq-prix-conso-men-dom et @eq-prix-conso-men-imp). Ses effets macroéconomiques sont
+proches de ceux d'une hausse du prix du pétrole, à la différence que l'instauration d'une taxe
+carbone génère un revenu fiscal supplémentaire, qui permet permet de réduire le déficit public en
+l'absence de recylage.
+
+L'augmentation des prix à la consommation diminue le salaire réel des ménages et la consommation, et
+fait augmenter le salaire nominal. S'ensuit une hausse des coûts de production, alimentée par la
+hausse du prix des consommations intermédiaires, soumises aussi à la taxe carbone, et donc une perte
+de compétitivité et une diminution des exportations (équations @eq-prix-conso-int-dom et @eq-prix-conso-int-imp). Si la
+substitution entre facteurs de production est forte, alors la hausse de l'investissement peut
+compenser la baisse de la consommation des ménages, en plus de la baisse des importations du fait de
+leur enchérissement.
+
+\textcolor{blue}{Prix de marché de la consommation finale des ménages de la commodité \textit{c} produite domestiquement}
+$$
+PCHD_{c} = PYQSBVAT_{c} \; \frac{1 + RVATD_{c}}{1 + RVATD_{c, t_0}} + \frac{T2VAL_CH[c]}{CH[c]}
+$$ {#eq-prix-conso-men-dom}
+
+\textcolor{blue}{Prix de marché de la consommation finale des ménages de la commodité \textit{c} importée}
+$$
+PCHM_{c} = PMSBVAT_{c} \; \frac{1 + RVATM_{c}}{1 + RVATM_{c, t_0}} + \frac{T2VAL_CH[c]}{CH[c]}
+$$ {#eq-prix-conso-men-imp}
+
+\textcolor{blue}{Prix de marché de la consommation intermédiaire de la commodité \textit{c} produite domestiquement et achetée par le secteur \textit{s}}
+$$
+PCID_{c, s} = PYQSBVAT_{c} + \frac{T2VAL^{CI}_{c, s}}{CI_{c, s}}
+$$ {#eq-prix-conso-int-dom}
+
+\textcolor{blue}{Prix de marché de la consommation intermédiaire de la commodité \textit{c} importée et achetée par le secteur \textit{s}}
+$$
+PCIM_{c, s} = PMSBVAT_{c} + \frac{T2VAL^{CI}_{c, s}}{CI_{c, s}}
+$$ {#eq-prix-conso-int-imp}
+
+### Résultats
+
+Le PIB diminue de 0,2% dès la première année et cette baisse se poursuit tout au long de la période
+pour aboutir à une baisse de 0,9% en 2060. On observe une baisse de la consommation (-0,8% sur le
+long terme) du fait de la hausse des prix à la consommation et à la production. Par ailleurs, le
+faible niveau de substitution entre capital et énergie (ES = 0,5) ne soutient pas l'investissement,
+qui diminue également, accompagnant la chute de l'activité. Du fait de la hausse des prix, les
+salaires augmentent, ce qui accentue la baisse de l'emploi conjointe à la diminution de l'activité
+(sur le long terme, +0,7 points de poucentage du taux de chômage). Malgré une baisse significagtive
+des exportations (-1,5% sur le long terme) du fait de la baisse de compétitivité, la baisse
+simultanée des importations (-0,7%) permet à la balance commerciale de s'améliorer au cours de la
+période, de l'ordre de 0,4 points de poucentage.
+
+Malgré la baisse du PIB, les nouvelles recettes fiscales liées à l'augmentation de la taxe carbone
+permettent à l'Etat d'augmenter son solde budgétaire, d'abord assez significativement (+0,7 points
+de PIB la première année du choc) puis plus modestement à long terme (+0,3 points de PIB).
+
+### Comparaison avec d'autres modèles
+
+-   Globalement, les effets de cette variante sur le PIB sont similaires entre Mésange, ThreeME,
+    Némésis et Imaclim-R France.
+-   En particulier, ThreeME et Mésange présentent des résultats similaires sur le moyen terme en
+    termes de pertes d'emplois, de salaires réels et de prix à la consommation. Néanmoins, sur le
+    long terme, les prix à la consommation continuent d'augmenter dans ThreeME-WS (la version
+    utilisée ici)[^5], ce qui renforce la diminution de l'emploi, alors qu'ils se stabilisent à un
+    niveau d'inflation modeste dans Mésange et ThreeME-Phillips, ce qui accentue la baisse des
+    salaires, stabilise la destruction d'emplois et ralentit la baisse de l'activité.
+-   Dans Némésis, la hausse des prix est plus marquée (autour de 3,4% sur la période), ce qui
+    diminue significativement les salaires réels et stabilise donc les pertes d'emplois.
+-   En revanche, dans Imaclim-R, la baisse du PIB est plus marquée à court terme, mais s'atténue
+    pour quasiment retrouver son niveau de référence à long terme. Cela s'explique par le fait
+    qu'Imaclim-R intègre davantage de rigidités à court terme, ce qui fait que les quantités mettent
+    plus de temps à s'adapter aux chocs sur les prix
+-   Les baisses d'émissions de GES dans ThreeME sont insensibles au choix d'équation de salaires, et
+    de l'ordre de -10% à long terme (France Stratégie, 2015). Le modèle Mésange ne contenant pas de
+    module énergétique détaillé, il n'est pas possible d'obtenir ce genre d'information pour ce
+    modèle. La baisse des émissions dans Némésis est légèrement plus marquée à court terme mais
+    légèrement moins marquée à long terme. Dans Imaclim-R, les émissions baissent modestement à
+    court terme mais atteignent le même niveau que ThreeME à long terme. En revanche, les modalités
+    des baisses d'émissions sont différentes entres les 3 modèles : dans ThreeME, cette baisse se
+    fait suite à des substitutions de modes de transports ou de chauffage dans les choix des ménages
+    et entre types d'énergies dans les choix productifs, avec un mix énergétique exogène, alors que
+    ce mix varie de manière endogène dans Némésis et est à l'origine de cette baisse des émissions,
+    avec une consommation d'énergie plutôt stable.
+-   Ces différents effets économiques sont bien évidemment conditionnés à la présence et aux
+    modalités de recyclage du revenu de la taxe carbone.
+
+[^5]: Deux modélisation du marché du travail sont possibles dans ThreeME. D'une part, une fixation
+    des salaires selon une courbe WS et d'autre part, selon une courbe de Phillips. Ces versions
+    sont exprimées ici respectivement ThreeME-WS et ThreeME-Phillips.
+
+{{< pagebreak >}}
+
+## Hausse de 10% de la productivité du capital (PRODK10)
+
+```{r}
+#| echo: false
+
+table_macro_PRODK10
+
+```
+
+### Mise en oeuvre
+
+Est simulé ici l'effet de l'augmentation permanente de la productivité de long terme du capital de
+10%. La dynamique du progrès technique du capital *PROG_K* est modélisée par une équation qui
+intègre un taux de croissance du progrès technique de ce facteur *GR_PROG_EXO_K*. La valeur de ce
+taux de croissance est nulle dans le scénario de référence et portée à 10% pour tous les secteurs de
+manière uniforme dans la variante.
+
+### Mécanismes
+
+La demande du capital étant négativement corrélé avec sa productivité (équation @eq-dem-fact-f-s),
+l'augmentation du progrès technique du capital entraîne une diminution de sa demande et donc de son
+prix. Cet effet est compensé par un effet de substitution qui fait que quand le coût relatif d'un
+facteur de production diminue, la demande de ce facteur augmente car considéré comme moins cher par
+rapport aux autres facteurs. Cet effet de substitution dépend en grande partie du niveau des
+élasticités retenues (équation @eq-subs-f-ff). Ici, une valeur de 0,5.
+
+\textcolor{blue}{Demande du facteur de production \textit{f} par le secteur \textit{s}}
+$$
+\varDelta \left(\operatorname{log} F^{n}_{f, s}\right) = \varDelta \left(\operatorname{log} Y_{s}\right) - \varDelta \left(\operatorname{log} PROG_{f, s}\right) + \varDelta \left(SUBST^{F}_{f, s}\right)
+$$ {#eq-dem-fact-f-s}
+
+\textcolor{blue}{Substitution entre l’input \textit{f} et les autres inputs \textit{ff}}
+$$
+\varDelta \left(SUBST^{F,n}_{f, s}\right) = \sum_{ff} -ES_{f, ff, s} \; \varphi_{ff, s, t-1} \; \varDelta \left(\operatorname{log} \frac{C_{f, s}}{PROG_{f, s}} - \operatorname{log} \frac{C_{ff, s}}{PROG_{ff, s}}\right)
+$$ {#eq-subs-f-ff}
+
+Dans un premier temps, les élasticités adoptées sont suffisamment élevées pour déclencher des
+substitutions en faveur d'une demande accrue de capital suite à la baisse de son prix relatif. Les
+prix de production diminuent (car le coût unitaire de la production diminue: équation @eq-cout-u-prod)
+et l'investissement augmente à moyen terme. Néanmoins, sur le plus long terme, l'effet de la baisse
+de demande en capital du fait des gains de productivité l'emporte, menant à des substitutions en
+défaveur du capital, d'autant plus que, suite à la baisse des prix, le coût du facteur travail a
+également diminué. Fruit de cette baisse des salaires, le revenu réel des ménages diminue à long
+terme, et *in fine* la consommation également.
+
+A long terme, la hausse de PIB se fait grâce à la hausse des exportations, conjointe à la baisse des
+importations, suite à la baisse des prix de production et à la baisse de la consommation
+respectivement.
+
+\textcolor{blue}{Coût unitaire de production dans le secteur s} 
+$$
+CU^{n}_{s} \; Y_{s} = \sum_{f} C_{f, s} \; F^{n}_{f, s} + NTAXS^{VAL}_{s}
+$$ {#eq-cout-u-prod}
+
+En outre, la hausse de la productivité du capital augmente les capacités de production pour un
+niveau de capital donnée (équation @eq-cap-prod-s). Par conséquent, le taux d'utilisation des capacités
+de production diminue (équation @eq-taux-ut-cap-prod) comme le taux de marge (équation @eq-prix-prod). Du fait
+de la baisse du coût, les prix de production diminuent désormais du fait d'une baisse du taux de
+marge (équation @eq-marge) ce qui renforce l'effet. Ce qui induit également une diminution des
+importations. Cette amélioration de la balance commerciale porte la hausse du PIB sur le long terme.
+
+\textcolor{blue}{Capacité de production du secteur s}
+$$
+\varDelta \left(\operatorname{log} YCAP_{s}\right) = \sum_{f} \varphi_{f, s, t-1} \; \varDelta \left(\operatorname{log} \left(F_{f, s} \; PROG_{f, s}\right)\right) + \alpha^{YCAP,Y}_{s} \; \left( \operatorname{log} Y_{s, t-1} - \operatorname{log} \left(YCAP_{s, t-1} \; CUR_{s, t_0}\right) \right)
+$$ {#eq-cap-prod-s}
+
+\textcolor{blue}{Taux d’utilisation de la capacité du secteur s} 
+$$
+CUR_{s} = \frac{Y_{s}}{YCAP_{s}}
+$$ {#eq-taux-ut-cap-prod}
+
+\textcolor{blue}{Marge notionnelle du secteur s} 
+$$
+\varDelta \left(\operatorname{log} \left(1 + \mu^{n}_{s}\right)\right) = \rho^{\mu,Y} . \varDelta \left(\operatorname{log} CUR_{s}\right)
+$$ {#eq-marge}
+
+\textcolor{blue}{Prix de production du secteur s} 
+$$
+PY^{n}_{s} = CU^{n}_{s} \; \left( 1 + \mu_{s} \right)
+$$ {#eq-prix-prod}
+
+### Résultats
+
+Le PIB augmente d'environ 1,1% à 10 ans ainsi qu'à long terme. Les substitutions opèrent de façon
+lente, ce qui fait que l'on observe une augmentation de l'investissement pendant les premières
+années (de 1% à 5 ans) puis une diminution sur le long terme, jusqu'à -5,1%. L'emploi augmente
+légèrement suite au choc (jusqu'à +0,5% à 20 ans) mais retrouve son niveau de référence à long
+terme. Les prix de production diminuent sur toute la période, jusqu'à -7,4% sur le long terme. Les
+prix à la consommation baissent de 4,2% à 5 ans, ce qui permet aux ménages d'augmenter leur
+consommation dans un premier temps, avant de devoir la réduire suite à la baisse des salaires qui
+s'ajustent à cette baisse des prix.
+
+Les exportations augmentent et la balance commerciale s'améliore jusqu'à atteindre une valeur autour
+de +0,5 points de PIB sur le long terme. Quant aux importations, elles augmentent de 0,2% au cours
+des premières années suivant le choc, puis elles diminuent sur le long terme de 2,9%.
+
+Malgré la hausse du PIB et de la production, l'absence de création d'emplois et la baisse du revenu
+disponible des ménages ne permet pas à l'Etat de dégager un exécedent budgétaire significatif suite
+à cette hausse de la productivité du capital. Le niveau du solde budgétaire de long terme n'est donc
+pas différent de celui du scénario de référence.
+
+### Comparaison avec d'autres modèles
+
+--
+
+{{< pagebreak >}}
+
+## Hausse de 10% de la productivité de l'énergie (PRODE10)
+
+```{r}
+#| echo: false
+
+table_macro_PRODE10
+
+```
+
+### Mise en oeuvre
+
+La productivité de long terme du facteur énergétique n'est pas uniquement définie par le taux de
+croissance exogène *GR_PROG_EXO_E* comme dans la variante précédente, mais également par une
+composante endogène. Cette composante représente les gain d'efficacité énergétique endogènes, qui
+dépendent d'une constante *RHO_PROG_E\_PE*, initialisée à 0,1, et du prix réel de l'énergie :
+lorsque le prix de l'énergie augmente, l'efficacité énergétique augmente (de manière irréversible).
+Ici, la variante consiste en une augmentation permanente de la partie exogène de la productivité de
+l'énergie de l'ordre de 10%. Le taux de croissance du progrès technique de l'énergie *GR_PROG_EXO_E*
+est donc portée à 10% pour tous les secteurs de manière uniforme.
+
+### Mécanismes
+
+Les mécanismes sous-jacents sont similaires à ceux relevés dans le choc sur la productivité du
+capital. Dans le cas de la variante productivité de l'énergie, les substitutions opèrent dans le
+sens inverse, ce qui tend à diminuer l'investissement, mais également l'emploi potentiellement, ce
+qui diminuerait la consommation. L'effet sur le PIB est la résultante de ces effets contradictoires,
+selon leur magnitude respective.
+
+Si la demande en énergie diminue, alors les importations diminuent également (l'énergie étant en
+grande partie un bien importé) tandis que les exportations augmentent à la suite de la baisse des
+prix de production. Par conséquent, l'effet sur la balance commercial serait positif.
+
+### Résultats
+
+Dans un premier temps, l'effet de la baisse du prix relatif de l'énergie semble l'emporter, avec des
+effets de substitutions qui nuisent aux facteurs travail et capital (-0,1% d'emploi et
+d'investissement la première année du choc). Néanmoins, très rapidement, l'effet de la baisse de la
+demande en énergie semble dominer, ce qui ramène l'emploi et l'investissement à leur niveau de
+référence, après respectivement 5 et 10 ans, d'autant plus que le coût relatif du facteur travail a
+lui aussi diminué.
+
+L'effet sur la baisse des prix de production est durable et croissant, avec une diminution des prix
+de 0,8% sur le long terme, ce qui permet d'augmenter la consommation de 0,1% malgré la baisse des
+salaires. Cette baisse des prix de production alimente également la hausse des exportations (+0,7% à
+long terme), ce qui, accompagné de la baisse des importations (notamment du fait de la baisse de la
+demande en énergie), améliore légèrement la balance commerciale.
+
+Sur le court terme, les gains de productivité en énergie permettent de diminuer de manière non
+négligeable les emissions de GES (-3%), mais cet effet s'atténue avec la baisse de la demande en
+énergie, qui se substitut à du capital, potentiellement plus émetteur.
+
+La hausse de l'activité suite à ce choc de productivité de l'énergie ne permet pas d'augmenter
+significativement le solde budgétaire de l'Etat sur le long terme (+0,1 point de PIB).
+
+### Comparaison avec d'autres modèles
+
+--
+
+{{< pagebreak >}}
+
+## Hausse de 10% de la productivité du travail (PRODL10)
+
+```{r}
+#| echo: false
+
+table_macro_PRODL10
+
+```
+
+### Mise en oeuvre
+
+Cette variante consiste en une hausse de la productivité de long terme du travail de 10%. Bien que
+la dynamique du progrès technique du travail soit définie de la même manière que celle du capital,
+le taux de croissance du progrès technique du travail *GR_PROG_L* n'est pas nul dans le scénario de
+référence mais égal à 1%. Cette variable est augmentée de 10% pour tous les secteurs de manière
+uniforme.
+
+### Mécanismes
+
+L'augmentation de la productivité du travail diminue la demande de travailleurs, ce qui produit une
+diminution de l'emploi et une augmentation du taux de chômage. Du fait d'une élasticité de
+substitution modérée entre les facteurs de production, la baisse du coût relatif du facteur travail
+peut permettre d'atténuer ou de compenser cette baisse de l'emploi.
+
+Par ailleurs, le taux de salaire augmente avec la productivité des travailleurs, ce qui permet de
+soutenir une consommation plus élevée. Cet effet atténue l'effet de la baisse du coût relatif du
+facteur travail. La substitution avec le capital et l'énergie ne s'opèrent pas en faveur du travail,
+et l'investissement augmente. Cette hausse de l'activité favorise les exportations. L'effet sur le
+PIB est donc positif.
+
+### Résultats
+
+Dans un premier temps, les salaires augmentent significativement (+3,5% l'année suivant le choc), ce
+qui accentue la baisse de la demande de travail, qui atteint son niveau le plus bas 5 ans après le
+choc (-7,9%, soit la destruction de plus de 2 millions d'emplois). Néanmoins, ce phénomène a pour
+conséquence de diminuer les prix à la production (-4,9% à 5 ans) et donc augmenter les exportations
+et diminuer les prix à la consommation, ce qui stimule la consommation (+0,5% à 5 ans).
+
+Dans un second temps, cette baisse des prix alimente la modération salariale (seulement +0,7% à long
+terme) du fait de l'indexation des salaires sur les prix. Cela atténue l'augmentation du chômage
+(qui se maintient autour de +6 p.p sur le long terme) mais n'est pas suffisant pour diminuer
+significativement le coût relatif du travail et donc l'investissement augmente jusqu'à +1,8% sur le
+long terme, stimulé également par la hausse de l'activité.
+
+Ainsi, le PIB a long terme augmente de 2,5%, porté par une consommation qui croit progressivement
+(du fait de la baisse des prix à la consommation et de la hausse des salaires), et plus
+significativement par la hausse de l'investissement, pour répondre à cette hausse de la
+consommation, et des exportations. La baisse des importations contribue également à améliorer la
+balance commerciale (les valeurs négatives sur le tableau correspondent uniquement à un effet de
+prix).
+
+La hausse du chômage et la baisse du revenu disponible des ménages ne permettent pas au solde
+budgétaire de l'Etat de profiter de la hausse du PIB sur le long terme. Ainsi, ce solde est
+inférieur de 0,4 points de PIB à celui dans le scénario de référence à la fin de la période.
+
+### Comparaison avec d'autres modèles
+
+--
+
+{{< pagebreak >}}
+
+## Hausse de 10% de la productivité totale des facteurs (TPF10)
+
+```{r}
+#| echo: false
+
+table_macro_TPF10
+
+```
+
+### Mise en oeuvre
+
+Cette variante, qui consiste en une augmentation de la productivité totale des facteurs de
+production de 10%, représente une combinaison des 3 variantes précédentes. Cela signifie que les
+taux de croissance du progrès techniques du capital, du travail et de l'énergie (respectivement
+*GR_PROG_EXO_K, GR_PROG_EXO_L* et *GR_PROG_EXO_E*) sont augmentés de 10% pour tous les secteurs de
+manière uniforme. Il s'agit donc d'un choc sur la productivité globale des facteurs (PGF) parmi
+lesquels l'énergie.
+
+### Mécanismes
+
+Les effets d'une hausse de 10% de la PGF est une combinaison des effets des 3 variantes précédentes.
+L'effet sur le PIB à long terme est positif et significatif. Cette hausse est portée dans un premier
+temps par la consommation (du fait de la baisse des prix à la consommation, rapidement rattrapée par
+une baisse des salaires et une augmentation du chômage) puis dans un second temps par
+l'investissement (du fait des gains de productivité du capital) et l'amélioration de la balance
+commerciale (du fait de la diminution des coûts de production). A long terme, et grâce à
+l'amélioration de la balance commerciale portée par les grains de productivité du travail, le solde
+primaire public augmente.
+
+### Résultats
+
+Le PIB augmente de 0,6% la première année du choc, puis d'environ 1,6% sur le long terme. Dans un
+premier temps, l'augmentation de la consommation (+0,5%) du fait de la baisse des prix à la
+production et à la consommation (resp. -1,4% et -1,2%) liée à l'augmentation de la productivité du
+capital et de l'énergie, permet de générer de l'activité et d'augmenter l'investissement.
+
+Dans un second temps, les salaires diminuent (-3,1% à 5 ans), du fait de la baisse des prix
+notamment, ce qui, ajouté à l'augmentation de la productivité du travail, diminue le coût relatif de
+ce facteur de production, ce qui diminue le chômage à moyen terme (-0,4 p.p à 10 ans) et, par effet
+de substitution, diminue l'investissement (-5% à long terme). Néanmoins, cette baisse continue des
+salaires nuit à la consommation à long terme, qui diminue de 0,3%. Ainsi, la hausse du PIB est
+ralentie, et principalement portée par la hausse des exportations (+6,2%) et la baisse des
+importations (-3,4%), ce qui permet d'améliorer sensiblement la balance commerciale (+0,6 p.p).
+
+Cependant, le solde budgétaire de l'Etat ne tire pas profit de cette hausse de l'activité à long
+terme (principalement mue par le commerce extérieure), et son niveau à long terme est équivalent à
+celui du scénario de référence.
+
+### Comparaison avec d'autres modèles
+
+--
+
+{{< pagebreak >}}
+
+## Synthèse de la comparaison Mésange-ThreeME
+
+| Variante  | Indicateur    | Mésange | ThreeME-WS |
+|-----------|---------------|:-------:|:----------:|
+| **EXPG1** | PIB           |  \+ +   |     \+     |
+|           | Prix prod.    | \+ + +  |    \+ +    |
+|           | Prix conso.   | \+ + +  |    \+ +    |
+| **RRSC1** | PIB           |  \+ +   |     \+     |
+|           | Revenu dispo. |   \+    |     \-     |
+|           | Prix conso.   |   \-    |     \-     |
+|           | Chômage       |   \-    |     \-     |
+|           | Conso.        |  \+ +   |     \+     |
+| **VAT1**  | PIB           |   \+    |    \+ +    |
+|           | Chômage       |   \-    |     \-     |
+|           | Salaire       |   \+    |     \-     |
+|           | Prix conso.   |   \-    |    \- -    |
+| **INCT1** | Revenu dispo. |   \+    |    \+ +    |
+|           | Conso.        |   \+    |    \+ +    |
+|           | PIB           |   \+    |    \+ +    |
+| **EXR10** | Export        | \+ + +  |     \+     |
+|           | Prix export.  |   \+    |    \+ +    |
+|           | Prix import.  |   \+    |    \+ +    |
+| **WD1**   | PIB           |   \+    |    \+ +    |
+|           | Export        |   \+    |    \+ +    |
+|           | Prix conso.   |  \+ +   |     \+     |
+|           | Prix import.  |   \+    |     \~     |
+| **CT1**   | Emploi        |   \~    |     \-     |
+|           | Salaire       |   \-    |     \+     |
+|           | Prix conso.   |   \+    |    \+ +    |
+
+: Comparaison du sens et de la magnitude des effets des variantes entre Mésange et ThreeME
+
+Le signe "+" ou "-" indique si l'effet de la variante sur l'indicateur considéré est positif ou
+négatif par rapport au scénario de référence. Le nombre de signes renseigne sur l'intensité de
+l'effet ("-" ou "+" signifie un effet modeste, "---" ou "+++" signifie un effet marqué et "\~"
+signifie un effet non différent du scénario de référence)
+
+{{< pagebreak >}}
+
+## Prolongements d'analyses
+
+### Focus 1: les émissions de GES dans ThreeME
+
+Les émissions de GES sont intégrées dans ThreeME selon l'équation @eq-GES.
+$$
+\varDelta \left(\operatorname{log} EMS^X_{ghg,c,s}\right) = \varDelta \left(\operatorname{log} (X_{c,s}\times IEMS^X_{ghg,c,s})\right)
+$$ {#eq-GES}
+
+Avec $X$ un terme générique pour désigner la quantité d'énergie demandée au titre des consommations
+intermédiaires (CI), des matériaux (MAT), de la production (Y) et de la consommation finale des
+ménages (CH); et $IEMS$ l'intensité en émissions de ces 4 postes d'émissions. Ces coefficients
+d'émissions sont propres à chaque acteur économique, secteur et source d'énergie et sont exogènes.
+
+Plusieurs mécanismes de variation de la consommation d'énergie sont modélisés dans ThreeME. Ceux-ci
+consistent principalement en:
+
+-   Des substitutions, entre capital, travail et energie et entre sources d'énergie au niveau des
+    entreprises
+
+-   Des substitutions entre modes de transports, entre commodités et entre classes d'investissements
+    énergétiques pour les ménages dans la version hybride du modèle
+
+-   Des gains d'efficacité énergétique.
+
+Ces phénomènes fonctionnent selon les prix relatifs de l'énergie. De plus, le niveau de détail dans
+les substitutions et comportements de consommation énergétique dépendent de la version du modèle
+utilisée.
+
+Comme on peut le voir dans les résultats des variantes précédentes, les émissions de GES sont
+corrélées aux consommations. La consommation augmentant dans la majeure partie des variantes, les
+émissions de GES ont également tendance à augmenter. A l'inverse, les émissions diminuent dans les
+variantes avec hausse des prix des énergies fossiles, hausse de la taxe carbone et hausse de
+l'efficacité énergétique.
+
+Ce dernier cas représente la seule variante dans laquelle on observe une hausse de la consommation
+associée à une baisse des émissions. Cela s'explique par le fait que pour un même niveau de demande,
+les gains d'efficacité énergétique permettent de diminuer la consommation d'énergie et donc les
+émissions. Comme la hausse de la consommation finale est modeste dans ce cas, la baisse des
+émissions y est sensible (-1,2% sur le long terme).
+
+La baisse des émissions est plus forte dans la variante avec une taxe carbone que dans celle avec
+hausse de 10% du prix des énergies fossiles. Néanmoins la tendance est similaire, avec une baisse
+soutenue lors des 5 premières années, pour arriver à un plateau, auquel se stabilisent les baisses
+d'émissions sur le long terme (autour de -0,8% pour FF10 et de -8,5% pour CT1).
+
+Cette différence s'explique par le périmètre d'application de la hausse des prix ainsi que par les
+différences d'intensité de cette hausse. La hausse de la taxe carbone modifie les prix de toutes les
+commodités pour lesquelles l'intensité en carbone n'est pas nulle, tandis que la hausse des prix des
+énergies fossiles ne touchent, en premier rang, les prix que de deux commodités (à savoir le gaz
+naturel et le pétrole). Par conséquent, la modification des prix relatifs est plus conséquente dans
+le cas de la variante avec hausse de la taxe carbone. Cela aboutit à une hausse des prix à la
+production et à la consommation significativement plus forte que dans la variante d'une hausse du
+prix des énergies fossiles uniquement (resp. +0,3% vs +2% et +0,5% vs +2 ,2% à long terme). Les
+effets de substitutions entre commodités (valeur de l'élasticité plutôt modeste de 0,5) font que les
+commodités intensives en carbone deviennent plus chères et donc leur consommation diminue.
+
+### Focus 2: Clés d'analyses sectorielles
+
+-   Dans un soucis de lisibilité des résultats, les analyses sectorielles sont présentés à un niveau
+    d'aggrégation à 8 secteurs, bien que le modèle cotienne 32 secteurs. Les résultats sont de deux
+    types. D'une part les variations relatives au scénario de référence par secteur. D'autre part,
+    la contribution relative de chaque secteur à la variation globale (ce qui permet de rendre
+    compte de l'importance relative de chaque secteur dans la structure de l'économie française).
+    Les principaux indicateurs d'intérêts sont la production, la valeur ajoutée, les prix à la
+    production, l'emploi et l'investissement, ainsi que les niveaux de demande finale et de
+    consommation intermédiaire pour les commoditiés (qui correspondent aux différents secteurs).
+
+-   Il existe deux types de variantes aux mécanismes interprétatifs différents. D'une part, les
+    chocs qui touchent en premier lieu des variables de quantités et les chocs qui touchent
+    directement les variables de prix. Dans le premier cas, la production et la valeur ajoutée des
+    secteurs suivent davantage les évolution du niveau de demande, notamment en consommations
+    intermédiaires, que celles des niveaux de prix. Par exemple, le secteur des énergies fossiles
+    présente dans la plupart des variantes une hausse du prix de production plus contenue que dans
+    les autres secteurs, du fait que ces prix dépendent grandement du prix des énergies importées,
+    qui sont exogènes et constantes. Pour autant, cette baisse du prix relatif n'implique pas un
+    niveau de production plus élevé pour ce secteur.
+
+-   L'investissement et l'emploi des différents secteurs sont fortement corrélés aux niveaux de
+    production respectifs. En l'occurence, les observations suggèrent que lorsque la production
+    augmente, cela est la conséquence de l'augmentation de la demande pour ce secteur. Par
+    conséquent, l'emploi et l'investissement augmentent conjointement. Le phénomène de substitution
+    entre capital et travail, qui suggère une variation inverse entre l'investissement et l'emploi
+    dans un même secteur n'est pas observé de manière significative.
+
+-   Du fait de la structure de l'économie, les secteurs contribuant le plus aux variations
+    macroéconomiques sont les services, la construction et l'industrie non-énergétique pour les
+    chocs sur variables de quantité et les services et industries non-énergétiques et énergétiques
+    dans le cas de chocs sur variables de prix/monétaires.
+
+{{< pagebreak >}}
+
+# Bibliographie
+
+Bardaji J., B. Campagne, M.-B. Khder, Q. Lafféter et O. Simon - DG Trésor : A.-S. Dufernez, C.
+Élezaar, P. Leblanc, E. Masson et H. Partouche (2017), « Le modèle macroéconométrique Mésange :
+réestimation et nouveautés », *Insee Document de travail*, n° G2017/04, Insee.
+
+Bourgeois A. et A. Briand (2019), « Le «made in France» : 81% de la consommation totale des ménages,
+mais 36% seulement de celle des biens manufacturés », *Insee Première*, n°1756, Insee.
+
+Callonnec G., G. Landa Rivera, P. Malliet, A. Saussay et F. Reynes (2016), « Les propriétés
+dynamiques et de long terme du modèle ThreeME. Un cahier de variantes », *Revue de l'OFCE*, vol.
+149, no 5.
+
+France Stratégie (2015), « La transition énergétique vue par les modèles macroéconomiques »,
+*Document de travail*, N°2015-05/Octobre.

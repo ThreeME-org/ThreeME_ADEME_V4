@@ -1,0 +1,26 @@
+
+############## TO BE PUT IN A DATA FILE DURING DEVELOPMENT #####################
+################################################################################
+###### Exception_LUX_EXPORTFUEL_data.mdl
+
+##################################################################################
+###### Exception_LUX_NEAM_data.mdl
+CH_HOUS_NEAM[ce] := CH_HOUS[ce]
+CH_TRSP_NEAM[ce] := CH_TRSP[ce]
+CH_TRSP_NEAM[ct] := CH_TRSP[ct] 
+
+CH_TRSPINV_NEAM := NCH[ctrsp_inv]
+CH_HOUSINV_NEAM := NCH[chous_inv]
+X_NEAM[cfut] := X[cfut]
+
+
+
+#### Modeling fuel sales to non-resident
+# If endogenous in ThreeME
+# STATEC’s assumption :
+#  Elasticity of exported fuels
+# Tom Haas (2022), Projections des émissions du secteur du transport, Colloque Mesurer et modéliser la transition écologique (29-30 juin 2022). 
+# @over ES_X[cfut] := 1.8
+
+# PNEIGHBOR[cfut] := 1
+

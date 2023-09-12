@@ -1,0 +1,6 @@
+	# Simple Model
+Y = CH + I
+
+	# Add a dynamic equation for consumption. Notice how EViews recognizes every left most variable as an endogenous variable. 
+	# If you include the below equation, you will therefore find "CH_0" showing up as a result in your "workfile" when you solve the model. 
+CH = CH{-1}*(1 + 0.05)

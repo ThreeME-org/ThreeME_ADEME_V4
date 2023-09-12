@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.296">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Paul Malliet, Anissa Saumtally">
+
+<title>Macroeconomic impact from implementing energy shield tariffs: an assesment trough the use of a CGE model</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="Untitled_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Untitled_files/libs/quarto-html/quarto.js"></script>
+<script src="Untitled_files/libs/quarto-html/popper.min.js"></script>
+<script src="Untitled_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Untitled_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Untitled_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Untitled_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Untitled_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Untitled_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Untitled_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table des matières</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#policy-context" id="toc-policy-context" class="nav-link" data-scroll-target="#policy-context">Policy Context</a>
+  <ul class="collapse">
+  <li><a href="#the-french-system-for-regulation-of-energy-prices-titre-nul-a-changer" id="toc-the-french-system-for-regulation-of-energy-prices-titre-nul-a-changer" class="nav-link" data-scroll-target="#the-french-system-for-regulation-of-energy-prices-titre-nul-a-changer">The French system for regulation of energy prices [titre nul a changer]</a></li>
+  <li><a href="#regulating-energy-prices-in-times-of-crisis-the-energy-price-shield" id="toc-regulating-energy-prices-in-times-of-crisis-the-energy-price-shield" class="nav-link" data-scroll-target="#regulating-energy-prices-in-times-of-crisis-the-energy-price-shield">Regulating energy prices in times of crisis : the energy price shield</a></li>
+  </ul></li>
+  <li><a href="#modeling-framework-and-scenarios" id="toc-modeling-framework-and-scenarios" class="nav-link" data-scroll-target="#modeling-framework-and-scenarios">Modeling Framework and Scenarios</a>
+  <ul class="collapse">
+  <li><a href="#threeme-model" id="toc-threeme-model" class="nav-link" data-scroll-target="#threeme-model">ThreeME model</a></li>
+  <li><a href="#integration-of-the-shield-tariff-mechanism" id="toc-integration-of-the-shield-tariff-mechanism" class="nav-link" data-scroll-target="#integration-of-the-shield-tariff-mechanism">Integration of the Shield tariff mechanism</a></li>
+  <li><a href="#calibrating-threeme-and-integrating-the-cre-data" id="toc-calibrating-threeme-and-integrating-the-cre-data" class="nav-link" data-scroll-target="#calibrating-threeme-and-integrating-the-cre-data">Calibrating ThreeME and integrating the CRE data</a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#références" id="toc-références" class="nav-link" data-scroll-target="#références">Références</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Autres formats</h2><ul><li><a href="Untitled.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Macroeconomic impact from implementing energy shield tariffs: an assesment trough the use of a CGE model</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Auteur·rice</div>
+    <div class="quarto-title-meta-contents">
+             <p>Paul Malliet, Anissa Saumtally </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Date de publication</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">9 juin 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Russia’s invasion of Ukraine in February 2022 triggered a major energy crisis for European Union countries that started in September 2021 in the wake of the post-COVID recovery of the international demand . Between December 2020 and December 2021, the import price for energy in the euro area already more than doubled, spurring inflation across European countries. Regarding the french situation, From 2021Q2 and 2022Q2, energy prices’ increase contributed to 3.1 points of percentages (pp) out of a total of 5.3% of inflation in France <span class="citation" data-cites="bourgeois_alexandre_flambee_2022">[@bourgeois_alexandre_flambee_2022]</span>.</p>
+<p>If the reaction was quick to condemn Russia, through the ban on Russian trade, the dramatic rise of energy prices has been conducted to well as intervention policies to moderate the impact of this rise on households and businesses <span class="citation" data-cites="cae2023b">[@cae2023b]</span> as is the case for France with the use of energy shield tariff from October 2021. The operating principle of the energy shield is based on a state subsidy between a capped consumer price and the supplier’s price according to market conditions. Thus, while it guarantees the targeted level of inflation, its cost to the public authorities depends first and foremost on market prices. Among the measures implemented by European countries, the choice made by France of a policy of maintaining price levels is quite distinctive <span class="citation" data-cites="Bruegel">[@Bruegel]</span> since it is the sole country to have adopted these measures, transfers and tax reductions being more often used by the other member states.</p>
+<p>Despite the uncertainties expressed in 2022 as to the ability of the energy system to withstand a rapid withdrawal from Russian energy imports,from today’s perspective the facts seem to rather point to its resilience (see <a href="#fig-1">Figure&nbsp;1</a>). As pointed out in a recent analysis by the IEA <span class="citation" data-cites="iea2023">[@iea2023]</span>, several factors that have contributed to lower global energy consumption in 2022 by 3% in comparison to previous year.</p>
+<div id="fig-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="figures/Fig2.png" class="quarto-discovered-preview-image img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1: “Spot price on the TTF market (figure à changer avec celle finale)”</figcaption><p></p>
+</figure>
+</div>
+<p>Forecasting in the PLF issue an estimated cost for the policy for 2022 and 2023 to respectively XX and XX …</p>
+<p>This study aims at understanding the macroeconomic effects from energy shield tariffs through an explicit representation of the price structure from wholesale market prices to consumer prices. In the first section, we present the methodology used to assess the effects from implementing shield tariff, section 2 presents the data, Section 3 we present the results, that we discussed in the section 4. Section 5 concludes.</p>
+</section>
+<section id="policy-context" class="level1">
+<h1>Policy Context</h1>
+<section id="the-french-system-for-regulation-of-energy-prices-titre-nul-a-changer" class="level2">
+<h2 class="anchored" data-anchor-id="the-french-system-for-regulation-of-energy-prices-titre-nul-a-changer">The French system for regulation of energy prices [titre nul a changer]</h2>
+<p>Previously a public monopoly, the supply of gas and electricity opened to newcomers in xxxx, making the market supposedly competitive. Despite being an open market, electricity and gas consumers in France have the option between a market price and a regulated price. The regulated price option made available to consumers is sold by the historical supplier, with prices determined by the <em>Commission de régulation de l’énergie (CRE)</em>. There are three components that make up the regulated price: fair compensation for the energy supplier (this is the component that depends on wholesale prices), distribution and network costs and taxes (VAT and other forms of excises). Each component roughly accounts for one third of the price. Those prices are determined on a yearly basis for electricity and monthly basis for gas. For electricity prices, this implies that consumers face a stable cost throughout the year. For the supplier, if wholesale prices have varied greatly during the year, such that the regulated price did not end up covering their cost, a make-up component will be added in the next period to allow them to recoup their cost. The shorter adjustment time frame for gas prices on the hand imply more volatility for consumers but a higher adjustment factor with wholesale price fluctuations. The end of the regulated prices for gas has in fact been announced for July 2023, however, because of how often they were actualised, it is expected that there should not be much changes observed in gas prices.</p>
+<p>The market price offerings for those commodities tend to be aligned with the regulated price. Often households contracts will be signed where the price paid will be x percent below regulated price for set period of time, after which the contract would revert to another price. Those alternative suppliers would in fact be hedging with wholesale prices, by buying from futures market at lower prices. The unforeseen surge in wholesale prices turned out to be unprofitable for some contracts that were locked in low prices. Conversely, new contracts at market prices during the peak would lead to a significant and - far superior - increase in price. On average however, the prices should more or less be aligned with the regulated price. It should be noted that households that hold such market price contract make up for about 30 % of the market share. The vast majority is still on the regulated price contracts.</p>
+<p>As a result, energy consumer prices in France fluctuate overall quite moderatetly. The passthrough of the variations of wholesale prices is in fact one the lowest in Europe, especially for electricity [ref imf paper]. The same can be observed for the contribution of energy prices to the total inflation in France in comparison to other European countries.</p>
+</section>
+<section id="regulating-energy-prices-in-times-of-crisis-the-energy-price-shield" class="level2">
+<h2 class="anchored" data-anchor-id="regulating-energy-prices-in-times-of-crisis-the-energy-price-shield">Regulating energy prices in times of crisis : the energy price shield</h2>
+<p>Towards the second half of 2021, wholesale gas prices experienced some high peaks (variations of magnitude x10 on daily averages) after remaining at record low points in 2020 in the midst of the Covid-19 pandemic. As economies were restarting fast, especially in Asia, and Europe was experiencing a cold winter, the tension of the demand on natural gas lead to a first severe increase in wholesale prices. This energy inflation crisis only worsened in 2022 due to the second Russian invasion of Ukraine on February 24th 2022. As an embargo on Russian gas,was agreed upon by the EU, albeit very difficultly so due to the high dependence of some member states, the cost of alternatives (mainly liquefied gas (LPG)) increased all the more. On the Dutch TTF market, the reference point for wholesale prices in Europe, the intraday trading prices reached temporary highs above the 1000 euros mark.</p>
+<p>For France, as the gas regulated prices are evaluated monthly, the usual method of calculating prices by the CRE would have integrated these variations, and consumer prices would have followed suit. This marked the beginning of the government’s intervention for gas prices. The initial measure of the <em>bouclier tarifaire</em>, or price shield, consisted in freezing the regulated tariff for household consumers on these types of contracts starting the end of the year 2021 and to be continued in 2022. For electricity prices, unaffected in 2021, the regulated price increase in 2022 would be limited to 4 % instead of an estimated increase of 30 %. For 2023, this price increase cap was fixed at 15 % for both household gas<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> and electricity. In practice, this measure aims to cap the price, all taxes included, of the kilowatt-hour. There is in theory no condition made on the quantity consumed. It should be noted however that the government also ran a campaign in parallel encouraging energy savings during these time, citing risks of shortages. In 2022, the consumption of electricity and gas did indeed decrease despite the relatively low price increase. Whether this is a direct consequence of this push for a more responsible energy consumption or driven by a fear of further price hikes is not clear yet.</p>
+<p>In order to limit the impact on suppliers, this cap is reached first by a removal of some taxes applicable to the consumer for those products (the TICFE [acronym def]). To complete this, the CRE would then calculate a price that will reach the target by reducing the energy supplier compensation part of the commodity price. They also provide a theoretical price that would have been implemented without a price cap. The government will then subsidise the difference directly to supplier. When evaluating the total cost of this policy, it is the tax-rebate and the subsidy that are added. Figure xx below summarises the average theoretical and applicable prices; on this graph, the difference between dotted and solid lines represent the cost of the measure (not including tax rebates) for the governement.</p>
+<p>The latest estimates by the French government of this policy alone in the Stability Program evaluated the cost in 2022 at xx billions euros for gas and xx billions euros for electricity. For 2023 as wholesale pricing are decreasing sharply (in may they reached levels below the 2021 average), the cost of the policy is so far estimated at xx for electricity and xx for gas. We note that the high estimated cost for electricity is mostly due to the design of the pricing system. As mentioned, regulated electricity prices are calculated yearly by the CRE, with minor adjustments at the second half of the year. The bulk of the theoretical price increase (which drives the cost of the measure) is likely due to the supplier compensation that integrates a make-up for the losses in the previous year due to unforeseen market prices increase.</p>
+<p>Cost-mitigation for consumers also included some targeted measures such as direct-to consumer subsidies for low-income households (<em>chèque énergie</em>), the cost of which is relatively minimal in comparison with the price shield measure. In this paper we also do not consider the increase in petrol prices, though it should be noted that a temporary price reduction on petrol subsidised by the governement was also put in place in 2022, which benefited all consumers for any amount consumed.</p>
+</section>
+</section>
+<section id="modeling-framework-and-scenarios" class="level1">
+<h1>Modeling Framework and Scenarios</h1>
+<section id="threeme-model" class="level2">
+<h2 class="anchored" data-anchor-id="threeme-model">ThreeME model</h2>
+<p>ThreeME is a country-level open source Computable General Equilibrium model (CGE) originally developed to support policymakers in the design and evaluation of decarbonization pathways in France (Callonnec et&nbsp;al.&nbsp;2013a, b, 2016). ThreeME is specifically designed to evaluate the short-, medium- and long-term impact of environmental and energy policies at the macroeconomic and sectoral levels. To this end, the model combines several important features:</p>
+<ul>
+<li>Its sectoral disaggregation allows for analyzing the transfer of activities from one sector to another, particularly in terms of employment, investment, energy consumption or balance of trade.</li>
+<li>The highly detailed representation of energy flows through the economy allows for analyzing the consumption behavior of economic agents with respect to energy. Sectors can arbitrage between capital and energy when the relative price of energy increases, and substitute between energy vectors. Consumers can substitute between energy vectors, transportation modes or consumption goods.</li>
+</ul>
+<p>As a CGE model, ThreeME fully considers feedbacks between supply and demand (see @#fig-Figure 1). Demand (consumption and investment) drives the supply (production). Symmetrically supply drives demand through the incomes generated by the production factors (labor, capital, energy products and materials). Compared to bottom-up energy models such as MARKAL <span class="citation" data-cites="markal1981">[@markal1981]</span> or TIMES <span class="citation" data-cites="loulou2005documentation">[@loulou2005documentation]</span>, ThreeME goes beyond the mere description of the sectoral and technological dimensions by integrating these within a comprehensive macroeconomic model. ThreeME is a neo-Keynesian model. Compared to standard Walrasian-type CGEs that are largely supply driven, prices do not adjust instantaneously to clear markets. Instead the model is dynamic, and prices and quantities adjust slowly. Producers adjusts their supply to the demand. This has the advantage to allow for situations of market disequilibria (in particular the presence of involuntary unemployment). This framework is particularly well suited for policy analysis. In addition to providing information about the long term, it allows for analyzing transition phases over the short and medium terms, which is especially relevant when assessing the implementation of climate and energy policies.</p>
+<p><img src="figures/Fig1.png" class="img-fluid" alt="“Schematic representation of the model ThreeME”">{#fig-Figure 1}</p>
+<p>Fig 1 demonstrates the methodological framework of ThreeME. This model maximizes the utility of each agent in period t subject to several constraints, such as market clearing (e.g., demand is equal to supply). The model is recursive dynamic (i.e., myopic), which means it first optimizes period <span class="math inline">\(t\)</span> and then uses the endogenous results (e.g., prices, wages, and production levels) for optimizing the next period(i.e., <span class="math inline">\(t + 1\)</span>). After the model optimizes the last period (determined by the user), it provides the projection of the endogenous parameters, such as prices, household income, GDP, and employment rate, over the whole horizon. Moreover, ThreeME requires several exogenous parameters: the social accounting matrix (SAM) of the base year, population growth forecast, economic growth forecast, and substitution elasticities. SAM is a comprehensive and economy-wide database recording data about all transactions between economic agents in a specific economy for a specific period [kehoe1996social]. The population and economic growth forecasts determine labor availability and productivity projection. Elasticities define the substitution proportion of production factors in production functions. In a CES function, the substitution between production factors can either follow the linear, fixed-proportion (i.e., Leontief) or CobbDouglas production functions. The linear production function represents a production process in which the inputs are perfect substitutes (e. g., labor can be substituted completely with capital). The fixed proportion production function reflects a production process in which the inputs are required in fixed proportions. In the Cobb-Douglas production function, the inputs can be substituted,if not perfectly. ThreeME assumes a nested CES function <span class="citation" data-cites="reynes2019cobb">[@reynes2019cobb]</span> to describe the substitution between production factors. This CES production function requires four inputs, KLEM, capital (K), labor (L), energy (E), and material (M). The production factors (KLEM) can be substituted with each other. The Elasticity of Substitution (ES) parameters determines the substitution level between each input. Each pair (i.e., K-E, KE-L, KEL-M) has its own ES, which is explained further in the description of the model <span class="citation" data-cites="reynes2021threeme">[@reynes2021threeme]</span>. An essential characteristic of a standard neoKeynesian macroeconomic AS-AD (aggregated supply and demand) model is that demand determines supply. The demand comprises (intermediate and final) consumption, investment and export whereas the supply comes from imports and domestic production. As feedback with eventually some lags, supply affects demand through several mechanisms. The level of production determines the quantity of inputs used by the firms and thus the quantity of their intermediate consumption and investment which are two components of the demand. It determines the level of employment as well and consequently the household final consumption. Another effect of employment on demand goes through the wage settingvia the unemploymentrate which is also determinedby the active population. The active population is mainly determined by exogenous factors such as demography but also by endogenous factors: because of discouraged worker effects, the unemployment rate may affect the labor participation rate and thus the active population</p>
+</section>
+<section id="integration-of-the-shield-tariff-mechanism" class="level2">
+<h2 class="anchored" data-anchor-id="integration-of-the-shield-tariff-mechanism">Integration of the Shield tariff mechanism</h2>
+<p>The introduction of the Energy Shield Tariff (EST) into the model dynamics implies to change the equations setting the relation between a wholesale gross price (equivalently producer price) and the final consumer price. In the generic model, the growth rate of consumer price depends on the growth rate of production prices, the applied margin and taxes such as:</p>
+<p><span class="math display">\[
+\Delta\logP^{CH} = \Delta(\log(P^Y + MARGIN + NTAX)
+\]</span> The introduction of EST is done as follows:</p>
+<p><span class="math display">\[
+\Delta\log P_{c}^{CH} = \Delta(\log(P_{c}^Y + MARGIN_{c} + NTAX_{c})
+\]</span> where <span class="math display">\[
+P_{c}^{CH} = \hat{P}_{c}^{CH} \\
+P_{c}^{CH} = t_{c}^{ST} \;{P}_{c, t-1}^{CH}
+\]</span></p>
+</section>
+<section id="calibrating-threeme-and-integrating-the-cre-data" class="level2">
+<h2 class="anchored" data-anchor-id="calibrating-threeme-and-integrating-the-cre-data">Calibrating ThreeME and integrating the CRE data</h2>
+<p>ThreeME model for France has been calibraed using national accounts data available through Eurostat. The data version used in this paper is based at the year 2015. After the base year, the only shock integrated is world wide energy prices starting 2021 to represent and isolate the observed energy price dynamics and allow for an analysis independent of any other variations in the economy. In order to model the energy consumer price energy in France, an additional modification is made on consumer prices to reflect the price regulation structure mentioned above. All other variables thus evolve using ThreeME’s steady state specifications for France [ref].</p>
+<p>The energy commodity price dynamics as modified in ThreeME for the purpose of the study is presented on figure [ref] below. Aside from the 2021 to 2023 period, all price evolve with a standard 2 % increase trend for all prices. For wholesale price, based on the TTF empirical observation we set a price of shock of xx% in 2021 and xx % in 2022. We then decrease the price by xx % in 2023. Producer prices follow based on a passthrough of 0.8[verif].</p>
+<p>The baseline in this work corresponds to a world without any consumer price mitigation measure. Therefore, we use the theoretical price increase (before tax) set by the CRE as the reference point. For the analysis, we then change this consumer price specification to include the before tax price as determined by the price shield policy.</p>
+<p>A final tweak in the model is made to ensure that quantity consumed do not</p>
+</section>
+</section>
+<section id="results" class="level1">
+<h1>Results</h1>
+</section>
+<section id="discussion" class="level1">
+<h1>Discussion</h1>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+</section>
+<section id="références" class="level1">
+<h1>Références</h1>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Notes de bas de page</h2>
+
+<ol>
+<li id="fn1"><p>For gas, this price increase is initially limited to the first half of the year. Given the current wholesale gas prices, it is unlikely to be extended to the rest of the year.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copié");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copié");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

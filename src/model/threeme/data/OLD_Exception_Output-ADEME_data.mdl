@@ -1,0 +1,139 @@
+
+##### ADEME output variables 
+
+# Macro variable
+ENER_BILL := sum(PM[ce]* M[ce] - PX[ce]* X[ce] on ce) 
+
+# Fipu variables
+
+# Carbon tax on Household in value concerning building, by comodity :
+# ! double compte avec T2VAL_CH_AUTO ? 
+# Avec ceb : ccoa cfuh cgas cele chea cbio
+# Avec cea : cfut cgas cele 
+T2VAL_CH_BUIL[ceb] := sum(T2VAL_CH[ghg,ceb] on ghg) 
+
+# Carbon tax on Household in value concerning building :
+T2VAL_CH_BUIL := sum(T2VAL_CH_BUIL[ceb] on ceb) 
+
+#Carbon tax on househols concerning transport, by comodity : 
+# ! double compte avec T2VAL_CH_BUIL ? 
+T2VAL_CH_AUTO[cea] := sum(T2VAL_CH[ghg,cea] on ghg)
+
+#Carbon tax on househols concerning transport : 
+T2VAL_CH_AUTO := sum(T2VAL_CH_AUTO[cea] on cea)
+
+# Carbon tax on ETS sectors  
+# ! ne marche pas car il faudrait créer T2VAL_Y[ghg,ce,s] et T2VAL_CI[ghg,ce,s] et T2VAL_MAT[ghg,ce,s] d'abord ?  
+T2VAL_Y_ETS[ghg] := sum(T2VAL_Y[ghg, sets] on sets)
+T2VAL_Y_ETS := sum(T2VAL_Y_ETS[ghg] on ghg)
+
+T2VAL_CI_ETS[ghg, ce] := sum(T2VAL_CI[ghg ,ce , sets] on sets)
+T2VAL_CI_ETS[ce] := sum(T2VAL_CI_ETS[ghg, ce] on ghg)
+T2VAL_CI_ETS[ghg, sets] := sum(T2VAL_CI[ghg, ce, sets] on ce)
+T2VAL_CI_ETS[ghg] := sum(T2VAL_CI[ghg, ce] on ce)
+T2VAL_CI_ETS := sum(T2VAL_CI[ghg] on ghg)
+
+T2VAL_MAT_ETS[ghg] := sum(T2VAL_MAT[ghg, sets] on sets)
+T2VAL_MAT_ETS := sum(T2VAL_MAT_ETS[ghg] on ghg)
+
+T2VAL_SEC_ETS[ghg, sets] := T2VAL_Y[ghg, sets] + T2VAL_CI_ETS[ghg, sets] + T2VAL_MAT[ghg, sets]
+T2VAL_SEC_ETS[ghg] := sum(T2VAL_SEC_ETS[ghg, sets] on sets)
+T2VAL_SEC_ETS[sets] := sum(T2VAL_SEC_ETS[ghg, sets] on ghg)
+T2VAL_SEC_ETS := sum(T2VAL_SEC_ETS[ghg] on ghg)
+
+# Carbon tax on non-ETS - industries 
+# ! ne marche pas car il faudrait créer T2VAL_Y[ghg,ce,s] et T2VAL_CI[ghg,ce,s] et T2VAL_MAT[ghg,ce,s] d'abord ?  
+T2VAL_Y_NETS[ghg] := sum(T2VAL_Y[ghg, snetsi] on snetsi) 
+T2VAL_Y_NETS := sum(T2VAL_Y_NETS[ghg] on ghg)
+
+T2VAL_CI_NETS[ghg, ce] := sum(T2VAL_CI[ghg ,ce , snetsi] on snetsi)
+T2VAL_CI_NETS[ce] := sum(T2VAL_CI_NETS[ghg, ce] on ghg)
+T2VAL_CI_NETS[ghg, snetsi] := sum(T2VAL_CI[ghg, ce, snetsi] on ce)
+T2VAL_CI_NETS[ghg] := sum(T2VAL_CI[ghg, ce] on ce)
+T2VAL_CI_NETS := sum(T2VAL_CI[ghg] on ghg)
+
+T2VAL_MAT_NETS[ghg] := sum(T2VAL_MAT[ghg, snetsi] on snetsi) 
+T2VAL_MAT_NETS := sum(T2VAL_MAT_NETS[ghg] on ghg)
+
+T2VAL_SEC_NETS[ghg, snetsi] := T2VAL_Y[ghg, snetsi] + T2VAL_CI_NETS[ghg, snetsi] + T2VAL_MAT[ghg, snetsi]
+T2VAL_SEC_NETS[ghg] := sum(T2VAL_SEC_NETS[ghg, snetsi] on snetsi)
+T2VAL_SEC_NETS[snetsi] := sum(T2VAL_SEC_NETS[ghg, snetsi] on ghg)
+T2VAL_SEC_NETS := sum(T2VAL_SEC_NETS[ghg] on ghg)
+
+EMS_CI_AGRF[c] := sum(EMS_CI[c,sagrf] on sagrf) 
+EMS_CI_IND[c] := sum(EMS_CI[c,sind] on sind)
+EMS_CI_TRSP[c] := sum(EMS_CI[c,strsp] on strsp)
+EMS_CI_SER[c] := sum(EMS_CI[c,sser] on sser)
+EMS_CI_TRSF[c] := sum(EMS_CI[c,strsf] on strsf)
+EMS_CI_ELE[c] := sum(EMS_CI[c,sele] on sele)
+
+EMS_MAT_AGRF := sum(EMS_MAT[sagrf] on sagrf) 
+EMS_MAT_IND := sum(EMS_MAT[sind] on sind)
+EMS_MAT_TRSP := sum(EMS_MAT[strsp] on strsp)
+EMS_MAT_SER := sum(EMS_MAT[sser] on sser)
+EMS_MAT_TRSF := sum(EMS_MAT[strsf] on strsf)
+EMS_MAT_ELE := sum(EMS_MAT[sele] on sele)
+
+EMS_Y_AGRF := sum(EMS_Y[sagrf] on sagrf) 
+EMS_Y_IND := sum(EMS_Y[sind] on sind)
+EMS_Y_TRSP := sum(EMS_Y[strsp] on strsp)
+EMS_Y_SER := sum(EMS_Y[sser] on sser)
+EMS_Y_TRSF := sum(EMS_Y[strsf] on strsf)
+EMS_Y_ELE := sum(EMS_Y[sele] on sele)
+
+EMS_AGRF := sum(EMS[sagrf] on sagrf) 
+EMS_IND := sum(EMS[sind] on sind)
+EMS_TRSP := sum(EMS[strsp] on strsp)
+EMS_SER := sum(EMS[sser] on sser)
+EMS_TRSF := sum(EMS[strsf] on strsf)
+EMS_ELE := sum(EMS[sele] on sele)
+EMS_ETS := sum(EMS[sets] on sets)
+EMS_NETS := EMS_SEC - EMS_ETS
+EMS_NETSI := sum(EMS[snetsi] on snetsi)
+
+
+# Carbon tax on agriculture-forestry 
+# ! ne marche pas car il faudrait créer T2VAL_Y[ghg,ce,s] et T2VAL_CI[ghg,ce,s] et T2VAL_MAT[ghg,ce,s] d'abord ?  
+#T2VAL_Y_AGRF[ghg, ce] := sum(T2VAL_Y[ghg,ce,sagrf] on sagrf)
+#T2VAL_Y_AGRF[ce] := sum(T2VAL_Y_AGRF[ghg, ce] on ghg)
+#
+#T2VAL_CI_AGRF[ghg, ce] := sum(T2VAL_CI[ghg,ce,sagrf] on sagrf)
+#T2VAL_CI_AGRF[ce] := sum(T2VAL_CI_AGRF[ghg, ce] on ghg)
+#
+#T2VAL_MAT_AGRF[ghg, ce] := sum(T2VAL_MAT[ghg,ce,sagrf] on sagrf)
+#T2VAL_MAT_AGRF[ce] := sum(T2VAL_MAT_AGRF[ghg, ce] on ghg)
+#
+#T2VAL_AGRF[ce] := T2VAL_Y_AGRF[ce] + T2VAL_CI_AGRF[ce] + T2VAL_MAT_AGRF[ce]
+#
+#T2VAL_AGRF := sum(T2VAL_AGRF[ce] on ce)
+
+# Carbon tax on transports
+# ! déduire les recettes de l'aérien dans reporting (sinon double compte avec ETS) 
+# ! ne marche pas car il faudrait créer T2VAL_Y[ghg,ce,s] et T2VAL_CI[ghg,ce,s] et T2VAL_MAT[ghg,ce,s] d'abord ?  
+#T2VAL_Y_TRSP[ghg, ce] := sum(T2VAL_Y[ghg,ce,strsp] on strsp)
+#T2VAL_Y_TRSP[ce] := sum(T2VAL_Y_TRSP[ghg, ce] on ghg)
+#
+#T2VAL_CI_TRSP[ghg, ce] := sum(T2VAL_CI[ghg,ce,strsp] on strsp)
+#T2VAL_CI_TRSP[ce] := sum(T2VAL_CI_TRSP[ghg, ce] on ghg)
+#
+#T2VAL_MAT_TRSP[ghg, ce] := sum(T2VAL_MAT[ghg,ce,strsp] on strsp)
+#T2VAL_MAT_TRSP[ce] := sum(T2VAL_MAT_TRSP[ghg, ce] on ghg)
+#
+#T2VAL_TRSP[ce] := T2VAL_Y_TRSP[ce] + T2VAL_CI_TRSP[ce] + T2VAL_MAT_TRSP[ce]
+#
+#T2VAL_TRSP := sum(T2VAL_TRSP[ce] on ce)
+
+# Carbon tax on services  
+# ! ne marche pas car il faudrait créer T2VAL_Y[ghg,ce,s] et T2VAL_CI[ghg,ce,s] et T2VAL_MAT[ghg,ce,s] d'abord ?  
+#T2VAL_Y_SER[ghg, ce] := sum(T2VAL_Y[ghg,ce,sser] on sser)
+#T2VAL_Y_SER[ce] := sum(T2VAL_Y_SER[ghg, ce] on ghg)
+#
+#T2VAL_CI_SER[ghg, ce] := sum(T2VAL_CI[ghg,ce,sser] on sser)
+#T2VAL_CI_SER[ce] := sum(T2VAL_CI_SER[ghg, ce] on ghg)
+#
+#T2VAL_MAT_SER[ghg, ce] := sum(T2VAL_MAT[ghg,ce,sser] on sser)
+#T2VAL_MAT_SER[ce] := sum(T2VAL_MAT_SER[ghg, ce] on ghg)
+#
+#T2VAL_SER[ce] := T2VAL_Y_SER[ce] + T2VAL_CI_SER[ce] + T2VAL_MAT_SER[ce]
+#
+#T2VAL_SER := sum(T2VAL_SER[ce] on ce)

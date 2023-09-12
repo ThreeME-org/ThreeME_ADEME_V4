@@ -1,0 +1,797 @@
+---
+title: "Modules 3: Macroeconomic models - basics"
+subtitle: "Scenario: `r params$scenario_name`"
+author: "ThreeME team"
+date: "`r format(Sys.Date(), '%d %B %y')`"
+output:
+  pdf: 
+    theme: sandstone
+    highlight: monochrome
+    toc: true
+    number_sections: true
+    toc_depth: 3
+params:
+  startyear: 2020
+  endyear: 2035
+  project_name: "shock_g"
+  project_title: "Simulation with small general equilibrium model"
+  scenario_to_analyse: g
+  githubrepo: ThreeME-R-training
+  classification: c0_s0
+  compil: compil
+  Rsolver: Rsolver
+  template_default: ofce
+---
+
+```{r setup, include=FALSE}
+
+work.dir <- stringr::str_remove(getwd(),"/results/report/markdown/training")
+knitr::opts_knit$set(root.dir = work.dir)
+
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	results = "hide"
+)
+```
+
+```{r Plots default options}
+
+startyear <- params$startyear
+endyear <- params$endyear
+scenario_to_analyse <- params$scenario_to_analyse
+classification <- params$classification
+template_default <- params$template_default
+
+
+## SHOULD BE DELETED WHEN OPTION DE SIMPLEPLOT ERMEETH CHANGES:
+# scenario = scenario_to_analyse (and not scenario_name)
+scenario_name <- scenario_to_analyse
+
+
+```
+
+
+```{r Required packages, message=FALSE, warning=FALSE, include=FALSE}
+
+# Load functions
+source("src/functions.R")
+
+```
+
+
+```{r load data and bridges}
+
+data_full<-readRDS(file = file.path("data","output", paste0(project_name,".rds")))
+
+
+
+```
+
+
+# Micro-economic foundations
+
+
+## Behavior equations versus identities
+
+- CGE models have behavioral and identity equations
+- **Behavioral equations** derive from microeconomic theory and economic rationality
+  - Economic behavior of producers, consumers, and other agents in the model
+- **Identity equations** define a variable according to a definition as a mathematical function (sum, product, etc.) of other variables
+  - Accountancy variables (e.g. GDP, price index), unemployment rate, etc.
+  
+<center>
+
+![](pictures/Behavioreq_Identities.png){width=55%}
+
+
+## Behavior equations
+
+
+### **Prices**
+
+
+- We assume oligopolistic competition *à la* Cournot where each producer defines its
+price in order to maximize its profit considering the price of the other producers as
+given:  
+
+- The **maximisation program** is: 
+<center>
+
+  \begin{equation}
+ max_y Π(y) = p(y).y - c(y)
+\end{equation}
+
+</center>
+
+where $y$ is the production or demand adressed to the compagny, $\pi(y)$ is the profit
+of the compagny, $p(y)$ its price and $c(y)$ the production cost. We assume $p′(y)$ <
+0, $c′(y)$ > 0 and $c′′(y)$ > 0
+
+- The result of the **program maximization defines the optimum price** that
+is equal to a markup over the production costs:
+<center>
+
+\begin{equation}
+p(y)= [1+ m^{up}].c'(y) 
+\end{equation}
+
+</center>
+
+where the markup is: \begin{equation} m^{up}= 1/(\epsilon -1) \end{equation} and $\epsilon$ the (absolute) price elasticity of demand  
+
+- In perfect competition,  markup is zero: \begin{equation} m^{up} = 0 \end{equation}  so that the optimal price is equal to the marginal cost of production: \begin{equation} p(y)= c'(y) \end{equation}
+
+- Given that production costs equal total factor payments, the **optimal price is therefore equal to the cost of capital and labor**:
+
+<center>
+
+\begin{equation}
+p(y).y= w.L+ p(\delta+r).K
+\end{equation} 
+
+</center>
+
+
+
+### **Households consumption**
+
+
+
+
+- We assume that households supply labor and own the capital, for which they get their income ($w.L + p.r.K$) . 
+- We assume that  households wish to use a fixed share of their total income for consumption
+
+  \begin{equation}
+CH = \left( 1 - \sigma \right) . \frac{\left( w . L + p . r . K \right)}{p}
+\end{equation}
+
+- The consumer maximize its utility by allocating the income of a given period over several periods.       
+The **maximization program** is:
+
+\begin{equation}
+    max_{c_i} U(c_1, c_2, ... c_n)=\sum_{i=1}^{n} (\phi_i.c_i^{\frac{\rho-1}{\rho}})^{\frac{\rho}{\rho-1}} 
+\end{equation}
+
+\begin{equation}
+   \ s.t \ \sum_{i=1}^{n} p_i.c_i = R
+\end{equation}
+where $\rho$ is the elasticity of substitution, $c_i$ the consumption of good $i$ and $R$ total income.
+
+The resolution of this program gives the relationship between households consumption and total income :
+
+\begin{equation}
+ p_i.c_i= (\Phi_i)^{\rho}.(\frac{p_i}{P})^{1-\rho}.R  
+\end{equation}
+where $(\Phi_i)^{\rho}.(\frac{p_i}{P})^{1-\rho}$ is the consumption share.
+
+Considering only two periods: $i=1$ (present) and $i=2$ (future) and assuming a CES function with $\rho=1$, we find that **consumption is a constant share of income**:
+
+\begin{equation*}
+p_1.c_1 = \phi_1.R  
+\end{equation*}
+with $\phi_1$ = (1-$\sigma$) and $\sigma$ the propensity to save.
+
+
+
+### **Demand for production factors**
+
+- The firm determines its demand for labor and capital by maximizing its profit, which
+is equivalent to **minimizing its production cost taking into account the production
+function**.
+
+- Assuming a CES production function, the constrained cost minimization program is:
+
+<center>
+
+\begin{equation}
+min_{x_i} (\sum_{i=1}^{n} p_i.x_i) \\
+s.t \\  Q= Q(x_i) = (\sum_{i=1}^{n} \Phi_i.x_i^{(\frac{\rho-1}{\rho})})^{(\frac{\rho}{\rho-1})}
+\end{equation} 
+
+</center>
+
+where $\rho$ is the elasticity of substitution between inputs.   
+
+- The resolution of  the program derives demand for factors expressed as follows:   
+**Labor demand**:
+<center>
+
+\begin{equation}
+ L = \left( \frac{Y}{PROG^{L}} \right) . \left( \left( \varphi^{L} \right) ^ {\rho} \right) . \left( \frac{w}{\left( p . PROG^{L} \right)} \right) ^ {\left( -\rho \right)}  
+\end{equation} 
+
+</center>
+
+**Capital demand**:
+
+<center>
+  \begin{equation}
+  
+ K = \left( \frac{Y}{PROG^{K}} \right) . \left( \left( \varphi^{K} \right) ^ {\rho} \right) . \left( \frac{\left( \delta + r \right)}{PROG^{K}} \right) ^ {\left( -\rho \right)} 
+\end{equation} 
+
+</center>
+
+
+## Identities and defnitions
+
+### **Production**
+
+\begin{equation}
+Y = CH + I + G
+\end{equation}
+
+- Market equilibrium condition between supply and demand       
+- Accountancy equation that states that everything that is being produced (total supply) is “consumed”, either as household’s consumption, investment or government spending (total demand)    
+
+<br>
+
+### **Capital accumulation**
+
+- Given an initial capital stock (at $t-1$), the change in capital stock defines the capital stock in $t$:
+
+\begin{equation}
+\varDelta \left(K\right) = I_{t-1} - \delta . K_{t-1}
+\end{equation}
+
+- The change in capital stock :        
+  - Increases with the investment made in the previous period ($I_{t-1}$)             
+  - Decreases with the depreciation of the capital stock ($\delta.K_{t-1}$)      
+
+<br>
+
+### **Cost of capital**
+
+We assume that the cost of capital is defined as the user cost of capital (or real rental price of capital services or the costs of holding capital) : 
+ 
+\begin{equation}
+    c^{K} = p(\delta + r) \\
+\end{equation}
+
+where $\delta$ is the depreciation rate of capital, $r$ the interest rate and $p$ the price of the investment.
+
+- This equation may have several interpretations:
+  - It reflects the opportunity cost of holding capital, that is the cost of not been able to invest an existing financial wealth into another asset
+  - It assumes that capital is financed through bank credit and that the reimbursement of the debt corresponds to the depreciation of capital
+ 
+ 
+## Some definitions
+
+- <span style="color: brown;">**Endo**</span>**genous variable**: defined <span style="color: brown;">**inside**</span> the model, as a result of the model simulation
+  - One equation for each endogenous variable
+  - Eg. production, consumption, prices, wages, etc.
+- <span style="color: brown;">**Exo**</span>**genous variable**: defined <span style="color: brown;">**outside**</span> the model
+  - No equation in the model defining this variable: hypothesis of the model
+  - Eg. population, price of imports (for a one country model) 
+- **Parameter**: from a mathematical point of view, an **exogenous variable** that is generally **constant**
+  - Eg. elasticities  (substitution, indexation, etc.), depreciation rate, tax rate, etc.
+- **Representative agent**: an average relevant economic agent that follows an optimizing/rational economic behaviour
+  - Households, producers, government
+  - Optimize an objective: e.g. maximization of profit/utility/social welfare, minimization of cost  
+
+## Macroeconomic closure 
+
+- A <span style="color: brown;"> **model** </span> is a way of explaining endogenous variables as function of exogenous variables.     
+- Making a choice of what is to be determined within the model <span style="color: brown;"> **(endogenous variables)** </span> and what is to be considered external to the model <span style="color: brown;"> **(exogenous variables)** </span> is called the <span style="color: brown;"> **model closure** </span>. Why does the choice of the model closure matter?   
+  - It may define the direction of causality (which variables determine the others)  
+  - It may have important implications on the properties and results of the model  
+
+
+ **What is the impact of an increase in public spending (multiplier of public expenditures) on the endogenous variables of the model depending on the choice of the closure ?** 
+
+
+We compare the results for two contrasting model closures:
+
+-  <span style="color: brown;"> **The Walrasian model** </span>. The model  is found in <span style="color: blue;">`r file.path(params$githubrepo, "src", "model", "training", "02.1-eq.mdl")`</span> . It is called in the "config_training.R" file in the section "Model files".  
+-  <span style="color: brown;"> **The Keynesian model**  </span>. The model  is found in <span style="color: blue;">`r file.path(params$githubrepo, "src", "model", "training", "02.2-eq.mdl")`</span> . It is called in the "config_training.R" file in the section "Model files".  
+
+
+## Walrasian versus Keynesian models
+
+<span style="color: brown;"> **Common features for both models** </span>: 
+
+- <span style="color: blue;"> **General equilibrium** </span>: which means that supply equals demand in all markets.      
+- In both frameworks, the models consist of equations that solve for the endogenous variables, given the exogenous variables and parameters. A change in one or more exogenous variable or parameter will lead to adjustments in the endogenous variables so to solve the system of equations again. These <span style="color: blue;"> **solved values of all endogenous variables**</span>, constitute the <span style="color: blue;"> **outcome of the model**</span> .   
+
+<span style="color: brown;"> **Main difference between both models**</span>:
+
+- The <span style="color: blue;"> **choice of endogenous variables** </span>. In the Walrasian framework some variables adjust while there are considered fixed in the Keynesian framework and vice-versa.
+
+*Note*: Our definitions of the Walrasian and Keynesian closures may differ from those found in the literature inspired by the seminal work of Sen (1963). Contrary to this literature that consider a **static** case, we propose simulations based on a **dynamic** model including an equation for **capital accumulation** and where investment is endogenous in both the Walrasian and the Keynesian closure.
+
+
+## The Walrasian model 
+
+The model is based on a set of **7 equations** with **7 endogenous variables**: 
+
+-   <span style="color: blue;">Investment</span>      
+  \begin{equation}
+     I = Y - CH - G  
+  \end{equation}
+-  <span style="color: blue;">Production</span>      
+  \begin{equation}
+Y . p = w . L + p . \left( \delta + r \right) . K
+\end{equation}
+-  <span style="color: blue;">Households'consumption</span>      
+  \begin{equation}
+CH = \left( 1 - \sigma \right) . \frac{\left( w . L + p . r . K \right)}{p}
+\end{equation}
+-  <span style="color: blue;">Wage </span>      
+  \begin{equation}
+w + L = \left( \frac{Y}{PROG^{L}} \right) . \left( \left( \varphi^{L} \right) ^ {\rho} \right) . \left( \frac{w}{\left( p . PROG^{L} \right)} \right) ^ {\left( -\rho \right)}  + w
+\end{equation}
+-  <span style="color: blue;">Interest rate </span>      
+  \begin{equation}
+r + K = \left( \frac{Y}{PROG^{K}} \right) . \left( \left( \varphi^{K} \right) ^ {\rho} \right) . \left( \frac{\left( \delta + r \right)}{PROG^{K}} \right) ^ {\left( -\rho \right)} + r
+\end{equation}
+-  <span style="color: blue;">Capital (from accumulation equation)</span>      
+  \begin{equation}
+\varDelta \left(K\right) = I_{t-1} - \delta . K_{t-1}
+\end{equation}
+- <span style="color: blue;">Price</span>      
+  \begin{equation}
+p=1
+\end{equation}
+
+
+- The price equation defines the price as *numéraire* (equal to 1). The price can therefore be seen as an **exogenous variable**. The model could be written as a set of **6 equations** with **6 endogenous variables**.
+
+
+## Comments on the Walrasian model closure
+
+- **Endogenous variables**: $Y$, $I$, $CH$, $K$, $w$, $r$           
+- **Exogenous variables**: $G$, $L$, $p$, $PROG^{L}$, $PROG^{K}$ 
+  - **Parameters**: $\rho$, $\varphi^{L}$, $\varphi^{K}$, $\delta$, $\sigma$
+- Production is determined by the "price equation" because the price is set to 1 (*numéraire*) and is therefore an exogenous variable.
+- Investment is determined endogenously as the difference between production and (private and public) consumption
+- Labor is exogenous so that the "labor demand equation" does not determine labor but the wage
+- The equation that determines capital is the one of capital accumulation, so the "capital demand equation" derived from profit maximization does not determine capital but the interest rate
+- In the Walrasian framework, savings define investment, wages and interest rate adjust to clear the capital and labor markets
+
+*Note*: we consider a **steady state economy** (with growth rate = 0%)
+
+
+## The Keynesian model 
+
+The model is based on a set of **6 equations** with **6 endogenous variables**:
+
+-   <span style="color: blue;">Production</span> 
+
+\begin{equation}
+Y = CH + I + G
+\end{equation}
+
+-   <span style="color: blue;">Price</span> 
+
+\begin{equation}
+p . Y = w . L + p . \left( \delta + r \right) . K^{n}
+\end{equation}
+
+-   <span style="color: blue;">Households consumption</span> 
+
+\begin{equation}
+CH = \left( 1 - \sigma \right) . \frac{\left( w . L + p . r . K \right)}{p}
+\end{equation}
+
+-   <span style="color: blue;">Labor</span> 
+
+\begin{equation}
+L = \left( \frac{Y}{PROG^{L}} \right) . \left( \left( \varphi^{L} \right) ^ {\rho} \right) . \left( \frac{w}{\left( p . PROG^{L} \right)} \right) ^ {\left( -\rho \right)}
+\end{equation}
+
+-   <span style="color: blue;">Capital (notional level from cost minimization of a CES function ) </span> 
+
+\begin{equation}
+K^{n} = \left( \frac{Y}{PROG^{K}} \right) . \left( \left( \varphi^{K} \right) ^ {\rho} \right) . \left( \frac{\left( \delta + r \right)}{PROG^{K}} \right) ^ {\left( -\rho \right)}
+\end{equation}
+
+-   <span style="color: blue;">Capital (effective level from capital accumulation)</span> 
+
+\begin{equation}
+\varDelta \left(K\right) = I_{t-1} - \delta . K_{t-1}
+\end{equation}
+
+-   <span style="color: blue;">Investment</span> 
+
+\begin{equation}
+\varDelta \left(\operatorname{log} I\right) = \varDelta \left(\operatorname{log} K^{n}_{t-1}\right) + \alpha^{I,Kn} . \operatorname{log} \frac{K^{n}_{t-1}}{K_{t-1}}
+\end{equation}
+
+## Comments on the Keynesian model closure
+
+- In the Keynesian closure, the wage and the interest rate are exogenous whereas labor and capital are endogenous 
+- To represent the slow adjustment of price and quantities, it is convenient to distinguish between notional and effective level  
+- The notional levels are mentioned with the underscore (superscript) “n” in the model They refer to the level of price, consumption, labor and capital the producer and the consumer would like to reach immediately if there were no adjustment constraint
+
+
+# Macroeconomic results
+
+
+## Contributions in GDP 
+
+
+
+```{r Graph GDP and contrib,  fig.height = 6, fig.width = 14}
+contrib_comp <- c( "CH", "I", "G")
+contrib_comp_label <- c("Households consumption", "Investment", "Public spending")
+
+data_plot <-  contrib(data_full,"Y", contrib_comp, scenar = c("baseline",scenario_name))
+
+A <- contrib.plot(data_plot, series = contrib_comp,label_series = contrib_comp_label,
+             startyear = startyear, endyear = endyear, titleplot = " Contributions to change in GDP (in relative difference from baseline)", line_tot = TRUE)  
+
+B <- simpleplot(data_full,c("CH", "I", "G"), contrib_comp_label, startyear, endyear, titleplot = " Components of the GDP (in relative difference from baseline)") 
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+
+
+## Save image on disk for further use (ready to be activated)
+#ggsave("plot.png",width = 40,  height = 28, units = c("cm"))
+
+
+
+## See the graph in Mark-down
+macro
+
+
+```
+
+
+
+## GDP and its components 
+
+```{r Graph contrib, fig.height=6, fig.width=14}
+
+variable_macro <- c( "Y", "CH", "I", "G")
+label_macro <- c("GDP", "Households consumption", "Investment", "Public spending")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components (in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 )
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "level", titleplot = " GDP and its components (Level) ",
+           unit = 1, decimal = 0.1 )
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+## Save image on disk for further use (ready to be activated)
+# ggsave("macro.svg", device = svg, width = 32,  height = 16, units = c("cm"))
+
+
+## See the graph in Mark-down
+macro
+
+```
+
+
+## Labor, capital and production 
+
+```{r Graph Inputs, fig.height=6, fig.width=14}
+
+variable_macro <- c( "Y","K","L")
+label_macro <- c("GDP",  "Capital", "Labor")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " Input factors and GDP (in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 )
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "level", titleplot = " Input factors and GDP (Level) ",
+           unit = 1, decimal = 0.1 )
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+## Save image on disk for further use (ready to be activated)
+# ggsave("macro.svg", device = svg, width = 32,  height = 16, units = c("cm"))
+
+
+## See the graph in Mark-down
+macro
+
+```
+
+
+## Capital and investment 
+
+```{r Graph Capital Investment, fig.height=6, fig.width=14}
+
+A <- simpleplot(data_full,c("K", "I"), c("Capital","Investment"), startyear, endyear, "reldiff", titleplot = " Capital and investment (in relative difference from baseline)")
+
+B <- simpleplot(data_full,c("K", "I"), c("Capital","Investment"), startyear, endyear, "level", titleplot = " Capital and investment (Level) ", unit = 1, decimal = 0.1)
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+```
+
+
+## Interest rate
+
+```{r Graph Interest rate, fig.height=6, fig.width=14}
+
+A <- simpleplot(data_full,c("R"), c("Interest rate"), startyear, endyear, "diff", titleplot = " Interest rate (in difference from baseline)")
+
+B <- simpleplot(data_full,c("R"), c("Interest rate"), startyear, endyear, "level", titleplot = " Interest rate (Level) ")
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+```
+
+
+## Prices and wages 
+
+```{r Graph Prices, fig.height=6, fig.width=14}
+
+A <- simpleplot(data_full,c("P", "W"), c("Price", "Wages"), startyear, endyear, "reldiff", titleplot = " Prices and wages (in relative difference from baseline)")
+
+B <- simpleplot(data_full,c("P", "W"), c("Price", "Wages"), startyear, endyear,  transformation = "level",   titleplot = " Prices and wages (Level)", unit = 1 )
+
+#B <- simpleplot(data_full,c("R"), c("Interest rate"), startyear, endyear, "level", titleplot = "Interest rate (level)")
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+```
+
+## Labor and wages 
+
+```{r Graph labor, fig.height=6, fig.width=14}
+
+A <- simpleplot(data_full, c("L", "W"), c("Labor","Wages"), startyear, endyear, "reldiff", titleplot = " Labor and wage (in relative difference from baseline)")
+
+B <- simpleplot(data_full, c("L", "W"), c("Labor","Wages"), startyear, endyear, "gr", titleplot = " Labor and wage (Growth rate)", unit = "percent", decimal = 0.1 )  
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+```
+
+
+## Capital and Interest rate 
+
+```{r Graph capital interest rate, fig.height=6, fig.width=14}
+
+A <- simpleplot(data_full, c("K", "R"), c("Capital","Interest rate"), startyear, endyear, "reldiff", titleplot = " Capital and interest rate (in relative difference from baseline)")
+
+B <- simpleplot(data_full, c("K", "R"), c("Capital","Interest rate"), startyear, endyear, "gr", titleplot = " Capital and interest rate (Growth rate)", unit = "percent", decimal = 0.1 )  
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+```
+
+
+## Ratio between capital and labor
+
+```{r creation new var, fig.height=6, fig.width=14}
+
+variables_selection = c("K","L","P","DELTA","R","W")
+new_indicators <- data_full %>% wide_data(variables = variables_selection,out_format = "list") %>%
+  map(~.x %>% mutate(RATIO_K_L= K/L,
+             CAPITAL_COST = P*(DELTA+R),
+             LABOR_COST = W,
+             RATIO_Cost = CAPITAL_COST/LABOR_COST)) %>% long_data(sector_names_table=NULL,commodity_names_table=NULL) %>% select(-sector,-commodity)
+
+A <- simpleplot(new_indicators, c("RATIO_K_L"), c("K/L"), startyear, endyear, "reldiff", titleplot = " Capital to labor ratio (in relative difference from baseline)")
+
+B <- simpleplot(new_indicators, c("RATIO_K_L"), c("K/L"), startyear, endyear, "level", titleplot = " Capital to labor ratio (Level)", unit = 1, decimal = 0.01) 
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+macro
+```
+
+## Ratio between the cost of inputs
+
+```{r Graph Ratio cost of inputs, fig.height=6, fig.width=14}
+
+A <- simpleplot(new_indicators,c("RATIO_Cost"), c("Capital cost/Labor cost") , startyear, endyear, "reldiff", titleplot = " Ratio between the capital and labor costs 
+(in relative difference from baseline)")
+
+B <- simpleplot(new_indicators, c("CAPITAL_COST", "LABOR_COST"), c("Capital cost","Labor cost"), startyear, endyear, "level", titleplot = " Cost of inputs (Level) ", unit = 1, decimal = 0.01) 
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+macro
+```
+
+
+## Mains impacts of a shock on G
+
+- **Walrasian model:**
+  - **Negative multiplier** due to a crowding out effect: rising public expenditures reduces private expenditures (households consumption and investment)
+  - Production is determined by capital and labor. Labor is exogenous and capital defined by the previous year investment and depreciation. 
+  - Therefore, **no room for additional production** (no spare production capacity). Increasing public consumption is only possible if investment and household's consumption decreases
+  - A lower investment leads to a the future capital stock, increasing the interest rate 
+  - As capital decreases, production also decreases in the following period
+  - As production decreases, wages have to decrease to maintain full employment
+  - **Vicious negative cycle**
+
+- **Keynesian model:**
+  - **Positive multiplier**: the increase in public spending has an immediate positive effect on the economy
+  - The supply constraint does not hold anymore: production is no more predetermined by labor and capital
+  - Implicit assumption of spare production capacity
+  - As production increases, more factors are needed which increases demand for labor and capital
+  - Increasing labor and capital rise production which increases in  return consumption and investment
+  - **Virtuous positive cycle**
+  
+
+# To go further
+
+## Practice: Equivalence of results with alternative specifications (Walrasian case)
+
+- Let's replace the initial specification of  of some functions in the equation file **02.1-eq.mdl file** by alternative specifications and see how the results change.
+
+- You can change the specification of the model by activating or deactivating certain equations
+  - The # symbol is used to comment a line
+  - Omit the # symbol in front of the wanted equation and add the # symbol in from of the to the one you don't want to read 
+
+- Run the model using the following alternative specifications: 
+
+**Production** 
+
+\begin{equation}
+Y = \left( \left( \varphi^{L} . L ^ {\left( \frac{\left( \rho - 1 \right)}{\rho} \right)} \right) + \left( \varphi^{K} . K ^ {\left( \frac{\left( \rho - 1 \right)}{\rho} \right)} \right) \right) ^ {\left( \frac{\rho}{\left( \rho - 1 \right)} \right)}
+\end{equation}
+
+- This is the CES production function. Can be obtained by inserting the inverse demand function into the production equation (Walras model)
+
+
+
+**Household's consumption**
+\begin{equation}
+\varDelta \left(\operatorname{log} CH\right) = \varDelta \left(\operatorname{log} Y_{t-1}\right)
+\end{equation}
+
+**Inverse factor demand functions**
+
+\begin{equation}
+\frac{w}{\left( p . PROG^{L} \right)} = \varphi^{L} . \left( \frac{Y}{\left( L . PROG^{L} \right)} \right) ^ {\left( \frac{1}{\rho} \right)}
+\end{equation}
+
+\begin{equation}
+\frac{\left( r + \delta \right)}{PROG^{K}} = \varphi^{K} . \left( \frac{Y}{\left( K . PROG^{K} \right)} \right) ^ {\left( \frac{1}{\rho} \right)}
+\end{equation}
+
+- Check that the results are equivalent to the previous specifications.
+
+
+## Practice: Explosive dynamics with the Keynesian model
+
+Change in the **02.1-calib.mdl** file the value of the adjustment parameter of investment to notional capital from $\alpha_{I}^{Kn}$ = 0.1 to $\alpha_{I}^{Kn}$ = 0.6
+
+
+
+## Accounting for economic growth
+
+Previously we make the assumption of a steady state economy where the growth rate of volume and price variables are zero. This requires the assumptions that in the long term the growth rate of technical progress and of the population is zero.
+
+Now let's assume a growing economy.
+
+
+
+```{r Exit Knit: rest of the markdown ignored}
+knit_exit()
+```
+
+
+
+# PLots Walrasian closure (overleaf)
+
+## GDP contrib
+
+```{r Graph GDP and contrib ovr, echo=FALSE, fig.height=6}
+contrib_comp <- c( "CH", "I", "G")
+contrib_comp_label <- c("Households consumption", "Investment", "Public spending")
+
+data_plot <-  contrib(data_full,"Y", contrib_comp, scenar = c("baseline",scenario_name))
+
+Contrib_GDP_Key <- contrib.plot(data_plot, series = contrib_comp,label_series = contrib_comp_label,custom_x_breaks = 5,
+             startyear = startyear, endyear = endyear, line_tot = TRUE)  + theme(text = element_text(size = 45))
+
+
+## Save image on disk for further use (ready to be activated)
+ggsave("Contrib_GDP_Key.png",width = 48,  height = 28, units = c("cm"))
+
+
+## See the graph in Mark-down
+Contrib_GDP_Key
+
+          
+```
+
+
+## capital, labor, investment
+
+```{r Graph Inputs ovrl, echo=FALSE, fig.height=6, fig.width=14}
+
+variable_macro <- c( "I","K","L")
+label_macro <- c("Investment",  "Capital", "Labor")
+
+Inputs_Key <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff",custom_x_breaks = 5,
+           unit = "percent", decimal = 0.1 ) +
+theme(axis.text.y = element_text(size = 35)) +
+theme(axis.text.x = element_text(size = 35)) +
+theme(text = element_text(size = 35)) +
+theme(legend.text= element_text(size = 35)) 
+
+
+## Save image on disk for further use (ready to be activated)
+ggsave("Inputs_Key.png",width = 48,  height = 28, units = c("cm"))
+
+
+## See the graph in Mark-down
+Inputs_Key
+
+```
+
+
+## Prices, wages and interest rates
+
+```{r Graph Prices ovrl, echo=FALSE, fig.height=6, fig.width=14}
+
+A <- simpleplot(data_full,c("P", "W"), c("Price", "Wages"), startyear, endyear, "reldiff", titleplot = " Prices and wages ", custom_x_breaks = 5) +
+theme(axis.text.y = element_text(size = 28)) +
+theme(axis.text.x = element_text(size = 28)) +
+theme(text = element_text(size = 28)) +
+theme(legend.text= element_text(size = 28))
+
+
+B <- simpleplot(data_full, c( "R"), c("Interest rate"), startyear, endyear, "diff", titleplot = " Interest rate ", custom_x_breaks = 5)  +
+theme(axis.text.y = element_text(size = 28)) +
+theme(axis.text.x = element_text(size = 28)) +
+theme(text = element_text(size = 28)) +
+theme(legend.text= element_text(size = 28))
+
+prices_Key <- ggarrange(A,B,
+labels = c("(a)",  "(b)"),
+hjust = -0.5, vjust = 1.5,
+#hjust = -1.35, vjust = 1.45,
+ncol = 2, nrow = 1,
+widths = c(0.5, 0.5),
+#widths = 2,  heights = 1,
+font.label = list(size = 28, face = "bold", color ="brown"))
+
+prices_Key
+
+## Save image on disk for further use (ready to be activated)
+ggsave("prices_Key.png",width = 48,  height = 28, units = c("cm"))
+
+```
+

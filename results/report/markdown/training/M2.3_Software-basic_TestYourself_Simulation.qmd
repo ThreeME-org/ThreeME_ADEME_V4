@@ -1,0 +1,185 @@
+---
+title: "Test yourself: Simulation and graphs"
+subtitle: "Scénario: `r params$scenario_name`"
+author: "ThreeME team"
+date: "`r format(Sys.Date(), '%d %B %y')`"
+output:
+  slidy_presentation: 
+    theme: sandstone
+    highlight: monochrome
+    toc: true
+    number_sections: true
+    toc_depth: 3
+params:
+  startyear: 2020
+  endyear: 2035
+  scenario_name: g_tra
+  classification: c0_s0
+  compil: compil
+  Rsolver: Rsolver
+  githubrepo: ThreeME-R-training
+  template_default: ofce
+---
+
+```{r setup, include=FALSE}
+
+work.dir <- stringr::str_remove(getwd(),"/results/report/markdown/training")
+knitr::opts_knit$set(root.dir = work.dir)
+
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	results = "hide"
+)
+```
+
+```{r Plots default options}
+
+startyear <- params$startyear
+endyear <- params$endyear
+scenario_name <- params$scenario_name
+classification <- params$classification
+template_default <- params$template_default
+
+```
+
+
+```{r Required packages, message=FALSE, warning=FALSE}
+
+# Load functions
+source("src/functions.R")
+
+
+```
+
+
+```{r load data and bridges}
+
+data_full<-readRDS(file = paste0("data/output/",scenario_name,"_",classification,".rds"))
+
+view(data_full)
+
+```
+
+
+# Exercice
+
+## Preliminary Instructions
+- Work on your **own branch** you created from the branch "Session01"
+- Write down your answers starting from this Markdown file 
+- Build your model in a new equation file that you will create as a copy of the **"01.1-eq.mdl"** file (the new equation file should be in the same location as the initial "01.1-eq.mdl" file)
+- In this exercice, we consider the following calibration file: **"01.1-calib.mdl"** (don't change this file for questions 1 to 7)
+
+## Questions (10 pts)
+
+We consider a simple model where :
+
+- Production equals demand. 
+- Households Consumption is defined as a fixed share of past production **(consumption share = 0.6)**. 
+- Investment is determined as fixed share of production **(investment share = 0.25)**.
+
+1. Which equations are missing? Complete your equation file with all needed equations. Run the main.(1pt)
+2. List all endogenous and exogenous variables in the model. (1pt)
+
+<span style="color: grey;">*For questions 3 to 7, you can have a look on the markdown "Training_01_FirstSteps.Rmd" if needed*.</span>
+
+
+3. Plot variables Y, CH and I in level from 2020 to 2030 (in two-year time step) . Give a name to your plot. (1pt)
+4. We introduce a shock on G of 2 GDP points starting from 2022. Show two differents ways to write this shock (in chunks). (2pts)
+5. Plot variables Y, G, CH and I in relative difference from the baseline (Graph A). (2pts)
+6. Plot variables Y, G, CH and I in difference (Graph B). (2pts)
+7. Put Graph A and Graph B one next to the other. (1pt)
+
+ 
+<span style="color: brown;">**Bonus**</span>
+
+We consider now that the consumption share is **0.5** and the investment share is **0.2**. Adapt consequently the calibration file.   
+
+
+# Answers
+```{r}
+view(data_full)
+```
+
+```{r Table data_full endyear, include=FALSE, results='asis'}
+variables_selection = c("Y","CH","I", "G")
+selection <-  data_full %>% filter(variable %in% variables_selection, year %in% c(endyear)) %>% select(-sector, -commodity, -year) %>% arrange(variable)
+flextable(selection)
+```
+
+
+1. There are two missing equations:   
+- **Households consumption equation**:     
+\begin{equation}
+CH = 0.6* Y_{t-1}
+\end{equation}
+- **Investment equation**:   
+\begin{equation}
+I = 0.25* Y
+\end{equation}
+
+2. Endogenous variables : **Y, CH** and **I** and Exogenous variables : **G**     
+
+3. Plot CH, I and Y in level       
+```{r plot1}
+plot1 <- simpleplot(data_full,c("CH", "I", "Y"), startyear = 2020, endyear= 2030,  transformation = "level", titleplot = "Production, Investment and Households consumption in level",custom_x_breaks = 2,
+                decimal = 0.1, unit = 1 )
+plot1
+```
+
+4. Shock of 2 GDP points starting from 2022          
+```{r echo=TRUE, eval=FALSE}
+shock_ch <- mutate(selection,
+                    g =   ifelse(year >= 2022, g + 2, g)
+                   )
+```
+Or    
+```{r echo=TRUE, eval=FALSE}
+shock_ch <- mutate(selection,
+                    g =   ifelse(year >= 2022, g + 0.02*y[which(year == baseyear)], g)
+                  )
+```
+
+5. Plot Y, CH, I annd G in relative difference (A)        
+```{r}
+A <- simpleplot(data_full,c("CH", "I", "Y", "G"), startyear = 2020, endyear= 2030,  transformation = "reldiff", titleplot = "GDP and its components in relative difference (A)",custom_x_breaks = 2,
+                decimal = 0.1, unit = "percent" )
+A
+```
+ 
+6. Plot Y, G, CH and I in difference (B)        
+```{r}
+B <- simpleplot(data_full,c("CH", "I", "Y", "G"), startyear = 2020, endyear= 2030,  transformation = "diff", titleplot = "GDP and its components in relative difference (B)",custom_x_breaks = 2,
+                decimal = 0.1, unit = 1 )
+B
+```
+
+7. PLot A et B together       
+```{r}
+A <- simpleplot(data_full,c("CH", "I", "Y", "G"), startyear = 2020, endyear= 2030,  transformation = "reldiff", titleplot = "GDP and its components 
+in relative difference (A)",custom_x_breaks = 2,
+                decimal = 0.1, unit = "percent" ) + theme(text = element_text(size = 10))
+
+B <- simpleplot(data_full,c("CH", "I", "Y", "G"), startyear = 2020, endyear= 2030,  transformation = "diff", titleplot =  "   GDP and its components 
+in difference (B)",custom_x_breaks = 2,
+                decimal = 0.1, unit = 1 ) + theme(text = element_text(size = 10))
+C <- ggarrange(A,B,
+          labels = c("(a)", "(b)"),
+          hjust = -0.5, vjust = 1.5,
+          ncol = 2, nrow = 1,
+          widths = 2,  heights = 2)
+C
+
+```
+
+**Bonus**
+The new equations are:
+- **Households consumption equation**:     
+\begin{equation}
+CH = 0.5* Y_{t-1}
+\end{equation}
+- **Investment equation**:   
+\begin{equation}
+I = 0.2* Y
+\end{equation}

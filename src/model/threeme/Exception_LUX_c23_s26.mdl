@@ -1,0 +1,20 @@
+##### Exception equations for ThreeME - LUX
+
+#### Recycling the carbon tax incomes on exports
+## Carbon tax from fuel sales to non-residents are redistributed according to the following rule: 1/3 as tax credit for households; 1/3 reduction of the tax on production proportionnaly to the labor share of the sector in the economy; 1/3 reduction of the public deficit. 
+
+##! Income and social taxes expressed in value
+@over INC_SOC_TAX_VAL  = RINC_SOC_TAX * DISPINC_BT_VAL - (T2VAL_CH + 1/3 * T2VAL_X) * REDIS_CT_H
+
+##! Net taxes on the production of sector $s$ expressed in value
+@over NTAXS_VAL[s] 	 = 			 RNTAXS[s]	* PY[s]	    * Y[s] + T2VAL_MAT[s] + T2VAL_Y[s] - (T2VAL_SEC + 1/3 * T2VAL_X) * F[L,s]/F[L] * REDIS_CT_LS
+
+
+
+
+
+
+#####  DEPRICATED: DELETE BELOW WHEN  Exception_taxes_prices_new ACTIVATED
+##! Carbon tax rate on the greenhouse gas $ghg$ associated to the exports of the commodity $c$
+R2_X_CO2[c] = RCO2TAX_VOL*PCH
+

@@ -1,0 +1,252 @@
+---
+title:  ThreeME team
+#author: "ThreeME team"
+#date: "`r format(Sys.Date(), '%d %B %y')`"
+runtime: shiny_prerendered
+output: learnr::tutorial
+params:
+  template_default: ofce
+
+
+---
+
+
+```{r setup, include = FALSE}
+
+work.dir <- stringr::str_remove(getwd(),"/results/report/markdown/training")
+knitr::opts_knit$set(root.dir = work.dir)
+
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(learnr) 
+
+```
+
+
+
+
+---
+
+<center>
+
+<font size="7"> 
+
+<span style="color: brown;"> **Quiz 01** </span> 
+
+
+</font>
+
+
+<font size="5">
+
+Each question may have one or multiple answers    
+The Quiz is marked out of 10   
+Good answer: <span style="color: bold;">**+1**</span>   
+Wrong or incomplete answer : <span style="color: bold;">**0**</span>      
+
+<span style="color: green;"> **Let's start !** </span> 
+
+
+</font>
+
+
+</center>
+
+
+
+<center>
+
+![](pictures/A_B_Quiz.png){width=15%}
+
+<center>
+
+---
+
+#  <span style="color: brown;"> **Question 1** </span>
+
+<font size="5">
+
+
+```{r letter-a, echo=FALSE}
+
+learnr::question ("Github is",
+         answer(" A host of Git repositories", correct = TRUE),
+         answer(" A version control system "),
+         answer ("A programming language"), 
+         answer ("All of the above")
+         )
+
+```
+
+</font>
+
+---
+
+# <span style="color: brown;"> **Question 2** </span>
+
+<font size="5">
+
+```{r letter-b, echo =FALSE}
+learnr::question("Git is,",
+         answer(" An abreviation of Github"),
+         answer(" A Distributed version control tool ", correct = TRUE),
+         answer ("A programming language"), 
+         answer ("A remote repository")
+         )
+
+```
+
+</font>
+
+---
+
+# <span style="color: brown;"> **Question 3** </span>
+
+<font size="5">
+
+```{r letter-c, echo =FALSE}
+learnr::question("Which statment is false",
+         answer(" When you clone a repository, you copy the repository from GitHub.com to your local machine "),
+         answer("  When you create a repository on GitHub.com, it exists as a remote repository "),
+         answer (" **'Fetch origin'** is the command that updates your local repository with changes from remote
+", correct = TRUE), 
+         answer ("As you clone a version of the remote, this cloned version has necessarly the same number of branches")
+         )
+
+```
+
+</font>
+
+---
+
+# <span style="color: brown;"> **Question 4** </span>
+
+<font size="5">
+
+```{r letter-d, echo =FALSE}
+learnr::question("When a file is modified, on Github desktop we see next to this file,",
+         answer(" A Red minus smybol icone "),
+         answer(" A green plus icon  "),
+         answer ("A yellow dot icon", correct = TRUE), 
+         answer ("None of the above")
+         )
+
+```
+
+</font>
+
+---
+
+# <span style="color: brown;"> **Question 5** </span>
+
+<font size="5">
+
+```{r letter-e, echo =FALSE}
+learnr::question("If I want my teamate to see my code changes,",
+         answer("I do a **'commit'** in my current branch. The changes are then automatically retreived in my teamate's branch"),
+         answer(" I **'push origin'** without doing a commit"),
+         answer ("I need no action on my side. My teamate has to do a **'pull origin'**"), 
+         answer ("I commit my changes in my current branch and then **'push origin'**", correct = TRUE)
+         )
+
+```
+
+</font>
+
+---
+
+
+# <span style="color: brown;"> **Question 6** </span>
+
+<font size="5">
+
+```{r letter-f, echo =FALSE}
+learnr::question("After doing a **'commit'** on Github desktop",
+         answer(" The file goes from **'Changes'** tab to **'History'** tab", correct = TRUE),
+         answer(" The remote repository automatically retreives the code changes  "),
+         answer ("The remote and the local repositories are synchronized"), 
+         answer ("We cannot check the **'commit'** on Github Web")
+         )
+
+```
+
+</font>
+
+---
+
+
+# <span style="color: brown;"> **Question 7** </span>
+
+<font size="5">
+
+```{r letter-g, echo =FALSE}
+learnr::question("When you **'revert changes in commit'**",
+         answer(" Git automatically creates a new commit  "),
+         answer(" The new commit is created on the **'History'** tab  "),
+         answer (" The initial commit is not deleted. The new commit reverses changes specified"), 
+         answer ("All of the above", correct = TRUE)
+         )
+
+```
+
+</font>
+
+---
+
+# <span style="color: brown;"> **Question 8** </span>
+
+<font size="5">
+
+```{r letter-h, echo =FALSE}
+learnr::question("When you **'undo a commit'**",
+         answer(" Your commit is completely deleted from Github "),
+         answer(" Your file moves from **'History'** tab to **'Changes'** tab  ", correct = TRUE),
+         answer (" A new commit is created
+"), 
+         answer ("None of the above")
+         )
+
+```
+
+</font>
+
+---
+
+# <span style="color: brown;"> **Question 9** </span>
+
+<font size="5">
+
+```{r letter-i, echo =FALSE}
+learnr::question("When you **'pull origin'**",
+         answer(" Your local changes are sent to the remote repository  "),
+         answer(" Your local branch is updated with the latest changes from the remote  ", correct = TRUE),
+         answer (" Remote changes are merged with the local ones
+", correct = TRUE), 
+         answer ("All of the above")
+         )
+
+```
+
+</font>
+
+---
+
+# <span style="color: brown;"> **Question 10** </span>
+
+<font size="5">
+
+```{r letter-j, echo =FALSE}
+learnr::question("Which statement is false",
+         answer(" Creating a new branch allows to isolate your development work from other branches in the repository "),
+         answer(" You always create a branch from an existing branch  "),
+         answer ("If you have more than one branch, you can choose to base the new branch on the default branch or any other branch
+"), 
+         answer ("A newly created branch is automatically published", correct = TRUE)
+         )
+
+```
+
+</font>
+
+
+---

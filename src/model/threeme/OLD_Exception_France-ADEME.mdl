@@ -1,0 +1,321 @@
+##### Exception equations for ThreeME - France - ADEME
+
+#### Additional equations to fit scenarii 
+
+##! Share of electicity produced by wind sector (national account definition)
+PhiY_toe[cele, sewi] = 1 - PhiY_toe[cele, SECH] - PhiY_toe[cele, SECO]- PhiY_toe[cele, SEGA]- PhiY_toe[cele, SEHY]- PhiY_toe[cele, SENU]- PhiY_toe[cele, SEOI]- PhiY_toe[cele, SEOT]- PhiY_toe[cele, SESO]
+# The following does not work: Find correct syntax
+# PhiY_toe[cele, sewi] = 1 - (sum(PhiY_toe[cele, s] on s, where s in %list_sec \ sewi))
+
+
+
+
+### Fitting energy consumption for non energy sectors
+
+##! Energy efficiency gains in sector $s$
+@over d(log(F_n[E, s]))  = d(log(Y[s])) - d(log(PROG[E, s])) - GR_PROG_base[E, s] + d(SUBST_F[E, s])                                                 if F_n[E, s] <> 0
+
+##! Energy consumption $ce$ of sector $s$
+@over d(log(CI[ce, s]))    = d(log(F[E, s])) + d(SUBST_CI[ce,s]) - GR_CI_base[ce, s] if CI[ce, s]  <> 0
+
+GR_CI_base[ce, s] = GR_CI_base[ce]  where s in %list_sec \ soil sbfu sgas sbga senu seoi sega seco sewi seso sehy sech seot
+
+##! Substitution effect on the energy intermediate consumption $ce$ in the sector $s$
+@over d(SUBST_CI_n[ce, s]) = sum(- ES_NRJ[ce, cee, s] * phi[E, cee, s]{-1} * d(log(PCI[ce, s] * exp(PS_CI[ce, s])) - log(PCI[cee, s]*exp(PS_CI[cee, s]))) on cee)      if CI[ce, s]  <> 0
+# Inclusion of a price signal PS_CI[ce, s]
+
+PS_CI[ce, s] = PS_CI[ce]
+
+# ##! Notional substitution between the transport $ct$ and the other transports $mt$ in the sector $s$
+# @over d(SUBST_CI_n[ct, s]) = sum(- ES_TRSP[ct, ctt, s] * phi_TRSP[ctt, s]{-1} * d(log(PCI[ct, s]) - log(PCI[ctt, s])) on ctt)   if CI[ct, s]  <> 0
+# Inclusion of a price signal if we want to fit transport targets
+
+### Fitting energy consumption for households
+# !!!! TO DO: Stock of building per class and ENERperM2[ecl, ceb]
+# NCH_BUIL[ce] --> BUIL[ecl] : 
+# Add trend in:
+##! Consumption of energy $ceb$ per square meter in class $ecl$ buildings
+#d(log(ENERperM2[ecl, ceb])) = - eta_ENERperM2[ecl, ceb] * d(log(PCH[ceb])-log(PCH)) * (d(log(PCH[ceb])-log(PCH)) >0) _
+#                                + d(SUBST_NRJperM2[ecl, ceb]) if ENERperM2[ecl, ceb] <> 0
+# - GR_PROG_HOUS_base
+
+## TO DO : ADD TREND IN
+##! Kilometer-travelers for air transport
+#d(log(km_traveler[cair])) = (@year > %baseyear) * (theta_kmtravcair_DISPINC * d(log(DISPINC_AT_VAL/PCH)) - theta_kmtravcair_Pkmtrav * d(log(P_km_traveler[cair]/PCH))) + (@year <= %baseyear) * (0)
+# Expressed in million.
+
+##! Kilometer-travelers for long distance transport (by automobile and train)
+# d(log(km_traveler_LD)) = (@year > %baseyear) * (theta_kmtravLD_DISPINC * d(log(DISPINC_AT_VAL/PCH)) - theta_kmtravLD_Pkmtrav * d(log(P_km_traveler_LD/PCH))) + (@year <= %baseyear) * (0)
+# Expressed in million.
+
+##! Kilometer-travelers for short distance transport (by automobile and bus)
+#d(log(km_traveler_SD)) = (@year > %baseyear) * (theta_kmtravSD_DISPINC * d(log(DISPINC_AT_VAL/PCH)) - theta_kmtravSD_Pkmtrav * d(log(P_km_traveler_SD/PCH))) + (@year <= %baseyear) * (0)
+# Expressed in million.
+
+#### Energy balance  
+
+
+
+#### Additional outputs
+
+
+##! Carbon tax in volume on households' consumption
+T2VOL_CH[ghg,c] =  T2VAL_CH[ghg,c]/PCH 					if EMS_CH[ghg,c] <> 0
+T2VOL_CH[ghg] = sum(T2VOL_CH[ghg,c] on c)
+
+##! Carbon tax in volume on intermediary consumption 
+T2VOL_CI[ghg,c] = T2VAL_CI[ghg,c]/PCH
+T2VOL_CI[ghg] = sum(T2VOL_CI[ghg,c] on c)
+
+##! Carbon tax rate on the greenhouse gas $ghg$ associated to the intermediary consumption of commodity $c$ by the sector $s$
+@over R2_CI_CO2[c,s]=RCO2TAX_VOL              # A discuter avec ADEME!!! Retour sur taxe en nominal?
+#@over R2_CI_CO2[c,s] = RCO2TAX_VOL*((@year <= 2021 )+(@year > 2021)*(PCH{-1}/@elem(PCH,2020)))
+
+##! Carbon tax rate on the greenhouse gas $ghg$ associated to the material consumption of the sector $s$
+@over R2_MAT_CO2[s]=RCO2TAX_VOL                 # A discuter avec ADEME!!! Retour sur taxe en nominal?      
+#@over R2_MAT_CO2[s]= RCO2TAX_VOL*((@year <= 2021 )+(@year > 2021)*(PCH{-1}/@elem(PCH,2020)))
+ 
+##! Carbon tax rate on the greenhouse gas $ghg$ associated to the final production of the sector $s$
+@over R2_Y_CO2[s]=RCO2TAX_VOL               # A discuter avec ADEME!!! Retour sur taxe en nominal?
+#@over R2_Y_CO2[s] = RCO2TAX_VOL*((@year <= 2021 )+(@year > 2021)*(PCH{-1}/@elem(PCH,2020)))
+
+##! Carbon tax rate on the greenhouse gas $ghg$ associated to the household final consumption of the sector $s$
+@over R2_CH_CO2[c] = RCO2TAX_VOL               # A discuter avec ADEME!!! Retour sur taxe en nominal?
+#@over R2_CH_CO2[c] = RCO2TAX_VOL*((@year <= 2021 )+(@year > 2021)*(PCH{-1}/@elem(PCH,2020)))
+
+##! Investment in agregate sector 
+IA_IND  = sum(IA[sind]  on sind)
+IA_TRSP = sum(IA[strsp] on strsp)
+IA_SER  = sum(IA[sser]  on sser)
+IA_TRSF = sum(IA[strsf] on strsf)
+IA_ELE  = sum(IA[sele]  on sele)
+IA_AGRF = sum(IA[sagrf] on sagrf)
+
+##! Labor in agregate sector 
+F_L_IND  = sum(F[L, sind] on sind)
+F_L_TRSP = sum(F[L, strsp] on strsp)
+F_L_SER  = sum(F[L, sser] on sser)
+F_L_TRSF = sum(F[L, strsf] on strsf)
+F_L_ELE  = sum(F[L, sele] on sele)
+F_L_AGRF = sum(F[L, sagrf] on sagrf)
+
+##! added value in agregate sector 
+VA_IND  = sum(VA[sind] on sind)
+VA_TRSP = sum(VA[strsp] on strsp)
+VA_SER  = sum(VA[sser] on sser)
+VA_TRSF = sum(VA[strsf] on strsf)
+VA_ELE  = sum(VA[sele] on sele)
+VA_AGRF  = sum(VA[sagrf] on sagrf)
+
+##! added value in agregate sector 
+Y_IND  = sum(Y[sind] on sind)
+Y_TRSP = sum(Y[strsp] on strsp)
+Y_SER  = sum(Y[sser] on sser)
+Y_TRSF = sum(Y[strsf] on strsf)
+Y_ELE  = sum(Y[sele] on sele)
+Y_AGRF  = sum(Y[sagrf] on sagrf)
+
+##! Emissions of the greenhouse gas $ghg$ related to the intermediary consumption of commodity $c$ by agregate sector
+EMS_CI[ghg, c, IND]  = sum(EMS_CI[ghg, c, sind]   if EMS_CI[ghg, c, sind] <> 0 on sind)    if EMS_CI[ghg, c, IND] <> 0
+EMS_CI[ghg, c, TRSP] = sum(EMS_CI[ghg, c, strsp] if EMS_CI[ghg, c, strsp] <> 0 on strsp)  if EMS_CI[ghg, c, TRSP] <> 0
+EMS_CI[ghg, c, SER]  = sum(EMS_CI[ghg, c, sser]   if EMS_CI[ghg, c, sser] <> 0 on sser)    if EMS_CI[ghg, c, SER] <> 0
+EMS_CI[ghg, c, TRSF] = sum(EMS_CI[ghg, c, strsf] if EMS_CI[ghg, c, strsf] <> 0 on strsf)  if EMS_CI[ghg, c, TRSF] <> 0
+EMS_CI[ghg, c, ELE]  = sum(EMS_CI[ghg, c, sele]  if EMS_CI[ghg, c, sele] <> 0 on sele)    if EMS_CI[ghg, c, ELE] <> 0
+EMS_CI[ghg, c, AGRF]  = sum(EMS_CI[ghg, c, sagrf]  if EMS_CI[ghg, c, sagrf] <> 0 on sagrf)    if EMS_CI[ghg, c, AGRF] <> 0
+
+##! Emissions of the greenhouse gas $ghg$ related to the intermediary consumption by sector $s$
+EMS_CI[ghg, sagg]  = sum(EMS_CI[ghg, c, sagg] if EMS_CI[ghg, c, sagg] <> 0 on c)  if EMS_CI[ghg, sagg] <> 0
+
+verif_EMS_CI[ghg]  = sum(EMS_CI[ghg, sagg] on sagg) - EMS_CI[ghg] 
+
+# !!! TO DO: UPDATE depending on the targets of the SNBC!
+# introduce all the relevent commodities
+##! End use for energy consumption of households related to housing, expressed in toe
+#CH_toe_hous = CH_toe[cfuh] + CH_toe[cgas] + CH_HOUS_toe[cele]
+#CH_HOUS_toe[cele] =  CH_toe[cele] * CH_HOUS[cele] / (CH_HOUS[cele] + CH_TRSP[cele])
+
+# /!\ CH_toe[ce] in Mtoe (the only one)
+# PROBLEM 1: at times, CH_AUTO_toe[cea] > 1000000*CH_toe[cea] 
+CH_AUTO_toe_ccoa = 0
+CH_AUTO_toe_ccoi = 0
+CH_AUTO_toe_cfuh = 0
+CH_AUTO_toe_chea = 0
+CH_AUTO_toe_cbio = 0
+CH_AUTO_toe_cote = 0
+
+CH_HOUS_toe[ce] = 1000000*CH_toe[ce] - CH_AUTO_toe[ce] 
+CH_HOUS_toe_cghb = CH_HOUS_toe_cgas + CH_HOUS_toe_chea + CH_HOUS_toe_cbio
+CH_HOUS_toe = sum(CH_HOUS_toe[ce] on ce) 
+
+
+##! End use for energy consumption of households related to transport, expressed in toe
+#CH_toe_trsp = CH_toe[cfut] + CH_TRSP_toe[cele]
+#CH_TRSP_toe[cele] = CH_toe[cele] * CH_TRSP[cele] / (CH_HOUS[cele] + CH_TRSP[cele])
+
+
+
+##! End use for energy $ce$ of agregate sector, expressed in toe 
+CI_toe[ce, IND]  = sum(CI_toe[ce, sind]   if CI_toe[ce, sind] <> 0 on sind)    if CI_toe[ce, IND]  <> 0
+CI_toe[ce, TRSP] = sum(CI_toe[ce, strsp] if CI_toe[ce, strsp] <> 0 on strsp)   if CI_toe[ce, TRSP] <> 0
+CI_toe[ce, SER]  = sum(CI_toe[ce, sser]   if CI_toe[ce, sser] <> 0 on sser)     if CI_toe[ce, SER] <> 0
+CI_toe[ce, TRSF] = sum(CI_toe[ce, strsf] if CI_toe[ce, strsf] <> 0 on strsf)  if CI_toe[ce, TRSF]  <> 0
+CI_toe[ce, ELE]  = sum(CI_toe[ce, sele]   if CI_toe[ce, sele] <> 0 on sele)     if CI_toe[ce, ELE]  <> 0
+CI_toe[ce, AGRF]  = sum(CI_toe[ce, sagrf]   if CI_toe[ce, sagrf] <> 0 on sagrf)     if CI_toe[ce, AGRF]  <> 0
+
+
+##! outputs à la même maille que les bilans énergie 
+CI_toe_cfuel_IND = CI_toe_ccoi_IND + CI_toe_cfuh_IND + CI_toe_cfut_IND 
+CI_toe_cghbo_IND = CI_toe_cgas_IND + CI_toe_chea_IND + CI_toe_cbio_IND + CI_toe_cote_IND
+CI_toe_cfuel_TRSP = CI_toe_ccoi_TRSP + CI_toe_cfuh_TRSP + CI_toe_cfut_TRSP 
+CI_toe_cghbo_TRSP = CI_toe_cgas_TRSP + CI_toe_chea_TRSP + CI_toe_cbio_TRSP + CI_toe_cote_TRSP
+CI_toe_cfuel_SER = CI_toe_ccoi_SER + CI_toe_cfuh_SER + CI_toe_cfut_SER 
+CI_toe_cghb_SER = CI_toe_cgas_SER + CI_toe_chea_SER + CI_toe_cbio_SER
+CI_toe_cfuel_AGRF = CI_toe_ccoi_AGRF + CI_toe_cfuh_AGRF + CI_toe_cfut_AGRF 
+CI_toe_cghb_AGRF = CI_toe_cgas_AGRF + CI_toe_chea_AGRF + CI_toe_cbio_AGRF
+
+##! Final consumption (energy balance definition) for energy $ce$, expressed in toe
+CF_toe[ce] = CI_toe[ce, IND] + CI_toe[ce, TRSP] + CI_toe[ce, SER] + CI_toe[ce, AGRF] + CH_toe[ce] 
+CF_toe = sum(CF_toe[ce] on ce)
+
+##! Final consumption (energy balance definition) of economic sectors for energy $ce$, expressed in toe
+CF_CI_toe[ce] = CI_toe[ce, IND] + CI_toe[ce, TRSP] + CI_toe[ce, SER] + CI_toe[ce, AGRF]
+
+##! Final consumption for energy $ce$ produced by sector $s$, expressed in toe
+CF_toe[ce, s] = YG_toe[ce, s] - DLY_toe[ce, s] - AC_toe[ce, s] - PhiY[ce, s] * (CI_toe[ce, ELE] + CI_toe[ce, TRSF] + X_toe[ce] - M_toe[ce])
+
+
+##! End use for agregate energy of agregate sector, expressed in toe 
+CI_toe[sagg] = sum(CI_toe[ce, sagg] if CI_toe[ce, sagg] <> 0 on ce) if CI_toe[sagg] <> 0
+
+Verif_CI_toe = sum(CI_toe[sagg] on sagg) - CI_toe
+
+##! Net production of energy $ce$ by agregate sector, expressed in toe 
+Y_toe[ce, IND]  = sum(Y_toe[ce, sind]     if Y_toe[ce, sind] <> 0 on sind)    if Y_toe[ce, IND]  <> 0
+Y_toe[ce, TRSP] = sum(Y_toe[ce, strsp]   if Y_toe[ce, strsp] <> 0 on strsp)   if Y_toe[ce, TRSP] <> 0
+Y_toe[ce, SER]  = sum(Y_toe[ce, sser]     if Y_toe[ce, sser] <> 0 on sser)     if Y_toe[ce, SER] <> 0
+Y_toe[ce, TRSF] = sum(Y_toe[ce, strsf]   if Y_toe[ce, strsf] <> 0 on strsf)  if Y_toe[ce, TRSF]  <> 0
+Y_toe[ce, ELE]  = sum(Y_toe[ce, sele]     if Y_toe[ce, sele] <> 0 on sele)    if Y_toe[ce, ELE]  <> 0 
+Y_toe[ce, AGRF]  = sum(Y_toe[ce, sagrf]     if Y_toe[ce, sagrf] <> 0 on sagrf)    if Y_toe[ce, AGRF]  <> 0 
+
+##! Net production of agregate energy by agregate sector, expressed in toe 
+Y_toe[sagg] = sum(Y_toe[ce, sagg] if Y_toe[ce, sagg] <> 0 on ce) if Y_toe[sagg] <> 0
+
+Verif_Y_toe = sum(Y_toe[sagg] on sagg) - Y_toe
+
+## To be deleted : when the addfactor error is corrected
+# @over verif_PhiY[ce, s] = 0
+
+## Redistribution
+
+@over REDIS_H = 0.5*(T2VAL_CH + T2VAL_SEC)                    
+@over REDIS_SEC = 0.5*(T2VAL_CH + T2VAL_SEC)  
+@over INC_SOC_TAX_VAL  = RINC_SOC_TAX * DISPINC_BT_VAL - REDIS_H * REDIS_CT_H
+@over NTAXS_VAL[s] 	 = 	 RNTAXS[s]	* PY[s]	    * Y[s] + T2VAL_Y[s] + T2VAL_MAT[s] - REDIS_SEC * Y[s]/Y * REDIS_CT_LS
+@over RSC[s] * PRSC[s] = W[s] * F[L, s] * RRSC[s] - REDIS_SEC * Y[s]/Y * REDIS_CT_RRSC
+
+## Politique monétaire
+#@over d(R_n)      = RHO_Rn_Cstant + d(d(P)/P{-1}) + 0.05*(d(P)/P{-1} - 0.02)
+@over d(R_n)      = RHO_Rn_Cstant + d(d(P)/P{-1})
+
+## Modification de l'intensité des émissions des CI avec l'évolution du mix énergétique
+@over d(log(EMS_CI[ghg,cfut,s])) = d(log(CI[cfut,s]   * IEMS_CI[ghg,cfut,s] * PhiY_toe[cfut,soil]))              if EMS_CI[ghg,cfut,s] <> 0
+@over d(log(EMS_CI[ghg,cfuh,s])) = d(log(CI[cfuh,s]   * IEMS_CI[ghg,cfuh,s] * PhiY_toe[cfuh,soil]))              if EMS_CI[ghg,cfuh,s] <> 0
+@over d(log(EMS_CI[ghg,cgas,s])) = d(log(CI[cgas,s]   * IEMS_CI[ghg,cgas,s] * (PhiY_toe[cgas,sgas] + PhiY_toe[cgas,smet] + PhiY_toe[cgas,soil] ) ))              if EMS_CI[ghg,cgas,s] <> 0
+
+## Modification de l'intensité des émissions de la CH avec l'évolution du mix énergétique
+@over d(log(EMS_CH[ghg,cfut]))   = d(log(CH[cfut]     * IEMS_CH[ghg,cfut] * PhiY_toe[cfut,soil] ))               if EMS_CH[ghg,cfut] <> 0
+@over d(log(EMS_CH[ghg,cfuh]))   = d(log(CH[cfuh]     * IEMS_CH[ghg,cfuh] * PhiY_toe[cfuh,soil] ))               if EMS_CH[ghg,cfuh] <> 0
+@over d(log(EMS_CH[ghg,cgas]))   = d(log(CH[cgas]     * IEMS_CH[ghg,cgas] * (PhiY_toe[cgas,sgas] + PhiY_toe[cgas,smet] + PhiY_toe[cgas,soil] ) )) if EMS_CH[ghg,cgas] <> 0
+
+##  Modification de la branche agriculture (équilibre par les prix)
+
+#gel@over dlog(Ypot[cagr,sagr])  =  dlog(POP) + log(1 + GR_prog_L) + (@year>2015)*dlog(PROG_K_CC_agrifish) - ES_CHM_cagr  * d(log(PCHD_cagr)  - log(PCHM_cagr))  if Y[cagr,sagr] <> 0
+#gel@over dlog(Mpot[cagr])  =  dlog(POP) + log(1 + GR_prog_L) + (@year>2015)*dlog(PROG_K_CC_agrifish) - ES_CHM_cagr  * d(log(PCHM_cagr)  - log(PCHD_cagr))  if M[cagr] <> 0
+#gel@over dlog(CHM[cagr]) =  dlog(Mpot[cagr]-DSM[cagr])    if CHM[cagr] <> 0
+#gel@over dlog(CIM[cagr,s]) =  dlog(Mpot[cagr]-DSM[cagr])    if CIM[cagr,s] <> 0
+#gel@over dlog(IM[cagr,s]) =  dlog(Mpot[cagr]-DSM[cagr])    if IM[cagr,s] <> 0
+#gel@over dlog(GM[cagr])  =  dlog(Mpot[cagr]-DSM[cagr])    if GM[cagr] <> 0
+#gel@over dlog(XM[cagr])  =  dlog(Mpot[cagr]-DSM[cagr])    if XM[cagr] <> 0
+#gel@over CHD[cagr] = CH[cagr] - CHM[cagr]       if CHD[cagr] <> 0
+#gel@over CH_n[cagr] = NCH[cagr]
+#gel@over CH[cagr] = CH_n[cagr]
+#gel#@over CID[cagr,s] = CI[cagr,s] - CIM[cagr,s] if CI[cagr,s] <> 0
+#gel@over ID[cagr,s] = I[cagr,s] - IM[cagr,s]    if I[cagr,s] <> 0
+#gel@over DSD[cagr] = DS[cagr] - DSM[cagr]  if DS[cagr] <> 0                                                      
+#gel@over GD[cagr] = G[cagr] - GM[cagr]     if G[cagr] <> 0
+#gel@over XD[cagr] = X[cagr] - XM[cagr]    if X[cagr] <> 0
+#gel@over XD[cagr] * PXD[cagr] = PY_sagr * Ypot[cagr,sagr] + sum(PY[s] * Y[cagr,s] on s in %list_sec \ sagr) + NTAXCD_val_cagr + PMGPD_cagr * MGPD_cagr _
+      #gel- (PMGSD_cagr * MGSD_CAgr + PCHD_cagr*CHD_cagr + PCID_cagr * CID_cagr + PID_cagr * ID_cagr + PDSD_cagr * DSD_cagr)
+#gel@over X[cagr] = XD[cagr] + XM[cagr]    if X[cagr] <> 0
+
+
+#gel@over dlog(NCH[cagr]) = dlog(POP) +  log(1 + GR_prog_L) + (@year >2015) * (ES_price_cagr * dlog(PCH[cagr])  + ES_inc_cagr *(dlog(DISPINC_AT_VAL)- dlog(PCH)) - log(1 + GR_prog_L) )   
+#gel
+#gel@over YQ[cagr]        = sum(Y[cagr, s] if Y[cagr, s] <> 0 on s) if YQ[cagr] <> 0
+
+#PYeq_sagr * Y[cagr,sagr]  + PM_cagr * M_cagr + sum(PY[s] * Y[cagr,s] on s in %list_sec \ sagr) _ 
+#+  NTAXCD_val_cagr + PMGPD_cagr * MGPD_cagr + NTAXCM_val_cagr + PMGPM_cagr * MGPM_cagr + POTHCTD_cagr * OTHCTD_cagr + PSUBCD_cagr * SUBCD_cagr _
+#+ POTHCTM_cagr * OTHCTM_cagr + PSUBCM_cagr * SUBCM_cagr _
+# = PMGS_cagr * MGS_cagr + PCH_cagr * CH_cagr + PCI_cagr * CI_cagr + PG_cagr * G_cagr + PI_cagr * I_cagr + PX_cagr * X_cagr + PDS_cagr * DS_cagr
+
+ #gel@over PYeq_sagr * Ypot[cagr,sagr]  + PM_cagr * M_cagr + sum(PY[s] * Y[cagr,s] on s in %list_sec \ sagr) _ 
+ #gel+ NTAXCD_val_cagr + PMGPD_cagr * MGPD_cagr + NTAXCM_val_cagr + PMGPM_cagr * MGPM_cagr _
+ #gel= PMGS_cagr * MGS_cagr + PCH_cagr * CH_cagr + PCI_cagr * CI_cagr + PG_cagr * G_cagr + PI_cagr * I_cagr + PX_cagr * X_cagr + PDS_cagr * DS_cagr
+#gel
+#gel#PMGS_cagr*MGS_CAgr+PCH_cagr*CH_cagr+PCI_cagr*CI_cagr+PI_cagr*I_cagr+PX_cagr*X_cagr+PDS_cagr*DS_cagr PYQ_cagr*YQ_cagr+NTAXCD_VAL_cagr+PMGPD_cagr*MGPD_cagr+PM_cagr*M_cagr+NTAXCM_val_cagr+PMGPM_cagr*MGPM_cagr 
+#gel@over dlog(PY_n_sagr) = dlog(PYeq_sagr) #* (PY_sagr{-1} >= CU_n_sagr{-1}) + dlog(CU_n_sagr) * (PY_sagr{-1} < CU_n_sagr{-1})
+#gel
+#gel#@over PY_n_sagr = PYeq_sagr * (PY_sagr{-1} >= CU_n_sagr{-1}) + CU_n_sagr * (PY_sagr{-1} < CU_n_sagr{-1})
+#gel
+#gel@over PY_sagr = PY_n_sagr
+#gel
+#gel#@over PM_cagr = (PYeq_sagr * (YQ_cagr + M_cagr) - PYQ_cagr * YQ_cagr) / M_cagr 
+#gel
+#gel@over dlog(PM_cagr) = dlog(PYeq_sagr)
+#gel
+#gel@over d(log(F_n[f, sagr]))  = d(log(YQ[cagr])) - d(log(PROG[f, sagr])) + d(SUBST_F[f, sagr])            if F_n[f, sagr] <> 0
+
+#############################################
+
+
+ @over dlog(Ypot[cagr,sagr])  =  dlog(POP) + log(1 + GR_prog_L_sagr)*(@year<=2015) + (@year>2015)*dlog(PROG_K_CC_agrifish)   if Y[cagr,sagr] <> 0
+
+ @over dlog(Mpot[cagr])  =  dlog(POP) + log(1 + GR_prog_L_sagr)*(@year<=2015) + (@year>2015)*dlog(PROG_K_CC_agrifish)  if M[cagr] <> 0
+
+
+ @over dlog(NCH[cagr]) = dlog(POP) +  log(1 + GR_prog_L_sagr) + (@year >2015) * (ES_price_cagr * dlog(PCH[cagr])  + ES_inc_cagr *(dlog(DISPINC_AT_VAL)- dlog(PCH)) - log(1 + GR_prog_L_sagr) )   
+
+ @over PYeq_sagr * Ypot[cagr,sagr] + sum(PY[s] * Y[cagr,s] on s in %list_sec \ sagr) _ 
+ + NTAXCD_val_cagr + PMGPD_cagr * MGPD_cagr  = PQD_cagr * QD_cagr 
+
+ @over PMeq_cagr * Mpot_cagr + NTAXCM_val_cagr + PMGPM_cagr * MGPM_cagr = PQM_cagr * QM_cagr 
+ 
+ @over dlog(PM_cagr) = dlog(PMeq_cagr)
+
+ @over dlog(PY_n_sagr) = dlog(PYeq_sagr)
+ 
+ #@over dlog(PY_sagr) = dlog(PY_n_sagr)            
+ 
+ @over dlog(Ypot[cfoo,sfoo])  =  dlog(POP) + log(1 + GR_prog_L_sfoo)*(@year<=2015) + (@year>2015)*dlog(PROG_K_CC_agrifish)   if Y[cfoo,sfoo] <> 0
+
+ @over dlog(Mpot[cfoo])  =  dlog(POP) + log(1 + GR_prog_L_sfoo)*(@year<=2015) + (@year>2015)*dlog(PROG_K_CC_agrifish)  if M[cfoo] <> 0
+
+ @over dlog(NCH[cfoo]) = dlog(POP) +  log(1 + GR_prog_L_sfoo) + (@year >2015) * (ES_price_cfoo * dlog(PCH[cfoo])  + ES_inc_cfoo *(dlog(DISPINC_AT_VAL)- dlog(PCH)) - log(1 + GR_prog_L_sfoo) )   
+
+ @over PYeq_sfoo * Ypot[cfoo,sfoo] + sum(PY[s] * Y[cfoo,s] on s in %list_sec \ sfoo) _ 
+ + NTAXCD_val_cfoo + PMGPD_cfoo * MGPD_cfoo  = PQD_cfoo * QD_cfoo 
+
+ @over PMeq_cfoo * Mpot_cfoo + NTAXCM_val_cfoo + PMGPM_cfoo * MGPM_cfoo = PQM_cfoo * QM_cfoo 
+ 
+ @over dlog(PM_cfoo) = dlog(PMeq_cfoo)
+
+ @over dlog(PY_n_sfoo) = dlog(PYeq_sfoo) 
+ 
+ #@over dlog(PY_sfoo) = dlog(PY_n_sfoo)  
+ 
+ @over dlog(CI_cagr[s]) = (@year <=2015) * dlog(F_MAT[s]) + (@year >2015) * (dlog(F_L[s]) + ES_price_cagr * (dlog(PCI[cagr,s]) - dlog(PCH)))  if CI[cagr, s] <> 0
+ 
+ @over dlog(CI_cfoo[s]) = (@year <=2015) * dlog(F_MAT[s]) + (@year >2015) * (dlog(F_L[s])+ ES_price_cfoo * (dlog(PCI[cfoo,s])- dlog(PCH)))   if CI[cfoo, s] <> 0
+   
+ @over dlog(CI[cmo,s]) = dlog(F_Mat[s]-CI_cagr[s] -CI_cfoo[s])   if CI[cmo, s] <> 0   where cmo in %list_com_MATO \ cagr cfoo   
+     

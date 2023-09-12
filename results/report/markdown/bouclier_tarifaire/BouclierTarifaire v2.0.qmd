@@ -1,0 +1,446 @@
+---
+title: "Evaluation des impacts macroéconomiques du bouclier tarifaire par ThreeME"
+author: "Paul Malliet, Anissa Saumtally"
+abstract: |
+    La hausse des produits de l'energie a conduit le gouvernement français à mettre en place une politique ambitieuse de maîtrise des coûts de la hausse de l'energie pour les particuliers par la mise en place d'un bouclier tarifaire. Ce bouclier finance la hausse des prix . Nous proposons dans ce document une analyse de ses effets économiques à l'aide du modèle ThreeME. 
+format: html
+params:
+  startyear: 2015
+  endyear: 2025
+  template_default: ofce
+  classification: c28_s32
+  version_publi: false
+  recreate_price_data: true
+---
+
+
+
+
+```{r setup, include=FALSE}
+#| label: setup
+#| include: false
+
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+
+path_main <-  stringr::str_remove(getwd(), "results/report/markdown")
+
+redirect <- function(normal_path, redirect = path_main){
+  if(is.null(redirect)){
+    res <- file.path(normal_path)  
+  }else{
+    res <- file.path(paste0(redirect), normal_path)  
+  }
+  
+  res |>  normalizePath()
+}
+
+
+startyear <- params$startyear
+endyear <- params$endyear
+template_default <- params$template_default
+recreate_price_data <- params$recreate_price_data
+
+classification <- params$classification
+
+source(redirect("src/functions.R"))
+purrr::map(list.files(redirect("/src/functions_src/")),
+           ~source(file.path(redirect("/src/functions_src/"),.x)))
+library(Unicode)
+library(plotly)
+# source(redirect("Extra_data_BT/src/data_loader.R"))
+load(redirect("Extra_data_BT/data/France/downloadeddata.rda"))
+rm(list = ls(pattern = "^(ipc\\.\\w|ippi\\.\\w)"))
+
+## Options
+
+options(ofce.base_family = "Arial")
+
+
+## Diverse imports
+donnees_sim <- readRDS(file=redirect(file.path("data","output","nrjbt_fra_c28_s32.rds"))) %>% mutate(year = year - 3)
+source(redirect(paste0("src/bridges/bridge_",classification,".R")))
+source(redirect(paste0("src/bridges/codenames_",classification,".R")))
+
+```
+
+```{r}
+#| label: data construction function
+dat_db <- function(df_1, df_2){
+  df_1 <- df_1 %>% select(date = period,ippi = value)
+  df_2 <- df_2 %>% select(date = period, ipch = value)
+  
+  df <- merge(df_1, df_2, by = "date")
+  return(df)
+}
+
+# Function to quickly plot a serie
+ploot <- function(data = database, 
+                  date_col = "date", cols= NULL,
+                  date_start = "1900-01-01",
+                  date_end = "2200-12-31",
+                  multi = NULL
+){
+  
+  if(is.null(multi)){multi = FALSE}
+  if(is.null(cols)){cols= c("ippi", "ipch")}
+  
+  if (multi == TRUE){
+    data <- data %>% pivot_longer(cols = cols,names_to = "index", values_to = "value") %>% 
+      rename(date = all_of(date_col))  %>% 
+      filter(date >= date_start) %>% 
+      filter(date <= date_end)
+    
+    ggplot(data,
+           aes(x = date, y = value, color = index)) + 
+      geom_line()
+  } else{
+    
+    ggplot(data |>  rename(date = all_of(date_col)),
+           aes(x = data, y = value)) + 
+      geom_line()
+  }
+}
+
+```
+
+```{r}
+#| label: passthrouggh loader
+#| include: false
+ 
+source("src/passthrough.R")
+
+```
+
+```{r}
+#| label: TTF graph
+
+
+### Data treatment
+ttf_data <- full_join(
+  ttf_series %>% mutate(
+    year = year(period),
+    yearmonth = str_c(year(period),"_0",month(period)),
+    yearmonth = str_replace(yearmonth,"_\\d(\\d{2})","_\\1")
+    ), 
+  monthly_empirical_data %>% select(period, ttf) %>% mutate(
+    year = year(period),
+    yearmonth = str_c(year(period),"_0",month(period)),
+    yearmonth = str_replace(yearmonth,"_\\d(\\d{2})","_\\1")
+    ) %>% select(yearmonth,ttf) ,
+  by = "yearmonth") %>% full_join(
+    annual_empirical_data %>% select(year, ttf),
+    by = "year") %>% 
+  rename(daily = value, monthly = ttf.x, yearly = ttf.y ) %>% 
+  mutate(date.daily = period,
+         date.monthy = as.Date(str_replace(yearmonth,"_(\\d{2})","-\\1-01")),
+         date.yearly = as.Date(str_c(year,"-01-01") )
+         ) %>% 
+  select (-period, - yearmonth) %>% filter(year >2017) %>% 
+  pivot_longer(cols = c("daily","monthly","yearly"), values_to = "ttf", names_to = "frequency")
+
+
+
+### Graph starts here
+
+ ttf_g <-  ttf_data %>% ggplot(aes(y = ttf, x = date.daily))+
+  geom_line(data = . %>% filter(frequency == "daily"),aes(color = frequency), na.rm = TRUE)+
+  geom_point(data = . %>% filter(frequency != "daily"),aes(color = frequency), size = 0.1, na.rm = TRUE)+
+  theme_ofce()+
+  theme(legend.title = element_blank(),
+        axis.title.x = element_blank()) + 
+  ylab("€ / MWh") +
+    ggtitle("Historique des prix du gaz, Dutch TTF futures", subtitle = "source : ICE")+
+  scale_x_date(date_breaks = "year", date_minor_breaks = "3 months", date_labels = "%Y")
+ 
+ ttf_g %>% ggplotly()
+
+```
+
+
+
+```{r}
+#| label: donnees empiriques choc des prix 
+
+## refaire le graphique avec data loader pour que ce soit uptodate avec ippi elec puis faire ttf/ippi/ipc elec gas + graphique avec les TRV
+data_graph_b2018 <- monthly_empirical_data %>% 
+  select(c("period","ipc.elec_01","ipc.gas_01", "ippi.elec_01","ippi.gas_01", "ttf")) %>% 
+  rename(date = period) %>% 
+  mutate(year = year(date)) %>% 
+  left_join(annual_empirical_data %>% select(c("year","ipc.elec_01","ipc.gas_01", "ippi.elec_01","ippi.gas_01", "ttf")), by= "year") %>% 
+  rename_all(~str_replace_all(.x, "\\.y$", "_annual")) %>% 
+  rename_all(~str_replace_all(.x, "\\.x$", "_monthly")) %>% 
+  rename_all(~str_replace_all(.x, "_\\d{2}_", "_")) %>% 
+  ## rebase in 2018
+  mutate(
+    ttf =  100*ttf_monthly/ttf_annual[which(date == "2018-01-01")],
+    ipc.elec =  100*ipc.elec_monthly/ipc.elec_annual[which(date == "2018-01-01")],
+    ippi.elec = 100*ippi.elec_monthly/ippi.elec_annual[which(date == "2018-01-01")],
+    ipc.gas =  100*ipc.gas_monthly/ipc.gas_annual[which(date == "2018-01-01")],
+    ippi.gas = 100*ippi.gas_monthly/ippi.gas_annual[which(date == "2018-01-01")],
+    
+    ttf_annualb2018 = 100*ttf_annual/ttf_annual[which(date == "2018-01-01")],
+    ipc.elec_annualb2018 = 100*ipc.elec_annual/ipc.elec_annual[which(date == "2018-01-01")],
+    ippi.elec_annualb2018 = 100*ippi.elec_annual/ippi.elec_annual[which(date == "2018-01-01")],
+    ipc.gas_annualb2018 = 100*ipc.gas_annual/ipc.gas_annual[which(date == "2018-01-01")],
+    ippi.gas_annualb2018 = 100*ippi.gas_annual/ippi.gas_annual[which(date == "2018-01-01")]
+  ) %>% 
+  filter(date >= "2018-01-01" & date < "2023-03-01") %>% select(
+    -all_of(str_c(c("ipc.elec","ipc.gas", "ippi.elec","ippi.gas", "ttf"), "_monthly")),
+    -all_of(str_c(c("ipc.elec","ipc.gas", "ippi.elec","ippi.gas", "ttf"), "_annual")),
+    ) %>%  rename_all(~str_remove(.x,"b2018$")) %>% 
+  pivot_longer(cols = -c(year,date), names_to = "variable")
+
+##graphique données empiriques
+
+
+insee_g<- data_graph_b2018 %>% ggplot(aes(x = date, y =value)) +
+  geom_line(data = . %>% filter(!grepl("_annual",variable)), aes(color = variable) ) +
+  geom_point(data = . %>% filter(grepl("_annual",variable)) %>% mutate(variable = str_remove(variable,"_annual$")) , aes(color = variable) , shape = "-")+ 
+  theme_ofce()+
+  theme(legend.title = element_blank(),
+        axis.title.x = element_blank()) + 
+  ylab("indice, base 100 moyenne annuelle 2018") +
+    ggtitle("Prix de marché, prix de production et prix à la consommation du gaz et électricité", subtitle = "source : insee; ICE")+
+  scale_x_date(date_breaks = "year", date_minor_breaks = "3 months", date_labels = "%Y")
+  ### mettre en plotly avec les prix en euros du TTF
+  
+insee_g %>% ggplotly()
+  
+  
+
+```
+
+```{r}
+#| label: TRV
+
+
+# plop<-read.csv("../../../Extra_data_BT/data/France/donneeshistoriquesCRE", sep = "\t") %>% mutate(date = DATE_DEBUT %>% as.Date("%d/%m/%Y")) %>% 
+#   filter(date > "2017/12/31")  %>% select(-DATE_DEBUT) %>% 
+#   pivot_wider(id_cols ="date",values_from = c("PV_HT","PV_TTC"), names_from = "puissance") %>% 
+#   full_join(data.frame(date = seq.Date(("2018-01-01") %>% as.Date, "2023-04-01" %>% as.Date(), by = "month") )) %>% arrange(date)
+# write.csv(plop, "plop.csv")
+data_trv <- read.csv(redirect("Extra_data_BT/data/France/TRV_HT.csv"))%>%  mutate(date = as.Date(date,"%d/%m/%Y")) %>% 
+  ##rebaseTRVmoyen
+  mutate(
+    gas = 100*gas/gas[which(date == "2020-01-01")],
+    gas_avec_bt = 100*gas_avec_bt/gas_avec_bt[which(date == "2020-01-01")],
+    elec = 100*elec/elec[which(date == "2020-01-01")],
+    elec_avec_bt = 100*elec_avec_bt/elec_avec_bt[which(date == "2020-01-01")]
+  ) %>% select(gas,gas_avec_bt,elec,elec_avec_bt,date) %>% pivot_longer(-date) %>% 
+  mutate(date= as.Date(date),
+    type = ifelse(grepl("elec",name),"electricité","gaz") ,
+         bt = ifelse(grepl("avec_bt",name),"avec bouclier tarifaire","sans bouclier tarifaire"))
+
+### Graphique 1  : Tarifs moyens
+data_trv %>% filter(date >="2020-01-01") %>% ggplot(aes(x=date, y = value))+
+  geom_line(aes(color= type, linetype= bt)) +
+  # geom_line(data = monthly_empirical_data %>% filter(period >= "2020-01-01" & period < "2023-04-03") %>% mutate(ttf = 100*ttf/ttf[which(period == "2020-01-01")], 
+  #                                                                                                               name = "Dutch TTF"), aes(x= period, y = ttf))+
+    theme_ofce()+
+  theme(legend.title = element_blank(),
+        axis.title.x = element_blank()) + 
+  ylab("indice base 100 janvier 2020") +
+    ggtitle("TRV moyens (HT) historiques", subtitle = "source : CRE")+
+  scale_x_date(date_breaks = "year", date_minor_breaks = "3 months", date_labels = "%Y")
+
+### Graphique 1 parts variables TTC selon la CRE 
+
+data_pv <- read.csv(redirect("Extra_data_BT/data/France/TRV_HT.csv")) %>% mutate(date = as.Date(date,"%d/%m/%Y")) %>% 
+  select(-gas,-gas_avec_bt,-elec,-elec_avec_bt) %>% 
+  pivot_longer(-date) %>% 
+  mutate(date= as.Date(date),
+    type = ifelse(grepl("elec",name),"electricité","gaz") ,
+         bt = ifelse(grepl("avec_bt",name),"avec bouclier tarifaire","sans bouclier tarifaire"),
+    puissance = str_extract(name,"p\\d{1}"),
+    value=ifelse(type == "electricité",value *1000,value ))
+
+data_pv %>% filter (puissance == "p6"|is.na(puissance)) %>%  ggplot(aes(x = date, y = value) ) +
+   geom_line(aes(color= type, linetype= bt))+
+  ylab("€ / MWh") +
+    ggtitle("Part variable HT des TRV", subtitle = "source : CRE")+
+  scale_x_date(date_breaks = "year", date_minor_breaks = "3 months", date_labels = "%Y") +
+  theme_ofce()+
+  theme(legend.title = element_blank(),
+        axis.title.x = element_blank()) 
+
+```
+
+
+
+# Calibration du choc 
+
+```{r}
+#| label: graphique des prix
+
+## un pour le gaz et un pour l'elec en diff relative et avec les taux de croissance
+type <- c("_CGAS","_CELE")
+data_calib_prix <- donnees_sim %>% filter(variable %in% c("PCH_CGAS","PYQ_CGAS","PWD_CGAS","PCH_CELE","PYQ_CELE","PWD_CELE")) %>% 
+  mutate(price = str_extract(variable,"^P\\w{2}"),
+         relative_difference = 100*nrjbt_fra/baseline - 100) %>% 
+  pivot_longer(cols= c(baseline, nrjbt_fra), names_to = "scenario") %>%
+  mutate(scenario = ifelse(scenario == "baseline","Scénario de référence","Scénario avec application d'un bouclier tarifaire"))
+
+data_calib_prix %>% filter(year >2019)  %>% filter(commodity == "Natural gas") %>% ggplot(aes(x = year, y = value))+
+  geom_line(aes(colour = price, linetype = scenario)) +
+  theme_ofce()
+data_calib_prix %>% filter(year >2019)  %>% filter(commodity == "Electricity") %>% ggplot(aes(x = year, y = value))+
+  geom_line(aes(colour = price, linetype = scenario)) +
+  theme_ofce()
+
+
+data_calib_prix %>% filter(year >2019)  %>% filter(commodity == "Electricity") %>% ggplot(aes(x = year, y = relative_difference))+
+  geom_line(aes(colour = price)) +
+  theme_ofce()
+data_calib_prix %>% filter(year >2019)  %>% filter(commodity == "Natural gas") %>% ggplot(aes(x = year, y = relative_difference))+
+  geom_line(aes(colour = price)) +
+  theme_ofce()
+
+```
+
+# Resultats
+
+```{r}
+#| label: tableau recap
+
+# Not for publi and to fix
+
+
+```
+
+## Impact Macro general
+
+
+```{r}
+#| label: graphique impact macro
+# Le graphique habituel C+I+G+ TB
+# data_macro <- donnees_sim %>% filter(variable %in% c("GDP", "CH", "I", "SPEND_G_VAL")) %>% 
+#   mutate(relative_difference = 100*nrjbt_fra/baseline - 100) %>% 
+#   pivot_longer(cols= c(baseline, nrjbt_fra), names_to = "scenario") %>%
+#   mutate(scenario = ifelse(scenario == "baseline","Baseline","Bouclier tarifaire"))
+# 
+# data_macro %>% filter(year>2019) %>%  ggplot(aes(x = year, y = relative_difference))+
+#   geom_line(aes(colour = variable)) +
+#   theme_ofce()
+
+label_macro <- c("PIB", "Consommation des ménages", "Investissement", "Dépense publique (en valeur)")
+simpleplot(donnees_sim,c("GDP", "CH", "I", "SPEND_G_VAL"), label_macro, 2020, 2050, titleplot = "Impact du bouclier tarifaire : PIB et ses composantes intérieures\n(en difference par rapport au baseline avec choc des prix)",scenario = "nrjbt_fra") +theme_ofce()
+
+```
+
+## Dépense publique
+
+### Coût estimé de la mesure par ThreeME
+
+```{r}
+#| label: Cout de la mesure
+
+
+donnees_sim %>% filter( year %in% c(2022, 2023) ) %>% 
+  filter(variable %in% c("BT_VAL_CELE","BT_VAL_CGAS") )%>%mutate_at(c("baseline", "nrjbt_fra"), ~.x/1000) %>% 
+  
+  ggplot() +
+  geom_col(aes(x= as.factor(year),y = nrjbt_fra, fill=variable) ) + 
+  scale_fill_manual(values=purrr::set_names(c("seagreen3","royalblue3"),c("BT_VAL_CELE","BT_VAL_CGAS")), labels = purrr::set_names(c("Électricité","Gaz"),c("BT_VAL_CELE","BT_VAL_CGAS")))+
+  theme(legend.title = element_blank(), 
+        legend.position = "bottom",  
+        axis.title.x = element_blank()) +
+      labs(
+        title= 'Coût de la mesure du "bouclier tarifaire"', 
+        caption="Simulations ThreeME",
+        x= "",#str_c("In % variation of ",s),
+        y= "Milliards €"
+      ) 
+
+
+```
+
+```{r}
+#| label: chiffrage bis
+
+data_chiffrage <- donnees_sim %>% 
+  filter(variable %in% c("BT_VAL_CELE","BT_VAL_CGAS" , "SPEND_G_VAL","BAL_G_TOT_VAL","INC_G_VAL","GDP","PGDP") ) %>% 
+  pivot_wider(id_cols = year, names_from = variable,values_from = c(baseline,nrjbt_fra)) %>% 
+  mutate(deficit_base = baseline_BAL_G_TOT_VAL / (nrjbt_fra_GDP *nrjbt_fra_PGDP) ,
+         k.deficit_diff = (nrjbt_fra_BAL_G_TOT_VAL-baseline_BAL_G_TOT_VAL )/ (nrjbt_fra_GDP *nrjbt_fra_PGDP) ,
+         k.BT_elec = -nrjbt_fra_BT_VAL_CELE/  (nrjbt_fra_GDP *nrjbt_fra_PGDP), 
+         k.BT_gas = -nrjbt_fra_BT_VAL_CGAS/  (nrjbt_fra_GDP *nrjbt_fra_PGDP),
+         k.effetsindirects =  -(baseline_BAL_G_TOT_VAL-nrjbt_fra_BAL_G_TOT_VAL - nrjbt_fra_BT_VAL_CELE - nrjbt_fra_BT_VAL_CGAS)/  (nrjbt_fra_GDP *nrjbt_fra_PGDP)
+         ) %>% select(year, starts_with("k.")) %>% rename_all(~str_remove(.x,"k\\.")) %>% pivot_longer(cols = -c(year,deficit_diff))
+
+data_chiffrage %>% filter(year> 2019) %>% 
+  ggplot(aes(x=year)) +
+  geom_col(aes( y = value, color= name, fill= name))+
+  
+  geom_point(aes(y = deficit_diff))+
+
+  scale_y_continuous(labels = label_percent())+
+  theme_ofce()
+```
+
+
+## Trajectoire de la dette publique
+
+```{r}
+
+data_dette <- donnees_sim %>% filter(variable %in% c("RDEBT_G_VAL")) %>%
+  mutate(relative_difference = 100*nrjbt_fra/baseline - 100) %>%
+  pivot_longer(cols= c(baseline, nrjbt_fra), names_to = "scenario") %>%
+  mutate(scenario = ifelse(scenario == "baseline","Baseline"," Bouclier tarifaire"))
+
+data_dette %>% filter(year>2019) %>%  ggplot(aes(x = year, y = value))+
+  geom_line(aes(colour = variable, linetype= scenario)) +
+  theme_ofce()
+data_dette %>% filter(year>2019) %>%  ggplot(aes(x = year, y = relative_difference))+
+  geom_line(aes(colour = variable)) +
+  theme_ofce()
+
+```
+
+
+## Impact inflation
+
+```{r}
+#| label: inflation
+
+
+## a retravailler
+```
+
+## Consommation énergétique
+
+```{r}
+
+simpleplot(donnees_sim,c("CHD_CGAS","CHD_CELE"), c("Gaz", "Electricité"),2020, 2050, titleplot = "Impact du bouclier tarifaire : Consommations énergétiques\n(en difference par rapport au baseline avec choc des prix)",scenario = "nrjbt_fra") +theme_ofce()
+
+simpleplot(donnees_sim,c("CHD_CGAS"), c("Gaz"),2020, 2050, titleplot = "Impact du bouclier tarifaire : Consommations énergétiques\n(en niveau)",scenario = "nrjbt_fra",transformation = "level",percent_label = FALSE) + 
+  theme_ofce()
+simpleplot(donnees_sim,c("CHD_CELE"), c("Electricite"),2020, 2050, titleplot = "Impact du bouclier tarifaire : Consommations énergétiques\n(en niveau)",scenario = "nrjbt_fra",transformation = "level",percent_label = FALSE) + 
+  theme_ofce()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

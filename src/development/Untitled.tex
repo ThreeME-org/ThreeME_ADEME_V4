@@ -1,0 +1,469 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  letterpaper,
+  DIV=11,
+  numbers=noendperiod]{scrartcl}
+
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else  
+    % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+% Make \paragraph and \subparagraph free-standing
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+\KOMAoption{captions}{tableheading}
+\makeatletter
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table des matières}
+\else
+  \newcommand\contentsname{Table des matières}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{Liste des Figures}
+\else
+  \newcommand\listfigurename{Liste des Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{Liste des Tables}
+\else
+  \newcommand\listtablename{Liste des Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{Liste des Listings}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{tcolorbox}{}{\usepackage[skins,breakable]{tcolorbox}}
+\makeatother
+\makeatletter
+\@ifundefined{shadecolor}{\definecolor{shadecolor}{rgb}{.97, .97, .97}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\makeatother
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+\babelprovide[main,import]{french}
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage[]{natbib}
+\bibliographystyle{plainnat}
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Macroeconomic impact from implementing energy shield tariffs: an assesment trough the use of a CGE model},
+  pdfauthor={Paul Malliet, Anissa Saumtally},
+  pdflang={fr},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Macroeconomic impact from implementing energy shield tariffs: an
+assesment trough the use of a CGE model}
+\author{Paul Malliet, Anissa Saumtally}
+\date{2023-06-09}
+
+\begin{document}
+\maketitle
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, interior hidden, breakable, enhanced, borderline west={3pt}{0pt}{shadecolor}, sharp corners, frame hidden]}{\end{tcolorbox}}\fi
+
+\renewcommand*\contentsname{Table des matières}
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+Russia's invasion of Ukraine in February 2022 triggered a major energy
+crisis for European Union countries that started in September 2021 in
+the wake of the post-COVID recovery of the international demand .
+Between December 2020 and December 2021, the import price for energy in
+the euro area already more than doubled, spurring inflation across
+European countries. Regarding the french situation, From 2021Q2 and
+2022Q2, energy prices' increase contributed to 3.1 points of percentages
+(pp) out of a total of 5.3\% of inflation in France
+\citep{bourgeois_alexandre_flambee_2022}.
+
+If the reaction was quick to condemn Russia, through the ban on Russian
+trade, the dramatic rise of energy prices has been conducted to well as
+intervention policies to moderate the impact of this rise on households
+and businesses \citep{cae2023b} as is the case for France with the use
+of energy shield tariff from October 2021. The operating principle of
+the energy shield is based on a state subsidy between a capped consumer
+price and the supplier's price according to market conditions. Thus,
+while it guarantees the targeted level of inflation, its cost to the
+public authorities depends first and foremost on market prices. Among
+the measures implemented by European countries, the choice made by
+France of a policy of maintaining price levels is quite distinctive
+\citep{Bruegel} since it is the sole country to have adopted these
+measures, transfers and tax reductions being more often used by the
+other member states.
+
+Forecasting in the PLF issue an estimated cost for the policy for 2022
+and 2023 to respectively XX and XX
+
+This study aims at understanding the macroeconomic effects from energy
+shield tariffs through an explicit representation of the price structure
+from wholesale market prices to consumer prices. In the first section,
+we present the methodology used to assess the effects from implementing
+shield tariff, section 2 presents the data, Section 3 we present the
+results, that we discussed in the section 4. Section 5 concludes.
+
+\hypertarget{modeling-framework-and-scenarios}{%
+\section{Modeling Framework and
+Scenarios}\label{modeling-framework-and-scenarios}}
+
+\hypertarget{threeme-model}{%
+\subsection{ThreeME model}\label{threeme-model}}
+
+ThreeME is a country-level open source Computable General Equilibrium
+model (CGE) originally developed to support policymakers in the design
+and evaluation of decarbonization pathways in France (Callonnec
+et~al.~2013a, b, 2016).3 Since its first release, it has also been
+adapted to Mexico (Landa et~al.~2016), Indonesia (Malliet et~al.~2016)
+and the Netherlands (Bulavskaya and Reynès 2018). ThreeME is
+specifically designed to evaluate the short-, medium- and long-term
+impact of environmental and energy policies at the macroeconomic and
+sectoral levels. To this end, the model combines several important
+features:
+
+\begin{itemize}
+\tightlist
+\item
+  Its sectoral disaggregation allows for analyzing the transfer of
+  activities from one sector to another, particularly in terms of
+  employment, investment, energy consumption or balance of trade.
+\item
+  The highly detailed representation of energy flows through the economy
+  allows for analyzing the consumption behavior of economic agents with
+  respect to energy. Sectors can arbitrage between capital and energy
+  when the relative price of energy increases, and substitute between
+  energy vectors. Consumers can substitute between energy vectors,
+  transportation modes or consumption goods.
+\end{itemize}
+
+As a CGE model, ThreeME fully considers feedbacks between supply and
+demand (see \citet{fig1}). Demand (consumption and investment) drives
+the supply (production). Symmetrically supply drives demand through the
+incomes generated by the production factors (labor, capital, energy
+products and materials). Compared to bottom-up energy models such as
+MARKAL \citep{markal1981} or TIMES {[}loulou2005documentation{]},
+ThreeME goes beyond the mere description of the sectoral and
+technological dimensions by integrating these within a comprehensive
+macroeconomic model. ThreeME is a neo-Keynesian model. Compared to
+standard Walrasian-type CGEs that are largely supply driven, prices do
+not adjust instantaneously to clear markets. Instead the model is
+dynamic, and prices and quantities adjust slowly. Producers adjusts
+their supply to the demand. This has the advantage to allow for
+situations of market disequilibria (in particular the presence of
+involuntary unemployment). This framework is particularly well suited
+for policy analysis. In addition to providing information about the long
+term, it allows for analyzing transition phases over the short and
+medium terms, which is especially relevant when assessing the
+implementation of climate and energy policies.
+
+\begin{figure}
+
+{\centering \includegraphics{figures/Fig1.pdf}
+
+}
+
+\caption{``Schematic representation of the model ThreeME''}
+
+\end{figure}
+
+Fig 1 demonstrates the methodological framework of ThreeME. This model
+maximizes the utility of each agent in period t subject to several
+constraints, such as market clearing (e.g., demand is equal to supply).
+The model is recursive dynamic (i.e., myopic), which means it first
+optimizes period \(t\) and then uses the endogenous results (e.g.,
+prices, wages, and production levels) for optimizing the next
+period(i.e., \(t + 1\)). After the model optimizes the last period
+(determined by the user), it provides the projection of the endogenous
+parameters, such as prices, household income, GDP, and employment rate,
+over the whole horizon. Moreover, ThreeME requires several exogenous
+parameters: the social accounting matrix (SAM) of the base year,
+population growth forecast, economic growth forecast, and substitution
+elasticities. SAM is a comprehensive and economy-wide database recording
+data about all transactions between economic agents in a specific
+economy for a specific period {[}kehoe1996social{]}. The population and
+economic growth forecasts determine labor availability and productivity
+projection. Elasticities define the substitution proportion of
+production factors in production functions. In a CES function, the
+substitution between production factors can either follow the linear,
+fixed-proportion (i.e., Leontief) or CobbDouglas production functions.
+The linear production function represents a production process in which
+the inputs are perfect substitutes (e. g., labor can be substituted
+completely with capital). The fixed proportion production function
+reflects a production process in which the inputs are required in fixed
+proportions. In the Cobb-Douglas production function, the inputs can be
+substituted,if not perfectly. ThreeME assumes a nested CES function
+\citep{reynes2019cobb} to describe the substitution between production
+factors. This CES production function requires four inputs, KLEM,
+capital (K), labor (L), energy (E), and material (M). The production
+factors (KLEM) can be substituted with each other. The Elasticity of
+Substitution (ES) parameters determines the substitution level between
+each input. Each pair (i.e., K-E, KE-L, KEL-M) has its own ES, which is
+explained further in the description of the model
+\citep{reynes2021threeme}. An essential characteristic of a standard
+neoKeynesian macroeconomic AS-AD (aggregated supply and demand) model is
+that demand determines supply. The demand comprises (intermediate and
+final) consumption, investment and export whereas the supply comes from
+imports and domestic production. As feedback with eventually some lags,
+supply affects demand through several mechanisms. The level of
+production determines the quantity of inputs used by the firms and thus
+the quantity of their intermediate consumption and investment which are
+two components of the demand. It determines the level of employment as
+well and consequently the household final consumption. Another effect of
+employment on demand goes through the wage settingvia the
+unemploymentrate which is also determinedby the active population. The
+active population is mainly determined by exogenous factors such as
+demography but also by endogenous factors: because of discouraged worker
+effects, the unemployment rate may affect the labor participation rate
+and thus the active population
+
+\hypertarget{integration-of-the-shield-tariff-mechanism}{%
+\subsection{Integration of the Shield tariff
+mechanism}\label{integration-of-the-shield-tariff-mechanism}}
+
+The introduction of the Energy Shield Tariff (EST) into the model
+dynamics implies to change the equations setting the relation between a
+wholesale gross price (equivalently producer price) and the final
+consumer price. In the generic model, the growth rate of consumer price
+depends on the growth rate of production prices, the applied margin and
+taxes such as:
+
+\[ 
+\Delta(\log(P^{CH} = \Delta(\log(P^Y + MARGIN + NTAX))
+\]
+
+\hypertarget{data}{%
+\section{Data}\label{data}}
+
+\hypertarget{the-french-system-for-regulation-of-energy-prices-titre-nul-a-changer}{%
+\subsection{The French system for regulation of energy prices {[}titre
+nul a
+changer{]}}\label{the-french-system-for-regulation-of-energy-prices-titre-nul-a-changer}}
+
+Despite being an open market, Electricity and gas consumers in France
+have the option between a market price and a regulated price. Previously
+a public monopoly, the supply of gas and electricity opened to newcomers
+in xxxx, making the market supposeldy competitive. The regulated price
+option made available to consumers is sold by the historical supplier
+only in the obj. Market options on the hand tend to be
+
+\begin{itemize}
+\tightlist
+\item
+\end{itemize}
+
+-As a result, energy consumer prices in France fluctuations tend to be
+overall quite moderate. The passthrough of the variations of wholesale
+prices is in fact one the lowest in Europe, especially for electricity
+
+\hypertarget{regulating-energy-prices-in-times-of-crisis-the-energy-price-shield}{%
+\subsection{Regulating energy prices in times of crisis : the energy
+price
+shield}\label{regulating-energy-prices-in-times-of-crisis-the-energy-price-shield}}
+
+Towards the second half of 2021, wholesale gas prices experienced some
+high peaks (variations of magitude x 10 on daily averages) after
+remaining at record low points in 2020 in the midst of the Covid-19
+pandemic. As economies were restarting fast especially in Asia, and
+Europe was experiencing a cold winter, the tension of the demand on
+natural gas lead to a first severe increase in wholesale prices. This
+energy inflation crisis only worsened in 2022 due to the second Russian
+invasion of Ukraine on February 24th 2022. As an embargo on Russian
+gas,was agreed upon by the EU, albeit very difficultly so due to the
+high dependence of some member states, the cost of alternatives (mainly
+liquefied gas (LPG)) increased all the more. On the Dutch TTF market,
+the reference point for wholesale prices in Europe, the intraday trading
+prices reached temporary highs above the 1000 euros mark
+
+For France, as the gas regulated prices are evaluated monthly, the usual
+method of calculating prices by the CRE would have integrated these
+variations, and consumer prices would have followed suit. This marked
+the beginning of the government's intervention for gas prices. The
+initial measure of the \textbf{bouclier tarifaire}, or price shield,
+consisted in freezing the regulated tariff for household consumers on
+these types of contracts starting the end of the year 2021 and to be
+continued in 2022. For electricity prices, unaffected in 2021, the
+regulated price increase in 2022 would be limited to 4 \% instead of an
+estimated increase of 30 \%. For 2023, this price increase cap was fixed
+at 15 \% for both household gas\footnote{For gas, this price increase is
+  initially limited to the first half of the year. Given the current
+  wholesale gas prices, it is unlikely to be extended to the rest of the
+  year.} and electricity. In practice, this measure aims to cap the
+price, all taxes included, of the kilowatt-hour. There is in theory no
+condition made on the quantity consumed. It should be noted however that
+the government also ran a campaign in parallel encouraging energy
+savings during these time, citing risks of shortages. In 2022, the
+consumption of electricity and gas did decrease despite the relatively
+low price surge
+
+In order to limit the impact on suppliers, this cap is reached first by
+a removal of some taxes applicable to the consumer for those products
+(the TICFE {[}acronym def{]}). To complete this, the CRE would then
+calculate a price that will reach the target by reducing the energy
+supplier compensation part of the commodity price. They also provide a
+theoretical price that would have been implemented without a price cap.
+The government will then subsidise the difference directly to supplier.
+When evaluating the total cost of this policy, it is the tax-rebate and
+the subsidy that are added. Figure xx below summarises the average
+theoretical and applicable prices; on this graph, the difference between
+dotted and solid lines represent the cost of the measure (not including
+tax rebates) for the governement.
+
+The latest estimates by the French government of this policy alone in
+the Stability Program evaluated the cost in 2022 at xx billions euros
+for gas and xx billions euros for electricity. For 2023 as wholesale
+pricing are decreasing sharply (in may they reached levels below the
+2021 average), the cost of the policy is so far estimated at xx for
+electricity and xx for gas. We note that the high estimated cost for
+electricity is mostly due to the design of the pricing system. As
+mentioned, regulated electricity prices are calculated yearly by the
+CRE, with minor adjustments at the second half of the year. The bulk of
+the theoretical price increase (which drives the cost of the measure) is
+likely due to the supplier compensation that integrates a make-up for
+the losses in the previous year due to unforeseen market prices
+increase.
+
+Cost-mitigation for consumers also included some targeted measures such
+as direct-to consumer subsidies for low-income households (\emph{chèque
+énergie}), the cost of which is relatively minimal in comparison with
+the price shield measure. In this paper we also do not consider the
+increase in petrol prices, though it should be noted that a temporary
+price reduction on petrol subsidised by the governement was also put in
+place in 2022, which benefited all consumers for any amount consumed.
+
+\hypertarget{calibrating-threeme-and-integrating-the-cre-data}{%
+\subsection{Calibrating ThreeME and integrating the CRE
+data}\label{calibrating-threeme-and-integrating-the-cre-data}}
+
+ThreeME model for France has been calibraed using national accounts data
+available through Eurostat. The data version used in this paper is based
+at the year 2015. After the base year, the only shock integrated is
+world wide energy prices starting 2021 to represent and isolate the
+observed price dynamics and allow for an analysis independent of any
+other variations in the economy. In order to model the energy consumer
+price energy in France, an additional modification is made on consumer
+prices to reflect the price regulation structure mentioned above. All
+other variables thus evolve using ThreeME's steady state specifications
+for France {[}ref{]}.
+
+\hypertarget{results}{%
+\section{Results}\label{results}}
+
+\hypertarget{discussion}{%
+\section{Discussion}\label{discussion}}
+
+\hypertarget{conclusion}{%
+\section{Conclusion}\label{conclusion}}
+
+
+
+\end{document}

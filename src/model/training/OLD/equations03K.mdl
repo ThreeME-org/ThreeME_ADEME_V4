@@ -1,0 +1,17 @@
+Y = CH + I + G 
+
+p_n * Y = c_Y * Y * (1 + m_up)
+
+c_Y * Y = w * L_n + p * (delta + r) * K_n
+
+CH_n * p = (1 - sigma) * (w * L + p * r * K + c_Y * Y * m_up)
+
+L_n = Y / PROD_L * Phi_L ^ rho * (w 		      / c_Y / PROD_L) ^ (-rho)
+
+K_n = Y / PROD_K * Phi_K ^ rho * (p * (delta + r) / c_Y / PROD_K) ^ (-rho)
+
+I = d(K) + delta * K{-1}				## If Keynes
+
+log(|V|) = ADJUST1_|V| * log(|V|_n) + (1 - ADJUST1_|V|) * (log(|V|{-1}) + d(log(|V|_e))) where V in p CH L K
+
+d(log(|V|_e)) = ADJUST2_|V| * d(log(|V|_e{-1})) + ADJUST3_|V| * d(log(|V|{-1})) + ADJUST4_|V| * d(log(|V|_n))  where V in  p CH L K

@@ -1,0 +1,32 @@
+## Missing in calibration from EXIOBASE !!!
+# Assumption: phi_PROP_INC_G := (1 - phi_PROP_INC_H)*0.1
+# This lead to: 
+PROP_INC_G_VAL := 2649.951698 * (1 + gr_nomi) ^ (@year - %baseyear)
+CH_TRSP[ct] := CH[ct]
+EMS_X[ghg,c] := 0.0 where ghg in %list_GHG \ CO2
+##############################################################################
+
+### Population growth rate
+@over GR_POP    := 0.0237 # Growth rate average 2015-2019 (STATEC)
+
+### Growth rate of technical progress for capital, labor, energy and material
+@over GR_PROG[L] := 0.019 # Growth rate average 2015-2019 (STATEC)
+
+### Risk premium
+@over RISKPREM := (GR_NOMI - 0.010488571)    # -> R = 1.048 % in 2022 (OECD hypothesis)
+
+# Elasticities
+
+# Crude oil is not subtitutable with other energy commodity. In practice, this concern only the sector "Production of refined oil" (soil)
+#@over ES_NRJ[coil, ce, s] := 0.0
+#@over ES_NRJ[ce, coil, s] := 0.0
+
+# Natural gas is not subtitutable with other energy commodity for the sector "Distribution of natural gas" (sgas)
+
+#@over ES_NRJ[cgas, ce, sgas] := 0.0
+#@over ES_NRJ[ce, cgas, sgas] := 0.0
+
+# No substitution between transport and heating fuels
+#@over ES_NRJ[cfut, cfuh, s] := 0.0
+#@over ES_NRJ[cfuh, cfut, s] := 0.0
+

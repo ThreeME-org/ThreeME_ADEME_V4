@@ -1,0 +1,81 @@
+### IGNORE COMPILER FILES
+# DynaMo intermediate files
+src/compiler/dynamo.cfg
+src/compiler/calib*.csv
+src/compiler/model.prg
+
+# Ignore temporary files of the compiler_py
+in.txt
+out.txt.prg
+dependency.graphml
+
+src/EViews/series_eviews.prg
+src/EViews/model_eviews.prg
+src/compiler_py/_tmp_all_vars.csv
+
+src/model/data_files.mdl
+src/model/model_files.mdl
+
+### IGNORE EVIEWS FILES
+# Ignore csv temporary files for EViews simulation
+data/temp/csv/*.csv
+
+# Ignore back-up EViews files
+*.~rg
+*.~f1
+snapshot*
+
+# Ignore Eviews result files
+results/*/*.wf1
+results/*/*.json
+
+### IGNORE TEMPORARY DATABASE FILES
+data/output/nrjbt_fra_c28_s32_sectors.rds
+data/output/nrjbt_fra_c28_s32_commodities_sectors.rds
+data/output/nrjbt_fra_c28_s32_commodities.rds
+
+# Ignore results from scenarii calibration
+# (Could be traced to track changes in scenarii calibration)
+configuration/scenarii_calib/*.csv
+# configuration/scenarii_calib/summary_of_scenarii.xlsx
+
+### IGNORE PROJECT FILES (R, Sublime, etc.)
+.Rhistory
+.Rproj.user
+.RData
+%LOCALAPPDATA%/
+
+*.sublime-project
+*.sublime-workspace
+
+
+### IGNORE LOG FILES
+# Ignore log files from the compiler to Latex
+doc/*.aux
+doc/*.log
+
+# Useless cpp files for the solver
+src/R_solver_files/solver_R/*.cpp
+
+### IGNORE QUARTO FILES
+# Ingore all reder output (html, graph, etc)
+results/report/quarto_render/
+
+# Tempory file used for render (Quarto)
+# Ignore all in subdirectory figure-html
+**/figure-html/*.*
+# Ignore all in all subdirectories of the subdirectory libs
+**/libs/**/*.*
+/.quarto/
+
+
+### IGNORE SYSTEM FILES
+# Desktop Services Store (MAC)
+.DS_Store
+
+# Directory that can not be deleted (WINDOWS)
+# Line below can be deleted (when repository recloned): Bug windows Fred computer (file nul can not be deleted)
+results/eviews/report/markdown/training/nul
+results/report/render/nul
+results/report/markdown/training/nul
+

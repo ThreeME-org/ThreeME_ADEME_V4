@@ -1,0 +1,224 @@
+---
+title: "Sensitivity Shock G"
+author: "ThreeME team"
+format: revealjs
+params:
+  startyear: 2020
+  endyear: 2100
+  template_default: ofce
+  classification: c0_s0
+  version_publi: false
+  recreate_price_data: true
+  project_name: sensitivity_shock_g
+---
+
+
+```{r setup, include=FALSE}
+#| label: setup
+#| include: false
+
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+
+path_main <-  stringr::str_remove(getwd(), "results/report/markdown/training")
+
+redirect <- function(normal_path, redirect = path_main){
+  if(is.null(redirect)){
+    res <- file.path(normal_path)  
+  }else{
+    res <- file.path(paste0(redirect), normal_path)  
+  }
+  
+  res |>  normalizePath()
+}
+
+
+startyear <- params$startyear
+endyear <- params$endyear
+template_default <- params$template_default
+classification <- params$classification
+project_name <- params$project_name
+
+
+library(glue)
+source(redirect("src/functions.R"))
+purrr::map(list.files(redirect("/src/functions_src/")),
+           ~source(file.path(redirect("/src/functions_src/"),.x)))
+library(Unicode)
+library(plotly)
+
+## Options
+
+options(ofce.base_family = "Arial")
+
+
+## Diverse imports
+data_full<-readRDS(file = redirect(file.path("data","output",str_c(project_name,"_",classification,".rds"))))
+```
+
+
+# Sensitivity analysis
+
+## Reference values
+
+
+<center>
+
+![](pictures/Reference_values_sensitivity_analysis.png){width=70%}
+
+<center>
+
+## Simulation results
+
+```{r low substitution factors}
+
+variable_macro <- c( "Y", "CH", "I", "G")
+label_macro <- c("GDP", "Households consumption", "Investment", "Public spending")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components, ref susbstitution
+(in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 ,scenario = "shock_g_0.5_tra", name_baseline = "baseline_0.5_tra")  + theme(text = element_text(size = 9))
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components, low substitution
+(in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 ,scenario = "shock_g_0.1_tra", name_baseline = "baseline_0.1_tra")  + theme(text = element_text(size = 9))
+
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+macro
+
+```
+
+
+
+```{r Exit Knit: rest of the markdown ignored}
+knit_exit()
+```
+
+```{r 	High null elasticity Taylor function, echo=FALSE, include=FALSE}
+
+variable_macro <- c( "Y", "CH", "I", "G")
+label_macro <- c("GDP", "Households consumption", "Investment", "Public spending")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components, high elasticity p null U
+(in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 ,scenario = "shock_g_10_0_tra", name_baseline = "baseline_1.5_0.5_tra")  + theme(text = element_text(size = 9))
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components, nul elasticity p high U
+(in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 ,scenario = "shock_g_0_10_tra", name_baseline = "baseline_0_10_tra")  + theme(text = element_text(size = 9))
+
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+macro
+```
+
+
+
+```{r high substitution factors, echo= FALSE, include=FALSE}
+
+variable_macro <- c( "Y", "CH", "I", "G")
+label_macro <- c("GDP", "Households consumption", "Investment", "Public spending")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components, ref susbstitution
+(in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 ,scenario = "shock_g_0.5_tra", name_baseline = "baseline_0.5_tra")  + theme(text = element_text(size = 9))
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components, high substitution
+(in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 ,scenario = "shock_g_10_tra", name_baseline = "baseline_10_tra")  + theme(text = element_text(size = 9))
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+macro
+```
+
+
+```{r No propensity to save to the interest rate, echo=FALSE, include=FALSE}
+
+variable_macro <- c( "Y", "CH", "I", "G")
+label_macro <- c("GDP", "Households consumption", "Investment", "Public spending")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components, ref elasticity
+(in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 ,scenario = "shock_g_1_1_1.5_0_tra", name_baseline = "baseline_1_1_1.5_0_tra")  + theme(text = element_text(size = 9))
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components, ref elas null  
+(in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 ,scenario = "shock_g_0_0_0_0_tra", name_baseline = "baseline_0_0_0_0_tra")  + theme(text = element_text(size = 9))
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+macro
+
+```
+
+
+```{r interest rate}
+variable_macro <- c( "Y", "CH", "I", "G")
+label_macro <- c("GDP", "Households consumption", "Investment", "Public spending")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "diff", titleplot = " GDP and its components, ref elasticity
+(in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 ,scenario = "shock_g_1_0_tra", name_baseline = "baseline_1_0_tra")  + theme(text = element_text(size = 9))
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "diff", titleplot = " GDP and its components, high elasticity  
+(in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 ,scenario = "shock_g_100_100_tra", name_baseline = "baseline_100_100_tra")  + theme(text = element_text(size = 9))
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+macro
+```
+
+
+
+```{r 	No elasticity Taylor function, echo=FALSE, include=FALSE}
+
+variable_macro <- c( "Y", "CH", "I", "G")
+label_macro <- c("GDP", "Households consumption", "Investment", "Public spending")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components, ref elasticity
+(in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 ,scenario = "shock_g_1.5_0.5_tra", name_baseline = "baseline_1.5_0.5_tra")  + theme(text = element_text(size = 9))
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components, nul elasticity both
+(in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 ,scenario = "shock_g_0_0_tra", name_baseline = "baseline_0_0_tra")  + theme(text = element_text(size = 9))
+
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+macro
+```
+

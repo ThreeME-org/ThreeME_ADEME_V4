@@ -1,0 +1,7 @@
+# Set at zero missing data for the simplified energy balance
+# In this case equality between gross and net production : YG_toe = Y_toe
+
+@over DLY_toe[c, s] := 0
+@over AC_toe[c, s]  := 0
+@over DLM_toe[c, s] := 0 
+@over DLM_toe[c] := 0 

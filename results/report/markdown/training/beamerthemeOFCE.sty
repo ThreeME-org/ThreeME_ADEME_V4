@@ -1,0 +1,34 @@
+\mode<presentation>
+
+% Requirement
+\RequirePackage{tikz}
+\RequirePackage{ragged2e}
+\RequirePackage{tcolorbox}
+
+% Settings
+\useinnertheme{ofce}
+\useoutertheme{ofce}
+\usecolortheme{ofce}
+\definecolor{scporouge}{RGB}{205, 92 , 92}
+\definecolor{scporouge_light}{RGB}{225, 160 , 160}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{blocks}[rounded][shadow=true]  
+\setbeamerfont{normal text}{size*={16}{24},family=\arial,series=\mdseries}
+
+\apptocmd{\frame}{}{\justifying}{}
+
+%\setbeamertemplate{items}[square]
+\setbeamercolor{local structure}{fg=scporouge}
+\setbeamertemplate{itemize item}{\color{black}$\bullet$}
+\setbeamertemplate{itemize subitem}{\color{black}$\ast$}
+\setbeamertemplate{itemize subsubitem}{\color{black}$-$}
+
+\newtcolorbox{ofce_box}[1]
+{colback=scporouge_light,colframe=scporouge,fonttitle=\bfseries,title=#1}
+
+\AtBeginEnvironment{theorem}{%
+  \setbeamercolor{block title}{fg=black,bg=scporouge!40}
+}
+
+\mode<all>

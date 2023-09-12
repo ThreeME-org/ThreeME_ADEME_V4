@@ -1,0 +1,822 @@
+---
+title: "Modules 3: a small neo-keynesian model"
+subtitle: "Scenario: `r params$scenario_to_analyse`"
+author: "ThreeME team"
+date: "`r format(Sys.Date(), '%d %B %y')`"
+output: 
+  revealjs:
+    theme: sandstone
+   # highlight: monochrome
+  #  toc: true
+   # number_sections: true
+    #toc_depth: 3
+params:
+  startyear: 2020
+  endyear: 2035
+  project_name: "multi_shock"
+  project_title: "Simulation with small general equilibrium model"
+  scenario_to_analyse: g
+  classification: c0_s0
+  compil: compil
+  Rsolver: Rsolver
+  githubrepo: ThreeME-R-training
+  template_default: ofce
+  
+---
+
+```{r setup, include=FALSE}
+
+work.dir <- stringr::str_remove(getwd(),"/results/report/markdown/training")
+knitr::opts_knit$set(root.dir = work.dir)
+
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	results = "hide"
+)
+```
+
+```{r Plots default options}
+
+startyear <- params$startyear
+endyear <- params$endyear
+scenario_to_analyse <- params$scenario_to_analyse
+project_name <- params$project_name
+classification <- params$classification
+template_default <- params$template_default
+githubrepo <- params$githubrepo
+
+## SHOULD BE DELETED WHEN OPTION DE SIMPLEPLOT ERMEETH CHANGES:
+# scenario = scenario_to_analyse (and not scenario_name)
+scenario_name <- scenario_to_analyse
+
+```
+
+
+```{r Required packages, message=FALSE, warning=FALSE}
+
+# Load functions
+source("src/functions.R")
+
+
+```
+
+
+```{r load data and bridges}
+
+data_full<-readRDS(file = file.path("data","output", paste0(project_name,".rds")))
+
+
+```
+
+# Walrasian vs Keynesian macroeconomic closure (revision)
+
+
+## Walrasian model: equations (revision)
+
+
+The model is based on a set of **7 equations** with **7 endogenous variables**: 
+
+-   <span style="color: blue;">Investment</span>      
+  \begin{equation}
+     I = Y - CH - G  
+  \end{equation}
+-  <span style="color: blue;">Production</span>      
+  \begin{equation}
+Y . p = w . L + p . \left( \delta + r \right) . K
+\end{equation}
+-  <span style="color: blue;">Households'consumption</span>      
+  \begin{equation}
+CH = \left( 1 - \sigma \right) . \frac{\left( w . L + p . r . K \right)}{p}
+\end{equation}
+-  <span style="color: blue;">Wage </span>      
+  \begin{equation}
+w + L = \left( \frac{Y}{PROG^{L}} \right) . \left( \left( \varphi^{L} \right) ^ {\rho} \right) . \left( \frac{w}{\left( p . PROG^{L} \right)} \right) ^ {\left( -\rho \right)}  + w
+\end{equation}
+-  <span style="color: blue;">Interest rate </span>      
+  \begin{equation}
+r + K = \left( \frac{Y}{PROG^{K}} \right) . \left( \left( \varphi^{K} \right) ^ {\rho} \right) . \left( \frac{\left( \delta + r \right)}{PROG^{K}} \right) ^ {\left( -\rho \right)} + r
+\end{equation}
+-  <span style="color: blue;">Capital (from accumulation equation)</span>      
+  \begin{equation}
+\varDelta \left(K\right) = I_{t-1} - \delta . K_{t-1}
+\end{equation}
+- <span style="color: blue;">Price</span>      
+  \begin{equation}
+p=1
+\end{equation}
+
+
+- The price equation defines the price as *numéraire* (equal to 1). The price can therefore be seen as an **exogenous variable**. The model could be written as a set of **6 equations** with **6 endogenous variables**.
+
+
+## Walrasian model: main results (revision)
+
+
+- **Endogenous variables**: $Y$, $I$, $CH$, $K$, $w$, $r$           
+- **Exogenous variables**: $G$, $L$, $p$, $PROG^{L}$, $PROG^{K}$ 
+  - **Parameters**: $\rho$, $\varphi^{L}$, $\varphi^{K}$, $\delta$, $\sigma$
+- Production is determined by the "price equation" because the price is set to 1 (*numéraire*) and is therefore an exogenous variable.
+- Investment is determined endogenously as the difference between production and (private and public) consumption
+- Labor is exogenous so that the "labor demand equation" does not determine labor but the wage
+- The equation that determines capital is the one of capital accumulation, so the "capital demand equation" derived from profit maximization does not determine capital but the interest rate
+- In the Walrasian framework, savings define investment, wages and interest rate adjust to clear the capital and labor markets
+
+*Note*: we consider a **steady state economy** (with growth rate = 0%)
+
+##  Keynesian model : equations (revision)
+
+The model is based on a set of **6 equations** with **6 endogenous variables**:
+
+-   <span style="color: blue;">Production</span> 
+
+\begin{equation}
+Y = CH + I + G
+\end{equation}
+
+-   <span style="color: blue;">Price</span> 
+
+\begin{equation}
+p . Y = w . L + p . \left( \delta + r \right) . K^{n}
+\end{equation}
+
+-   <span style="color: blue;">Households consumption</span> 
+
+\begin{equation}
+CH = \left( 1 - \sigma \right) . \frac{\left( w . L + p . r . K \right)}{p}
+\end{equation}
+
+-   <span style="color: blue;">Labor</span> 
+
+\begin{equation}
+L = \left( \frac{Y}{PROG^{L}} \right) . \left( \left( \varphi^{L} \right) ^ {\rho} \right) . \left( \frac{w}{\left( p . PROG^{L} \right)} \right) ^ {\left( -\rho \right)}
+\end{equation}
+
+-   <span style="color: blue;">Capital (notional level from cost minimization of a CES function ) </span> 
+
+\begin{equation}
+K^{n} = \left( \frac{Y}{PROG^{K}} \right) . \left( \left( \varphi^{K} \right) ^ {\rho} \right) . \left( \frac{\left( \delta + r \right)}{PROG^{K}} \right) ^ {\left( -\rho \right)}
+\end{equation}
+
+-   <span style="color: blue;">Capital (effective level from capital accumulation)</span> 
+
+\begin{equation}
+\varDelta \left(K\right) = I_{t-1} - \delta . K_{t-1}
+\end{equation}
+
+-   <span style="color: blue;">Investment</span> 
+
+\begin{equation}
+\varDelta \left(\operatorname{log} I\right) = \varDelta \left(\operatorname{log} K^{n}_{t-1}\right) + \alpha^{I,Kn} . \operatorname{log} \frac{K^{n}_{t-1}}{K_{t-1}}
+\end{equation}
+
+##  Keynesian model : results (revision)
+
+- In the Keynesian closure, the wage and the interest rate are exogenous whereas labor and capital are endogenous 
+- To represent the slow adjustment of price and quantities, it is convenient to distinguish between notional and effective level  
+- The notional levels are mentioned with the underscore (superscript) “n” in the model. They refer to the level of price, consumption, labor and capital that the producer and the consumer would like to reach immediately if there were no adjustment constraints.
+
+
+## Introduction to a new macroeconomic model: the Neo-Keynesian model
+
+| Walrasian model                                 | Neo-Keynesian model | 
+| ---------------                                 | --------------- | 
+| Prices and quantities adjust instantaneously    | Slow adjustment of prices and quantities | 
+| Perfect flexibility of price and quantities     | Rigidity of price and quantities | 
+| Law of Say: production creates its own demand   | Demand determines supply, supply affects demand through different mechanisms | 
+| Supply is at full capacity                      | The **actual** stock of capital may differ from the **optimal** one | 
+| Increasing production requires to increase the stock of capital    | No full utilization of capacity (around 80%). Possibility to increase Y without increasing the stock of capital | 
+| After a shock, a new equilibrium is found instantaneously | After a shock, time to adjust to the new equilibrium levels | 
+
+
+## Two versions of the Neo-Keynesian model
+
+We consider two versions of the model: 
+
+- **Close economy** : The model is found in <span style="color: green;"> `r file.path("Github", githubrepo, "src", "model", "training", "03.1-eq.mdl")`</span> 
+
+- **Open economy** : The model is found in <span style="color: green;"> `r file.path("Github", githubrepo, "src", "model", "training", "03.2-eq.mdl")`</span>
+
+There are only small differences between both models, to which we will come back later. But first, let's start by exploring the set of equations in the model considering a **close economy**.
+
+
+
+
+
+## Models and corresponding documentation
+
+| Model | Description                                        | Corresponding chapter in the manual |
+| ------| ---------------                                    | --------------- |
+| 1.1   | Model with 1 equation 1 endogenous variable        | - | 
+| 1.2   | Model with 3 equations 3 endogenous variables      | - |
+| 2.0   | Main equations of CGE models (**not solvable**)    | Chapter 1: Itroduction to CGE models |
+| 2.1   | Walrasian closure                                  | Chapter 2: A simple Walras CGE model |
+| 2.2   | Keynesian closure                                  | Chapter 3: A simple Keynesian CGE model |
+| 3.1   | Neo-Keynesian closure (**close** economy)         | Chapter 4: A simple Neo-Keynesian model |
+| 3.2   | Neo-Keynesian closure (**open** economy)           | Chapter 4: A simple Neo-Keynesian model |
+| -     | ThreeME c4xs4                                      | Upcoming |
+| -     | ThreeME c8xs8                                      | Upcoming |
+
+
+
+
+# Neo-Keynesian closure: close economy
+
+## Introduction
+
+The close economy model consists of a set of equations regarding:
+
+- Producers    
+- Consumers      
+- Government and central bank        
+- Labor market         
+- Adjustments        
+
+## Producers: main equations
+
+- **Production**
+
+\begin{equation}
+Y = CH + I + G
+\end{equation}
+
+
+- **Notional demand of factors**
+
+\begin{equation}
+L^{n} = \left( \frac{Y}{PROG^{L}} \right) . \left( \left( \varphi^{L} \right) ^ {\rho^{KL}} \right) . \left( \frac{\left( \frac{w}{PROG^{L}} \right)}{c^{Y}} \right) ^ {\left( -\rho^{KL} \right)}
+\end{equation}
+
+
+
+\begin{equation}
+K^{n} = \left( \frac{Y}{PROG^{K}} \right) . \left( \left( \varphi^{K} \right) ^ {\rho^{KL}} \right) . \left( \frac{\left( \frac{c^{K}}{PROG^{K}} \right)}{c^{Y}} \right) ^ {\left( -\rho^{KL} \right)}
+\end{equation}
+
+- **Investment**
+
+\begin{equation}
+\varDelta \left(\operatorname{log} I\right) = \alpha^{I,Kn} . \varDelta \left(\operatorname{log} K^{n}\right) + \alpha^{I,I1} . \varDelta \left(\operatorname{log} I_{t-1}\right) + \alpha^{I,KnK1} . \operatorname{log} \frac{K^{n}_{t-1}}{K_{t-1}} - \alpha^{I,rK} . \varDelta \left(r - \frac{\varDelta \left(p\right)}{p_{t-1}}\right)
+\end{equation}
+
+
+
+- **Capital stock**
+\begin{equation}
+K = K_{t-1} \; \left( 1 - \delta \right) + I_{t-1}
+\end{equation}
+
+- **Notional production price**
+\begin{equation}
+p^{n} . Y = c^{Y} . Y . \left( 1 + m^{up} + dm^{up} \right)
+\end{equation}
+
+- **Notional mark-up**
+\begin{equation}
+\varDelta \left(\operatorname{log} \left(1 + m^{up,n}\right)\right) = \rho^{mupn,Ln} . \varDelta \left(\operatorname{log} \frac{L^{n}}{L}\right) + \rho^{mupn,Kn} . \varDelta \left(\operatorname{log} \frac{K^{n}}{K}\right)
+\end{equation}
+
+- **Notional unit cost production cost**
+\begin{equation}
+c^{Y} . Y = w . L^{n} + c^{K} . K^{n}
+\end{equation}
+
+- **Capital cost**
+\begin{equation}
+c^{K} . K = p^{K}_{t-1} \; K_{t-1} \; \left( \delta + r^{K}_{t-1} \right)
+\end{equation}
+
+- **Average price of the accumulated capital stock**
+\begin{equation}
+p^{K} . K = p^{K}_{t-1} \; K_{t-1} \; \left( 1 - \delta \right) + p_{t-1} \; I_{t-1}
+\end{equation}
+
+- **Average interest rate paid on the debt**
+\begin{equation}
+r^{K} . p^{K} . K = r^{K}_{t-1} \; p^{K}_{t-1} \; K_{t-1} \; \left( 1 - \delta \right) + p_{t-1} \; I_{t-1} \; r_{t-1}
+\end{equation}
+
+- **Profit of firms (before investment)**
+\begin{equation}
+PROF = p . Y - w . L - c^{K} . K
+\end{equation}
+
+- **Firms' savings**
+\begin{equation}
+SAV^{F} = PROF - DIV - p . I
+\end{equation}
+
+- **Firms' bank debt**
+\begin{equation}
+DEBT^{F} = DEBT^{F}_{t-1} \; \left( 1 - \varphi^{RD^{F}}_{t-1} \right) - SAV^{F}
+\end{equation}
+
+## Households: main equations
+
+
+- **Notional households consumption**
+\begin{equation}
+CH^{n} . p = \left( 1 - \sigma \right) . INC . \left( 1 - t^{inc} \right)
+\end{equation}
+
+- **Households' income**
+\begin{equation}
+INC = \left( w . L + DIV \right)
+\end{equation}
+
+- **Notional dividend for households**
+\begin{equation}
+DIV^{n} = PROF
+\end{equation}
+
+
+- **Notional propensity to save equation **
+\begin{equation}
+\varDelta \left(\operatorname{log} \left(1 - \sigma^{n}\right)\right) = \rho^{\sigma,U} . \varDelta \left(U\right) - \rho^{\sigma,p} . \varDelta \left(r - \frac{\varDelta \left(p\right)}{p_{t-1}}\right) - \rho^{\sigma,DEBT} . \varDelta \left(\operatorname{log} \left(\frac{DEBT^{G}}{\left( p . Y \right)}\right)\right)
+\end{equation}
+
+- **Households' savings**
+\begin{equation}
+SAV^{H} = INC . \left( 1 - t^{inc} \right) - p . CH
+\end{equation}
+
+- **Households' total wealth**
+\begin{equation}
+WEALTH = WEALTH_{t-1} + SAV^{H}
+\end{equation}
+
+
+## Government and Central Bank: main equations
+
+- **Notional interest rate of the Central Bank (Taylor reaction function)**
+\begin{equation}
+\varDelta \left(r^{n}\right) = \rho^{rn,p} . \varDelta \left(\frac{\varDelta \left(p\right)}{p_{t-1}}\right) - \rho^{rn,U} . \varDelta \left(U\right)
+\end{equation}
+
+- **Notional income tax rate**
+\begin{equation}
+\varDelta \left(t^{inc,n}\right) = \rho . \varDelta \left(\frac{DEBT^{G}}{\left( p . Y \right)}\right)
+\end{equation}
+
+- **Government's savings**
+\begin{equation}
+SAV^{G} = t^{inc} . INC - p . G - DEBT^{G}_{t-1} \; \left( \varphi^{RD^{G}}_{t-1} + r^{DEBT,G}_{t-1} \right)
+\end{equation}
+
+- **Average interest rate paid on the total Government's debt**
+\begin{equation}
+\varDelta \left(r^{DEBT,G}\right) = \varDelta \left(r\right)
+\end{equation}
+
+- **Total Government's debt**
+\begin{equation}
+DEBT^{G} = DEBT^{G}_{t-1} \; \left( 1 - \varphi^{RD^{G}}_{t-1} \right) - SAV^{G}
+\end{equation}
+
+## Labor market: main equations
+
+- **Notional wage (WS or Phillips curve)**
+\begin{equation}
+\varDelta \left(\operatorname{log} w^{n}\right) = \rho^{wn} + \rho^{wn,pe} . \varDelta \left(\operatorname{log} p^{e}\right) + \rho^{wn,PROGL} . \varDelta \left(\operatorname{log} PROG^{L}\right) - \rho^{wn,U} . U - \rho^{wn,dU} . \varDelta \left(U\right)
+\end{equation}
+
+- **Unemployment rate**
+\begin{equation}
+U = 1 - \frac{L}{LF}
+\end{equation}
+
+## Adjustments: Introduction
+
+- Important feature of Neo-Keynesian models: hypothesis of slow adjustments of prices and quantities. Firms do not adjust instantaneously firms but gradually adjust their **effective** price and quantity to the **optimal (notional of desired)** level :           
+- slow adjustment to the new optimum level after a shock in the economy of **prices** or  **inputs** :labor, capital, intermediary consumption (Carlton, 1986; Cecchetti, 1985).            
+- slow adjustment to the new optimum level after a shock in the economy of **quantities**:  consumption of households, wage setting or the adjustment of the interest rate (Tinbergen,1942).
+
+## Adjustments: Minimizing an adjustment cost function
+
+- To take into account that the changes in price are all the more costly that they are large propose to use **quadratic adjustment cost** models (Rotemberg, 1982).     
+- The firm defines the optimal price as a trade-off between the **cost of adjusting** and the **cost of not been adjusted**.
+
+\begin{equation}
+  \Gamma_t\left(X_t\right)-\Gamma_t\left(X_t^n\right)=\Gamma_t^{\prime}\left(X_t^n\right)\left(X_t-X_t^n\right)+\Gamma_t^{\prime \prime}\left(X_t^n\right)\left(X_t-X_t^n\right)^2
+\end{equation}
+The profit being maximum for $X_t^n, \Gamma_t^{\prime}\left(X_t^n\right)=0$ and $\Gamma_t^{\prime \prime}\left(X_t^n\right)<0$. As a first approximation, the adjustment cost, i.e. the loss of profit suffered by a company that is not in the optimum, is therefore:
+$$
+  C_D=\Gamma_t\left(X_t^n\right)-\Gamma_t\left(X_t\right)=C_D\left(X_t-X_t^n\right)^2
+$$
+Where:
+$$
+  C_D=-\Gamma_t^{\prime \prime}\left(X_t^n\right)
+$$
+Suppose that the adjustment cost is proportional to the square of the speed of adjustment:
+$$
+  C_A=c_A\left(X_t-X_{t-1}\right)^2
+$$
+Where:
+$$
+  c_A>0
+$$
+Minimizing the total cost function $\left(C_t=C_D+C_A\right)$ is equivalent to solving:
+$$
+  C_t^{\prime}\left(X_t\right)=2 c_D\left(X_t-X_t^n\right)+2 c_A\left(X_t-X_{t-1}\right)=0
+$$
+The condition of the second order $\left(C_t^{\prime \prime}\left(X_t\right)>0\right)$ being always verified, the optimal adjustment which minimizes the total cost has the following dynamic process:
+$$
+  X_t=\alpha X_t^n+(1-\alpha) X_{t-1}
+$$
+With:
+$$
+  \alpha=\frac{c_D}{\left(c_D+c_A\right)}
+$$
+
+With this simple model, the average adjustment time is:
+$$
+  \frac{\alpha}{(1-\alpha)}=\frac{c_D}{c_A}
+$$
+**The slower the adjustment, the higher the adjustment cost $c_A$  compared to the cost of non being adjusted $c_D$**.
+
+## Adjustments: main equations
+
+- **Wage**
+\begin{equation}
+\varDelta \left(\operatorname{log} w\right) = \alpha^{W,Wn} . \varDelta \left(\operatorname{log} w^{n}\right) + \alpha^{W,W1} . \varDelta \left(\operatorname{log} w_{t-1}\right) - \alpha^{W,W1Wn1} . \operatorname{log} \frac{w_{t-1}}{w^{n}_{t-1}}
+\end{equation}
+
+- **Production price**
+\begin{equation}
+\operatorname{log} p = \alpha^{P,Pn} . \operatorname{log} p^{n} + \left( 1 - \alpha^{P,Pn} \right) . \left( \operatorname{log} p_{t-1} + \varDelta \left(\operatorname{log} p^{e}\right) \right)
+\end{equation}
+
+
+- **Expected production price inflation**
+\begin{equation}
+\varDelta \left(\operatorname{log} p^{e}\right) = \alpha^{Pe,Pe1} . \varDelta \left(\operatorname{log} p^{e}_{t-1}\right) + \alpha^{Pe,P1} . \varDelta \left(\operatorname{log} p_{t-1}\right) + \alpha^{Pe,Pn} . \varDelta \left(\operatorname{log} p^{n}\right)
+\end{equation}
+
+
+- **Households final consumption**
+\begin{equation}
+\operatorname{log} CH = \alpha^{CH,CHn} . \operatorname{log} CH^{n} + \left( 1 - \alpha^{CH,CHn} \right) . \left( \operatorname{log} CH_{t-1} + \varDelta \left(\operatorname{log} CH^{e}\right) \right)
+\end{equation}
+
+
+
+- **Expected Households final consumption growth**
+
+\begin{equation}
+\varDelta \left(\operatorname{log} CH^{e}\right) = \alpha^{CHe,CHe1} . \varDelta \left(\operatorname{log} CH^{e}_{t-1}\right) + \alpha^{CHe,CH1} . \varDelta \left(\operatorname{log} CH_{t-1}\right) + \alpha^{CHe,CHn} . \varDelta \left(\operatorname{log} CH^{n}\right)
+\end{equation}
+
+- **Labor**
+\begin{equation}
+\operatorname{log} L = \alpha^{L,Ln} . \operatorname{log} L^{n} + \left( 1 - \alpha^{L,Ln} \right) . \left( \operatorname{log} L_{t-1} + \varDelta \left(\operatorname{log} L^{e}\right) \right)
+\end{equation}
+
+- **Expected labor growth**
+\begin{equation}
+\varDelta \left(\operatorname{log} L^{e}\right) = \alpha^{Le,Le1} . \varDelta \left(\operatorname{log} L^{e}_{t-1}\right) + \alpha^{Le,L1} . \varDelta \left(\operatorname{log} L_{t-1}\right) + \alpha^{Le,Ln} . \varDelta \left(\operatorname{log} L^{n}\right)
+\end{equation}
+
+- **Dividend for households**
+\begin{equation}
+\operatorname{log} DIV = \alpha^{DIV,DIVn} . \operatorname{log} DIV^{n} + \left( 1 - \alpha^{DIV,DIVn} \right) . \left( \operatorname{log} DIV_{t-1} + \varDelta \left(\operatorname{log} DIV^{e}\right) \right)
+\end{equation}
+
+- **Expected dividend for households**
+\begin{equation}
+\varDelta \left(\operatorname{log} DIV^{e}\right) = \alpha^{DIVe,DIVe1} . \varDelta \left(\operatorname{log} DIV^{e}_{t-1}\right) + \alpha^{DIVe,DIV1} . \varDelta \left(\operatorname{log} DIV_{t-1}\right) + \alpha^{DIVe,DIVn} . \varDelta \left(\operatorname{log} DIV^{n}\right)
+\end{equation}
+
+- **Interest rate of the Central Bank**
+\begin{equation}
+r = \alpha^{r} . r^{n} + \left( 1 - \alpha^{r} \right) . r_{t-1}
+\end{equation}
+
+- **Propensity to save**
+\begin{equation}
+\sigma = \alpha^{\sigma} . \sigma^{n} + \left( 1 - \alpha^{\sigma} \right) . \sigma_{t-1}
+\end{equation}
+
+- **Mark-up**
+\begin{equation}
+m^{up} = \alpha^{m,up} . m^{up,n} + \left( 1 - \alpha^{m,up} \right) . m^{up}_{t-1}
+\end{equation}
+
+- **Income taxe rate**
+\begin{equation}
+t^{inc} = \alpha^{t,inc} . t^{inc,n} + \left( 1 - \alpha^{t,inc} \right) . t^{inc}_{t-1}
+\end{equation}
+
+
+
+# Macroeconomic results (close economy)
+
+## Considered shocks
+
+ 
+- Shock of 1% GDP point on G (public spending)                
+
+
+
+## Contributions to GDP 
+
+```{r Graph GDP and contrib, echo=FALSE, fig.height=6, fig.width=14}
+
+contrib_comp <- c( "CH", "I", "G")
+contrib_comp_label <- c("Households consumption", "Investment", "Public spending")
+
+data_plot <-  contrib(data_full,"Y", contrib_comp, scenar = c("baseline",scenario_name))
+
+A <- contrib.plot(data_plot, series = contrib_comp,label_series = contrib_comp_label,
+             startyear = startyear, endyear = endyear, titleplot = " Contributions to change in GDP (in relative difference from baseline)", line_tot = TRUE)
+
+B <- simpleplot(data_full,c("CH", "I", "G"), contrib_comp_label, startyear, endyear, titleplot = " Components of the GDP (in relative difference from baseline)") 
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+## Save image on disk for further use (ready to be activated)
+#ggsave("plot.png",width = 40,  height = 28, units = c("cm"))
+
+## See the graph in Mark-down
+macro
+
+```
+
+## GDP and its components 
+
+```{r Graph contrib, echo=FALSE, fig.height=6, fig.width=14}
+
+variable_macro <- c( "Y", "CH", "I", "G")
+label_macro <- c("GDP", "Households consumption", "Investment", "Public spending")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components (in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 )
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "gr", titleplot =  " GDP and its components (in growth rate)")
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+## Save image on disk for further use (ready to be activated)
+# ggsave("macro.svg", device = svg, width = 32,  height = 16, units = c("cm"))
+
+## See the graph in Mark-down
+macro
+
+```
+
+
+
+
+## Production, capital and investment 
+
+```{r Graph K and I, fig.height=6, fig.width=14}
+
+variable_macro <- c( "K","K_N","I")
+label_macro <- c("Capital",  "Notional Capital", "Investment")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP, Capital and Investment (in relative difference from baseline) " )
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "gr", titleplot = " GDP, Capital and Investment (in growth rate)",
+           unit = "percent", decimal = 0.1 )
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+## Save image on disk for further use (ready to be activated)
+# ggsave("macro.svg", device = svg, width = 32,  height = 16, units = c("cm"))
+
+## See the graph in Mark-down
+macro
+
+```
+
+## Labor and Unemployment 
+
+```{r Graph L and U, fig.height=6, fig.width=14}
+
+variable_macro <- c( "L","L_N")
+label_macro <- c("Labor",  "Notional labor")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " Effective and notional labor (in relative difference from baseline)" )
+
+B <- simpleplot(data_full,"U", "Unemployment rate", startyear, endyear,  transformation = "level", titleplot = " Unemployment rate (in level)",
+           unit = "percent", decimal = 0.1 )
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+## Save image on disk for further use (ready to be activated)
+# ggsave("macro.svg", device = svg, width = 32,  height = 16, units = c("cm"))
+
+## See the graph in Mark-down
+macro
+
+```
+
+
+## Prices and wages 
+
+```{r Graph Prices, fig.height=6, fig.width=14}
+
+A <- simpleplot(data_full,c("P", "W"), c("Price", "Wages"), startyear, endyear, "reldiff", titleplot = " Prices and wages (in relative difference from baseline)")
+
+B <- simpleplot(data_full,c("P", "W"), c("Price", "Wages"), startyear, endyear,  transformation = "gr", decimal= 0.1, unit="percent",  titleplot =  "  Prices and wages (in growth rates)" )
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+```
+
+
+
+
+## Mark-up
+
+```{r Mark-up,fig.height=6, fig.width=14 }
+A <- simpleplot(data_full,c("M_UP"), c("Mark-up"), startyear, endyear, "level", titleplot = " Mark-up (in level)")
+
+B <- simpleplot(data_full,c("M_UP"), c("Mark-up"), startyear, endyear, "diff", unit = "percent", decimal = 0.1,  titleplot = " Mark-up (in difference from baseline)")
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+```
+
+
+## Interest rate
+
+```{r Graph Interest rate, fig.height=6, fig.width=14}
+
+A <- simpleplot(data_full,c("R"), c("Interest rate"), startyear, endyear, "level", titleplot = " Interest rate (Level) ")
+
+B <- simpleplot(data_full,c("R"), c("Interest rate"), startyear, endyear, "diff", titleplot = " Interest rate (in difference from baseline)")
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+```
+
+
+## Propensity to save
+
+```{r Propensity to save , fig.height=6, fig.width=14}
+A <- simpleplot(data_full,c("SIGMA"), c("Propensity to save"), startyear, endyear, "level", unit = "percent", decimal = 0.1,  titleplot = " Propensity to save (in level)")
+
+B <- simpleplot(data_full,c("SIGMA"), c("Propensity to save"), startyear, endyear, "diff", titleplot = " Propensity to save (in difference from baseline)")
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+```
+
+
+## Debt to GDP ratio
+
+```{r creation variable debt to gdp, fig.height=6, fig.width=14}
+variables_selection <- c("Y", "DEBT_G", "P")
+new_indicators <- data_full%>%
+wide_data(variables = variables_selection, out_format = "list")%>%
+map(~.x %>% mutate (Ratio_debt_gdp = DEBT_G/(P*Y)))%>%
+long_data(sector_names_table = NULL, commodity_names_table = NULL)%>%
+select(-sector,-commodity)
+
+A <- simpleplot (new_indicators, c("Ratio_debt_gdp"), c("DEBT_G/(P*Y)"), startyear, endyear,"level", unit = "percent", decimal = 0.1, titleplot = "Debt to GDP ratio (in level)")
+
+
+B <- simpleplot(new_indicators, c("Ratio_debt_gdp"), c("DEBT_G/(P*Y)"), startyear, endyear, "diff", titleplot = "Debt to GDP ratio (in difference from baseline)")
+
+macro <- ggarrange(A, B,
+labels= c("(a)", "(b)"), 
+hjust = -0.5, vjust = 1.5,
+ncol= 2, nrow=1, 
+widths =2 , heights = 2)
+
+macro
+
+```
+
+
+## Mains impacts of a shock on G
+
+- **Walrasian model:**
+  - **Negative multiplier** due to a crowding out effect: rising public expenditures reduces private expenditures (households consumption and investment)
+  - Production is determined by capital and labor. Labor is exogenous and capital defined by the previous year investment and depreciation. 
+  - Therefore, **no room for additional production** (no spare production capacity). Increasing public consumption is only possible if investment and household's consumption decreases
+  - A lower investment leads to a the future capital stock, increasing the interest rate 
+  - As capital decreases, production also decreases in the following period
+  - As production decreases, wages have to decrease to maintain full employment
+  - **Vicious negative cycle**
+
+- **Keynesian model:**
+  - **Positive multiplier**: the increase in public spending has an immediate positive effect on the economy
+  - The supply constraint does not hold anymore: production is no more predetermined by labor and capital
+  - Implicit assumption of spare production capacity
+  - As production increases, more factors are needed which increases demand for labor and capital
+  - Increasing labor and capital rise production which increases in  return consumption and investment
+  - **Virtuous positive cycle**
+  
+- **The Neo-Keynesian model (close economy):**
+
+  - An increase in public spending has an immediate positive effect on production. The increase in production decreases unemployment as more labor is required for production.
+  - Lower unemployment rises demand which puts upward pressure on prices and generates inflation.
+  - Because of the negative relationship between unemployment and wages (Phillips curve), wages increase also, which increases the cost of production, prices and mark-up
+  - Because of the negative relationship between unemployment and interest rate, the decrease of unemployment increases interest rates (Taylor reaction function), which decreases investment.
+  - As interest rate increase, savings increase (we assume that savings are accumulated without precising where they are invested in the economy) but consumption decreases.
+  - As investment and consumption decrease because of the inflationist pressure driven by higher production, there is a crowding out effect. On the logn run,  the effect on GDP is null.
+  
+
+
+# Next steps
+
+## Neo-Keynesian model in open economy
+## Data and calibration
+
+
+
+```{r Exit Knit: rest of the markdown ignored}
+knit_exit()
+```
+
+
+
+# PLots "Neo-Keynesian" closure (overleaf)
+
+## GDP contrib
+
+```{r Graph GDP and contrib ovr, echo=FALSE, fig.height=6}
+contrib_comp <- c( "CH", "I", "G")
+contrib_comp_label <- c("Households consumption", "Investment", "Public spending")
+
+data_plot <-  contrib(data_full,"Y", contrib_comp, scenar = c("baseline",scenario_name))
+
+Contrib_GDP_NeoKey <- contrib.plot(data_plot, series = contrib_comp,label_series = contrib_comp_label,
+             startyear = startyear, endyear = endyear, line_tot = TRUE)  + theme(text = element_text(size = 55))
+
+
+## Save image on disk for further use (ready to be activated)
+ggsave("Contrib_GDP_NeoKey.png",width = 48,  height = 28, units = c("cm"))
+
+
+## See the graph in Mark-down
+Contrib_GDP_NeoKey
+
+          
+```
+
+## Prices and wages
+
+```{r Graph prices wage Neo ovr, echo=FALSE, fig.height=6}
+
+Prices_wages_NeoKey.png <- simpleplot(data_full,c("P", "W"), c("Price", "Wages"), startyear, endyear, "reldiff") + theme(text = element_text(size = 45))
+
+
+## Save image on disk for further use (ready to be activated)
+ggsave("Prices_wages_NeoKey.png",width = 48,  height = 28, units = c("cm"))
+
+
+## See the graph in Mark-down
+Prices_wages_NeoKey.png
+
+          
+```
+
+## Interest rate
+
+```{r Graph Interest rate ov, fig.height=6, fig.width=14}
+
+Interest_rate_NeoKey <- simpleplot(data_full,c("R"), c("Interest rate"), startyear, endyear, "diff") + theme(text = element_text(size = 55))
+
+
+## Save image on disk for further use (ready to be activated)
+ggsave("Interest_rate_NeoKey.png",width = 48,  height = 28, units = c("cm"))
+
+
+## See the graph in Mark-down
+Interest_rate_NeoKey
+
+          
+```

@@ -1,0 +1,29 @@
+\mode<presentation>
+
+% Title page
+\defbeamertemplate*{title page}{ofce}[1][]
+{ 
+  \begin{tikzpicture}
+  \useasboundingbox(0,0) rectangle(\the\paperwidth,\the\paperheight);
+     \fill[color=scporouge] (-1,4) rectangle (\the\paperwidth,7);
+     \fill[scporouge] (-1,0) rectangle(\the\paperwidth,0.5);
+
+     \ifx\insertsubtitle\@empty%
+        {\node [text width=11cm,white, font = \bf\huge ] at (5.5,5.5){\inserttitle};}
+     \else%
+        {\node [text width=11cm, white ] at (5.5,5.5){\bf\LARGE\inserttitle\\\large\insertsubtitle};}%
+     \fi
+
+     \node [text width=11cm, text height = 2cm ,scporouge, anchor=west,font =\large ] at (0.7,4){\insertauthor};   
+     \node [text width=11cm, scporouge , anchor=west]at (0.7,2){\insertinstitute};   
+     \node [text width=11cm,black , anchor=west]at (0.7,1){\insertdate};  
+     \useasboundingbox (0,0) rectangle(\the\paperwidth,\the\paperheight);
+     \node [xshift=\the\paperwidth-2.3cm,yshift=1.9cm]{\includegraphics[width=2cm]{pictures/neo.png}}; 
+     \node [xshift=0.5cm,yshift=8.9cm]{\includegraphics[width=2cm]{pictures/ofce}}; 
+     \node [xshift=\the\paperwidth-2.5cm,yshift=8.9cm]{\includegraphics[width=2cm]{pictures/sciencespo}};  
+  \end{tikzpicture}
+  
+}
+
+
+

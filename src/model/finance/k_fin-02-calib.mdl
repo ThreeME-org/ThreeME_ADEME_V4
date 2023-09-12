@@ -1,0 +1,143 @@
+
+########################################
+### Calibration financial markets
+########################################
+
+# Capital cost
+@over c_K * K := DEBT_F{-1}*(Phi_RD_F{-1} + r_DEBT_F{-1}) + Phi_INV_F * p{-1} * I{-1}
+
+# Profit of firms (before investment)
+@over PROF := p * Y - w * L - DEBT_F{-1}*(Phi_RD_F{-1} + r_DEBT_F{-1})		
+
+# Firms' debt
+@over DEBT_F := (p * I + (1 - Phi_DIV_H)*(w * L - p * Y)) * (1+GR_nml) / (GR_nml + Phi_RD_F{-1} - (1 - Phi_DIV_H) * (Phi_RD_F{-1} + r_DEBT_F{-1}))  
+DEBT_F_bis := DEBTB_F + DEBTO_F
+
+# Elasticity of the share of the households investment wealth to the interest rate
+eta_W_DO := 2.0 		# Should not be 0
+eta_W_DOF := 3.0		# Should not be 0
+
+# Elasticity of the share of the Government deficit financed though bank credit with respect to the ratio deficit over invested wealth
+eta_Phi_SAV_G_B := 1.0
+
+# Elasticity of interest on deposit with respect to the bank interest rate
+eta_r_M := eta_r_WEALTH
+
+# Share of the bank and bond firms' (new) debt
+Phi_SAV_F_B := 0.5				# Should not be 1 exactly
+Phi_SAV_F_O := 1 - Phi_SAV_F_B
+
+# Bond firms' debt owned by households and the Central bank 
+DEBTO_F_H := 1.0*DEBTO_F
+DEBTO_F_B := DEBTO_F - DEBTO_F_H
+
+DEBT_G_bis := DEBT_G
+
+# Bank debt of the government (hold by the Central bank)
+DEBTB_G    := 0.2*DEBT_G 		# Should not be 0 
+
+# Bond government's debt hold by households and the Central bank
+DEBTO_G_H  := 0.8*DEBT_G
+DEBTO_G_BC := DEBT_G - DEBTB_G - DEBTO_G_H     # To eventually simulate CB intervention
+
+# Share of bank and bond Governement's (new) debt
+Phi_SAV_G_O_BC := 0 
+Phi_SAV_G_O_H  := - Phi_W_DOG * INV_W / SAV_G
+Phi_SAV_G_B    := 1 - Phi_SAV_G_O_H - Phi_SAV_G_O_BC
+
+Phi_SAV_G_O    := Phi_SAV_G_O_H + Phi_SAV_G_O_BC
+
+# Share of investment wealth going to money, bond debt of firms and of the Governement
+Phi_W_DOG * INV_W := DEBTO_G_H * (GR_nml + Phi_RDO_G{-1}) / (1 + GR_nml)
+Phi_W_DOF * INV_W := DEBTO_F_H * (GR_nml + Phi_RDO_F{-1}) / (1 + GR_nml)
+Phi_W_M := 1 - Phi_W_DOG - Phi_W_DOF
+
+# Share of the bank and bond firm's debt reimbursed per year
+Phi_RDB_F := delta
+Phi_RDO_F := delta
+
+# @over Phi_RD_F  := delta		# Circular reference:
+								# If different between bank and bond, use iterative solver for average :
+								# Phi_RD_F * DEBT_F = Phi_RDB_F * DEBTB_F + Phi_RDO_F * DEBTO_F
+
+# Share of the bank and bond Government's debt reimbursed per year
+Phi_RDO_G := 1/20  
+Phi_RDB_G := 1/20
+
+## Interest rates
+
+# Paid on the firms' bank debt 
+r_DEBTB_F := r_K 	# For equivalence between UC and fin model, should be equal to r_K 
+
+# Paid on the firms' bond debt 
+r_DEBTO_F := r_K 	# For equivalence between UC and fin model, should be equal to r_K
+
+# Paid on the firms' debt (average)
+r_DEBT_F := r_DEBTB_F * Phi_SAV_F_B + r_DEBTO_F * Phi_SAV_F_O
+
+# Paid on the Government's bank debt 
+r_DEBTB_G := r
+
+# Paid on the Government's bond debt 
+r_DEBTO_G := r
+
+# Rate of return on new bonds bought by households
+r_DEBTO_n * Phi_W_DO  := Phi_W_DOG * r_DEBTO_G_n + Phi_W_DOF * r_DEBTO_F_n
+
+r_M * WEALTH_M := r_WEALTH * WEALTH - (r_DEBTO_G * DEBTO_G_H + r_DEBTO_F * DEBTO_F_H)
+
+WEALTH_M := WEALTH - (DEBTO_G_H + DEBTO_F_H )
+
+## Firms' debt
+# Share of investment financed through debt
+Phi_INV_B := - Phi_SAV_F_B / ((1 - Phi_INV_F) * p * I / SAV_F)
+
+
+DEBTB_F := DEBT_F * Phi_SAV_F_B	 	
+DEBTO_F := DEBT_F * Phi_SAV_F_O		
+
+DEBT_F_vol := - SAV_F / p * (1 + mu)/(mu + Phi_RD_F{-1})
+
+P_DEBT_F * DEBT_F_vol := DEBT_F
+
+######################### Households ##################### 
+
+# Wealth investment
+INV_W := SAV_H + DEBTO_G_H{-1} * Phi_RDO_G{-1} + DEBTO_F_H{-1} * Phi_RDO_F{-1}
+
+Phi_P := (Phi_W_M * INV_W + WEALTH_M{-1}) / (INC{-1} * t_inc{-1} + p{-1} * CH{-1})
+
+Phi_W_DO := 1 - Phi_W_M
+
+DEBTO_G := DEBTO_G_H + DEBTO_G_BC
+
+######################### Other ######################### 
+
+# Notional and expected variables
+|V|_n := |V| where V in r_DEBTB_F r_DEBTO_F r_DEBTO_G r_DEBTB_G
+
+# Comparison indicator capital costs
+c_K_approx1 * K := p_K{-1}*K{-1}*(delta + r_K{-1})
+c_K_approx2 := p_K * (delta + r_K)
+c_K_approx3 := p_K_bis * (delta + r_K_bis)
+
+# (Average) price of the capital stock
+p_K_bis := p * delta * (1 + GR_PRICE) / (delta + GR_PRICE)
+
+# (Average) interest rate paid on the capital stock
+r_K_bis := r 
+r_K_bis2 := r
+
+Verif_WEALTH 	:= 0 
+verif_Phi_W 	:= 0
+verif_DEBT_G	:= 0
+Verif_eqGBond   := 0 
+
+beta_r_DEBTO_n := r_DEBTO_n /(r_M * ((INV_W / (- Phi_SAV_G_O*SAV_G - Phi_SAV_F_O*SAV_F)  - 1))^(-1/eta_W_DO))
+
+beta_r_DEBTO_F_n := r_DEBTO_F_n /(r_DEBTO_G_n * ((Phi_W_DO * INV_W / (- Phi_SAV_F_O * SAV_F) - 1) )^(-1/eta_W_DOF))
+
+beta_Phi_W_DO := @elem( Phi_W_M/Phi_W_DO * (r_M/r_DEBTO_n)^(-eta_W_DO) , %baseyear) 
+
+beta_Phi_W_DOF := @elem( Phi_W_DOG/Phi_W_DOF * (r_DEBTO_G_n/r_DEBTO_F_n)^(-eta_W_DOF) , %baseyear)
+

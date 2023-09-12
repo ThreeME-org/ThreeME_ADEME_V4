@@ -1,0 +1,84 @@
+## Model parameters
+
+# Depreciation rate
+delta := 0.05
+
+# K-L elasticity of substitution
+rho := 0.1
+
+
+
+
+
+
+
+
+## Long term equilibrium
+# Growth rate of labor productivity
+GR_PROD_L := 0.01
+
+# Growth rate of population
+GR_POP := 0.005
+
+# Growth rate of prices (Inflation)
+GR_PRICE := 0.02
+
+# Interest rate
+r := 0.1
+
+
+
+
+# Long-term growth
+mu := (1 + GR_PROD_L)*(1 + GR_POP) - 1
+
+## Variables calibrated on real data
+
+# Labor
+L :=  1000 * (1 + GR_POP)^(@year - %baseyear)
+
+# Production
+Y := 100 * (1 + mu)^(@year - %baseyear)
+
+# Investment
+I :=  20 * (1 + mu)^(@year - %baseyear)
+
+# Public spending
+G :=   0 * (1 + mu)^(@year - %baseyear)
+
+
+
+
+## Calibration of the other variables
+
+# Long-term savings rate
+(1 - sigma) :=	CH / (w*L + r*K)
+# 									sigma := mu / (Y / K - delta) ## If G := 0
+# Consumption
+CH := Y - I - G
+
+# Capital Stock
+K := I / (mu + delta)
+
+# Labour productivity
+PROD_L := Y / L 
+				#	PROD_L := 1 * (1 + GR_PROD_L)^(@year - %baseyear)
+
+# Capital productivity
+PROD_K := Y / K
+				#	PROD_K := 1
+
+
+
+# Wage
+w*L := Y  - (delta + r)*K
+
+# Labour share in production function
+Phi_L ^ rho := L / (Y / PROD_L * ( w / PROD_L) ^ (-rho))
+## If PROD_L := Y / L, this is equivalent to: 
+## Phi_L := w / PROD_L
+
+# Capital share in production function
+Phi_K ^ rho := K / (Y / PROD_K * ((r + delta)/PROD_K) ^ (-rho))
+## If PROD_K := Y / K, this is equivalent to: 
+## Phi_K := (r + delta)/PROD_K

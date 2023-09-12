@@ -1,0 +1,302 @@
+---
+title: "CGE model with financial markets"
+subtitle: "Scenario: `r params$scenario_to_analyse`"
+author: "ThreeME team"
+date: "`r format(Sys.Date(), '%d %B %y')`"
+output: 
+  revealjs:
+    theme: sandstone
+   # highlight: monochrome
+  #  toc: true
+   # number_sections: true
+    #toc_depth: 3
+params:
+  startyear: 2020
+  endyear: 2035
+  project_name: "multi_shock"
+  project_title: "Simulation with small general equilibrium model"
+  scenario_to_analyse: g
+  classification: c0_s0
+  compil: compil
+  Rsolver: Rsolver
+  githubrepo: ThreeME-R-training
+  template_default: ofce
+  
+  
+---
+
+```{r setup, include=FALSE}
+
+work.dir <- stringr::str_remove(getwd(),"/results/report/markdown/finance")
+knitr::opts_knit$set(root.dir = work.dir)
+
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	results = "hide"
+)
+```
+
+```{r Plots default options}
+
+startyear <- params$startyear
+endyear <- params$endyear
+scenario_to_analyse <- params$scenario_to_analyse
+project_name <- params$project_name
+classification <- params$classification
+template_default <- params$template_default
+githubrepo <- params$githubrepo
+
+## SHOULD BE DELETED WHEN OPTION DE SIMPLEPLOT ERMEETH CHANGES:
+# scenario = scenario_to_analyse (and not scenario_name)
+scenario_name <- scenario_to_analyse
+
+```
+
+
+```{r Required packages, message=FALSE, warning=FALSE}
+
+# Load functions
+source("src/functions.R")
+
+
+```
+
+
+```{r load data and bridges}
+
+data_full<-readRDS(file = file.path("data","output", paste0(project_name,".rds")))
+
+
+```
+
+
+# Macroeconomic results (close economy)
+
+## Considered shocks
+
+ 
+- Shock of 1% GDP point on G (public spending)                
+
+
+
+## Contributions to GDP 
+
+```{r Graph GDP and contrib, echo=FALSE, fig.height=6, fig.width=14}
+
+contrib_comp <- c( "CH", "I", "G")
+contrib_comp_label <- c("Households consumption", "Investment", "Public spending")
+
+data_plot <-  contrib(data_full,"Y", contrib_comp, scenar = c("baseline",scenario_name))
+
+A <- contrib.plot(data_plot, series = contrib_comp,label_series = contrib_comp_label,
+             startyear = startyear, endyear = endyear, titleplot = " Contributions to change in GDP (in relative difference from baseline)", line_tot = TRUE)
+
+B <- simpleplot(data_full,c("CH", "I", "G"), contrib_comp_label, startyear, endyear, titleplot = " Components of the GDP (in relative difference from baseline)") 
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+## Save image on disk for further use (ready to be activated)
+#ggsave("plot.png",width = 40,  height = 28, units = c("cm"))
+
+## See the graph in Mark-down
+macro
+
+```
+
+## Table 
+
+- Data for year: **`r endyear`**
+  
+```{r Table datafull endyear, echo=FALSE, results='asis'}
+variables_selection = c("Y","CH","I", "G")
+selection <-  data_full %>% filter(variable %in% variables_selection, year %in% c(endyear)) %>% select(-sector, -commodity, -year,-baseline) %>% arrange(variable)
+flextable(selection)
+```
+
+
+
+```{r Exit Knit1: rest of the markdown ignored}
+knit_exit()
+```
+
+
+
+## GDP and its components 
+
+```{r Graph contrib, echo=FALSE, fig.height=6, fig.width=14}
+
+variable_macro <- c( "Y", "CH", "I", "G")
+label_macro <- c("GDP", "Households consumption", "Investment", "Public spending")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP and its components (in relative difference from baseline)",
+           unit = "percent", decimal = 0.1 )
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "gr", titleplot =  " GDP and its components (in growth rate)")
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+## Save image on disk for further use (ready to be activated)
+# ggsave("macro.svg", device = svg, width = 32,  height = 16, units = c("cm"))
+
+## See the graph in Mark-down
+macro
+
+```
+
+
+
+
+## Production, capital and investment 
+
+```{r Graph K and I, fig.height=6, fig.width=14}
+
+variable_macro <- c( "K","K_N","I")
+label_macro <- c("Capital",  "Notional Capital", "Investment")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " GDP, Capital and Investment (in relative difference from baseline) " )
+
+B <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "gr", titleplot = " GDP, Capital and Investment (in growth rate)",
+           unit = "percent", decimal = 0.1 )
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+## Save image on disk for further use (ready to be activated)
+# ggsave("macro.svg", device = svg, width = 32,  height = 16, units = c("cm"))
+
+## See the graph in Mark-down
+macro
+
+```
+
+## Labor and Unemployment 
+
+```{r Graph L and U, fig.height=6, fig.width=14}
+
+variable_macro <- c( "L","L_N")
+label_macro <- c("Labor",  "Notional labor")
+
+A <- simpleplot(data_full,variable_macro, label_macro, startyear, endyear,  transformation = "reldiff", titleplot = " Effective and notional labor (in relative difference from baseline)" )
+
+B <- simpleplot(data_full,"U", "Unemployment rate", startyear, endyear,  transformation = "level", titleplot = " Unemployment rate (in level)",
+           unit = "percent", decimal = 0.1 )
+
+macro <- ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+## Save image on disk for further use (ready to be activated)
+# ggsave("macro.svg", device = svg, width = 32,  height = 16, units = c("cm"))
+
+## See the graph in Mark-down
+macro
+
+```
+
+
+## Prices and wages 
+
+```{r Graph Prices, fig.height=6, fig.width=14}
+
+A <- simpleplot(data_full,c("P", "W"), c("Price", "Wages"), startyear, endyear, "reldiff", titleplot = " Prices and wages (in relative difference from baseline)")
+
+B <- simpleplot(data_full,c("P", "W"), c("Price", "Wages"), startyear, endyear,  transformation = "gr", decimal= 0.1, unit="percent",  titleplot =  "  Prices and wages (in growth rates)" )
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+```
+
+
+
+
+## Mark-up
+
+```{r Mark-up,fig.height=6, fig.width=14 }
+A <- simpleplot(data_full,c("M_UP"), c("Mark-up"), startyear, endyear, "level", titleplot = " Mark-up (in level)")
+
+B <- simpleplot(data_full,c("M_UP"), c("Mark-up"), startyear, endyear, "diff", unit = "percent", decimal = 0.1,  titleplot = " Mark-up (in difference from baseline)")
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+```
+
+
+## Interest rate
+
+```{r Graph Interest rate, fig.height=6, fig.width=14}
+
+A <- simpleplot(data_full,c("R"), c("Interest rate"), startyear, endyear, "level", titleplot = " Interest rate (Level) ")
+
+B <- simpleplot(data_full,c("R"), c("Interest rate"), startyear, endyear, "diff", titleplot = " Interest rate (in difference from baseline)")
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+
+```
+
+
+## Propensity to save
+
+```{r Propensity to save , fig.height=6, fig.width=14}
+A <- simpleplot(data_full,c("SIGMA"), c("Propensity to save"), startyear, endyear, "level", unit = "percent", decimal = 0.1,  titleplot = " Propensity to save (in level)")
+
+B <- simpleplot(data_full,c("SIGMA"), c("Propensity to save"), startyear, endyear, "diff", titleplot = " Propensity to save (in difference from baseline)")
+
+ggarrange(A,B,
+labels = c("(a)", "(b)"),
+hjust = -0.5, vjust = 1.5,
+ncol = 2, nrow = 1,
+widths = 2,  heights = 1)
+```
+
+
+## Debt to GDP ratio
+
+```{r creation variable debt to gdp, fig.height=6, fig.width=14}
+variables_selection <- c("Y", "DEBT_G", "P")
+new_indicators <- data_full%>%
+wide_data(variables = variables_selection, out_format = "list")%>%
+map(~.x %>% mutate (Ratio_debt_gdp = DEBT_G/(P*Y)))%>%
+long_data(sector_names_table = NULL, commodity_names_table = NULL)%>%
+select(-sector,-commodity)
+
+A <- simpleplot (new_indicators, c("Ratio_debt_gdp"), c("DEBT_G/(P*Y)"), startyear, endyear,"level", unit = "percent", decimal = 0.1, titleplot = "Debt to GDP ratio (in level)")
+
+
+B <- simpleplot(new_indicators, c("Ratio_debt_gdp"), c("DEBT_G/(P*Y)"), startyear, endyear, "diff", titleplot = "Debt to GDP ratio (in difference from baseline)")
+
+macro <- ggarrange(A, B,
+labels= c("(a)", "(b)"), 
+hjust = -0.5, vjust = 1.5,
+ncol= 2, nrow=1, 
+widths =2 , heights = 2)
+
+macro
+
+```
+

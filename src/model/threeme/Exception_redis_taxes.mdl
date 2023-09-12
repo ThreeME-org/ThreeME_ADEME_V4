@@ -1,0 +1,33 @@
+##### Redistribution of the carbon tax
+
+##! Income and social taxes expressed in value
+# CROSS_REDIS = 0: no cross-Transfers
+# CROSS_REDIS > 0: transfer from firms to households
+# CROSS_REDIS < 0: transfer from households to firms
+@over INC_SOC_TAX_VAL  = RINC_SOC_TAX * DISPINC_BT_VAL - ((CROSS_REDIS >= 0) * T2VAL_CH + (CROSS_REDIS <  0) * (1 + CROSS_REDIS) * T2VAL_CH + (CROSS_REDIS >= 0) * CROSS_REDIS * T2VAL_SEC) * REDIS_CT_H
+
+# INC_SOC_TAX_VAL  = RINC_SOC_TAX * DISPINC_BT_VAL - _
+#                   ((CROSS_REDIS >= 0) * T2VAL_CH + _
+#                   (CROSS_REDIS <  0) * (1 + CROSS_REDIS) * T2VAL_CH + _
+#                   (CROSS_REDIS >= 0) * CROSS_REDIS * T2VAL_SEC) * REDIS_CT_H
+
+
+##! Net taxes on the production of sector $s$ expressed in value
+# CROSS_REDIS = 0: no cross-Transfers
+# CROSS_REDIS > 0: transfer from firms to households
+# CROSS_REDIS < 0: transfer from households to firms
+@over NTAXS_VAL[s]     =  RNTAXS[s]   * PY[s]     * Y[s] + T2VAL_MAT[s] + T2VAL_Y[s] - _
+                    ((CROSS_REDIS <= 0) * T2VAL_SEC + _
+                     (CROSS_REDIS >  0) * (1 - CROSS_REDIS) * T2VAL_SEC + _
+                     (CROSS_REDIS <= 0) * (-CROSS_REDIS) * T2VAL_CH) * _
+                     ((1 - REDIS_BY_RX) * F[L,s]/F[L] + _
+                           REDIS_BY_RX  * phi_RX[s] ) * REDIS_CT_LS
+
+
+##! Employers' social security contribution paid by sector $s$
+@over RSC[s] * PRSC[s] = W[s] * F[L, s] * RRSC[s] - _
+                   ((CROSS_REDIS <= 0) * T2VAL_SEC + _
+                    (CROSS_REDIS >  0) * (1 - CROSS_REDIS) * T2VAL_SEC + _
+                    (CROSS_REDIS <= 0) * (-CROSS_REDIS) * T2VAL_CH) * _
+                    ((1 - REDIS_BY_RX) * F[L,s]/F[L] + _
+                          REDIS_BY_RX  * phi_RX[s] ) * REDIS_CT_RRSC

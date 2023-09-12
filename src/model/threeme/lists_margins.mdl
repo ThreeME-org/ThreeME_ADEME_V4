@@ -1,0 +1,10 @@
+# DEPRECATED: trade and transport margins are zero (selling price instead of purchasing price) 
+
+# !!!! INPUT MANUALLY THE CORRECT LIST !!!
+# version c4_s4
+# %list_com_MARG := ctrp cser
+# version c23_s26 (LUX)
+%list_com_MARG := crai croa cwat cair cpri
+
+m in %list_com_MARG
+mm in %list_com_MARG

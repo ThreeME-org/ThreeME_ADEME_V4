@@ -1,0 +1,12 @@
+# include ..\model\lists
+
+# Used to ventilate redistribution of carbon tax as a function of sectoral export exposure
+RX := sum(RX[s] on s)
+
+phi_RX :=  sum(RX[s] /RX * F[L,s]/F[L] on s)
+phi_RX[s] := RX[s] /RX * F[L,s]/F[L] / phi_RX
+
+# Dummy variables in order to decide which way the carbon tax is redistributed to sector (lump-sum or employers' social cotisation rate)
+REDIS_BY_RX := 0
+
+CROSS_REDIS := 0

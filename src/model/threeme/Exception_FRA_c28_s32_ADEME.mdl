@@ -1,0 +1,13 @@
+##### Exception equations for ThreeME - France - ADEME
+
+# Condition to avoid Y_toe[ce] become negative
+# Will be corrected in the energy balance block by changing the import share equation
+# see issue: 
+@over Y_toe[ce] = (CI_toe[ce] + CH_toe[ce] + X_toe[ce] - M_toe[ce] > 0) * (CI_toe[ce] + CH_toe[ce] + X_toe[ce] - M_toe[ce] - 0.0001) + 0.0001 if Y_toe[ce] <> 0
+
+
+
+
+#### Additional equations to fit scenarii 
+
+

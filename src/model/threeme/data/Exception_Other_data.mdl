@@ -1,0 +1,23 @@
+# include ..\model\lists
+
+RCO2TAX_VOL := 0
+
+# Alias for shocks 
+GR_PROG_exo_bis[L, s] := GR_PROG_exo[L, s]
+EXPG_bis := EXPG
+WD_bis[c] := WD[c]
+
+DEXPG := 0
+DWD[c] := 1
+DGR_PROG_exo[L, s] := 0 
+
+GDP_trend := GDP
+GDP_fit := 0 
+G_trend := G
+
+# VA_VAL_corr[c] := 0
+
+# IA0[s] := log(IA[s]{-1}) - (log(Y_e[s]{-1}) - 0.44 * log(C[K,s]{-1}/PY[s]{-1}))
+
+# W0[s] := log(W[s]{-1}) - (log(Y[s]{-1}/F_L[s]{-1}) + log(PVA{-1}) - 2 * UnR{-1} + log((1+RRSC[s]{-1})/(1-RINC_SOC_TAX{-1})))
+

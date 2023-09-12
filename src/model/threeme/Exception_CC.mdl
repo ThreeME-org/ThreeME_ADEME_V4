@@ -1,0 +1,113 @@
+#   IMPACT                |    VARIABLE          |    PARAGRAPH
+#_________________________|______________________|_______________
+# sea-level rise          | depreciation rate    |    1
+# services energy demand  | energy demand        |    4
+# households energy demand| energy use per m2    |    4
+# energy prod.            | capital productivity |    3
+# tourism revenu          | world demand         |    2
+# agric. yields           | capital productivity |    3
+# forest. yields          | capital productivity |    3
+# air temp.               | labor productivity   |    3
+# supply chain            | world demand         |    2
+# shrink.-swell.          | depreciation rate    |    1
+# river floods            | depreciation rate    |    1
+# diseases                | labor productivity   |    3
+# forest fire             | ....                 |    5
+
+
+## 1/5 - IMPACT ON depreciation rate DUE TO sea level rise AND floods AND clay soil shrinking and swelling
+
+# Housing : destructions through clay soil shrinking and swelling
+
+#Rdep_CC_sea = 1/100*(0.0344*temp^2 - 0.0167*temp + 0.0017)
+#Rdep_CC_flood = 1/100*(-0.0033 * temp^2 + 0.0544 * temp + 0.0094)
+#Rdep_CC_claysoil = 0.000076*Log(temp) + 0.000073
+@over Rdep_BUIL[ecl,DES] = Rdep_BUIL_base[ecl,DES] + 0.69 * ( GDP{-1}/(3500*(BUIL_CE{-1}+BUIL_CF{-1}+BUIL_CG{-1})) * (Rdep_CC_sea + Rdep_CC_flood) + Rdep_CC_claysoil )
+#Rdep_BUIL[ecl,DES] = Rdep_BUIL_base[ecl,DES] + (Rdep_CC_sea + Rdep_CC_flood) + Rdep_CC_claysoil
+
+                                                    
+# Firms : destructions through sea level rise and flooding
+@over Rdep[s] = Rdep_base + 0.31 * ( F[K,s]{-1}/F[K]{-1} * GDP{-1}/F[K]{-1} * (Rdep_CC_sea + Rdep_CC_flood) + Rdep_CC_claysoil ) 
+#Rdep[s] = Rdep_base + 0.31 * ( F[K,s]/F[K] * GDP/F[K] * (Rdep_CC_sea + Rdep_CC_flood) + Rdep_CC_claysoil )
+#Rdep[s] = Rdep_base + GDP/F[K] * (Rdep_CC_sea + Rdep_CC_flood)
+#Rdep[s] = Rdep_base + Rdep_CC_sea + Rdep_CC_flood
+
+@over CH_n_VAL  = DISPINC_AT_VAL  * ( 1  - MPS_n ) - 0.69 * PGDP{-1} * GDP{-1} * ( (Rdep_CC_sea + Rdep_CC_flood) + (3500*BUIL{-1})/GDP{-1} * Rdep_CC_claysoil ) ) 
+
+## 2/5 - IMPACT ON world demand DUE TO supply chain disruptions AND tourism attractivness
+
+# Tourism attractivness rise with the temperature
+#WD_CC_tourism = 0.9987 + 0.0026 * temp
+#WD_CC_supplychain = -0.143 * Log(temp) + 0.943
+WD_CC_tourism[cpri] = WD_CC_tourism
+
+# Exports are reduce due to disruptions in the supply chain of clients and producers of French firms
+@over d(log(WD[c])) = log(1 + GR_PROG_L) + d(log(POP)) + d(log(WD_CC_supplychain)) + d(log(WD_CC_tourism[c]))
+
+##! Market price of domestically produced exports $c$
+#@over PXD[c]       = PYQS[c] * (1 + PX_CC_supplychain)      if XD[c]       <> 0
+##! Price of imported commodity $c$, expressed at basic price
+#@over PM[c]        = EXR * PWD[c] * (1 + PX_CC_supplychain)  if M[c]        <> 0
+
+
+## 3/5 - IMPACT ON labor productivity AND capital productivity DUE TO air temperature AND diseases - Energy yields, Forestry and Agriculture
+
+# Labor productivity diminishes with the temperature
+# Fonction initiale : = 
+#PROG_L_CC_airtemperature = 1 - 0.00059 * temp^2 - 0.00073 * temp
+# Fonction initiale : y = 0.999933 - 0.000011 * temp
+#PROG_L_CC_diseases = 0.999881 - 0.000037 * temp
+PROG_CC_airtemperature[L, s] = PROG_L_CC_airtemperature_int
+@over PROG_CC_airtemperature[L, scon] = PROG_L_CC_airtemperature_ext
+@over PROG_CC_airtemperature[L, sagr] = PROG_L_CC_airtemperature_ext
+@over PROG_CC_airtemperature[L, sfor] = PROG_L_CC_airtemperature_ext
+PROG_CC_diseases[L, s] = PROG_L_CC_diseases
+
+# Capital productivity diminishes with the temperature
+#PROG_K_CC_agrifish = -0.049 * temp + 1.046
+#PROG_K_CC_forestry = -0.161 * temp + 1.093
+#PROG_K_CC_wind = -0.0129 * temp + 0.9979
+#PROG_K_CC_thermal = -0.0607 * temp + 1.0382
+#PROG_K_CC_solar = -0.0033 * temp + 0.9948
+#PROG_K_CC_hydro = -0.055 * temp + 1.1075
+
+PROG_CC[f, sfor] = PROG_K_CC_forestry
+PROG_CC[f, sagr] = PROG_K_CC_agrifish
+PROG_CC[f, senu] = PROG_K_CC_thermal
+PROG_CC[f, seoi] = PROG_K_CC_thermal
+PROG_CC[f, sega] = PROG_K_CC_thermal
+PROG_CC[f, seco] = PROG_K_CC_thermal
+PROG_CC[f, sewi] = PROG_K_CC_wind
+PROG_CC[f, seso] = PROG_K_CC_solar
+PROG_CC[f, sehy] = PROG_K_CC_hydro
+PROG_CC[f, sech] = PROG_K_CC_thermal
+PROG_CC[f, seot] = PROG_K_CC_thermal
+
+# Impact on both L and K productivity
+@over PROG[f, s] = PROGbis[f, s] * PROG_CC[f, s] * PROG_CC_airtemperature[f, s] * PROG_CC_diseases[f, s]
+PROGbis[f, s] = PROGbis[f, s]{-1} * (1 + GR_PROG[f, s])
+
+
+## 4/5 Energy demand
+
+# Household energy demand diminishes with the temperature
+
+#ENERperM2_CC_energydemand = -0.0602 * temp + 1.0653
+
+@over ENERperM2[ecl, ceb] = ENERperM2bis[ecl, ceb] * ENERperM2_CC_energydemand
+
+d(log(ENERperM2bis[ecl, ceb])) = - eta_ENERperM2[ecl, ceb] * d(log(PCH[ceb])-log(PCH)) * (d(log(PCH[ceb])-log(PCH)) >0) _
+                                + d(SUBST_NRJperM2[ecl, ceb]) if ENERperM2bis[ecl, ceb] <> 0
+
+# Services sector energy demand rises with the temperature
+##! Demand for production factor $f$ by sector $s$
+d(log(F_n_bis[E, spri]))  = d(log(Y[spri])) - d(log(PROG[E, spri])) + d(SUBST_F[E, spri])                                                 if F_n_bis[E , spri] <> 0
+
+#ENER_services_CC_energydemand = 0.0533 * temp + 0.9487
+@over F_n[E, spri] = F_n_bis[E, spri] * ENER_services_CC_energydemand
+
+## 4/5 Forest fire
+
+# The state's expenses to prevent and control forest fire rises with the temperature
+#@over CI[cpub, spub] = CI[cpub,spub]{-1} * F[MAT,spub]/F[MAT,spub]{-1} + state_expenses_CC_forest_fire
+#d(log(CI_CC[cpub, spub])) = d(log(GDP_trend)) if CI[cpub, spub] <> 0

@@ -1,0 +1,208 @@
+---
+title: "Macroeconomic impact from implementing energy shield tariffs: an assesment trough the use of a CGE model"
+author: "Paul Malliet, Anissa Saumtally"
+institution: "Observatoire Français des Conjonctures Économiques"
+date: "`r Sys.Date()`"
+abstract: ""
+lang: fr    
+format: 
+ html:
+  toc: true
+  center: false
+  navigation-mode: linear
+  theme: [simple, www/presentation.scss]
+  pdfSeparateFragments: false
+  highlight-style: solarized
+ pdf:
+  toc: true
+  toc-depth: 2
+  number-sections: true
+  number-depth: 1 
+  documentclass: scrartcl
+  mainfont: Nunito
+  papersize: a4
+  fontsize: 9pt
+  fig-cap-location: top
+  include-in-header: 'results/report/markdown/preamble.tex'
+  extra_dependencies: ["float"]
+  fig-dpi: 300
+  fig-format: png
+  cite-method: natbib
+editor_options: 
+  markdown: 
+  wrap: 100
+execute: 
+  echo: true
+  warning: false
+  eval: true
+params:
+  startyear: 2015
+  endyear: 2050
+  template_default: ofce
+  classification: c28_s32
+  version_publi: false
+  recreate_price_data: true
+---
+
+```{r setup, include=FALSE}
+#| label: setup
+#| include: false
+#| echo: false
+
+
+c_elec    = "goldenrod2"
+c_gaz     = "dodgerblue4"
+c_elec2   = "lightgoldenrod2"
+c_gaz2    = "dodgerblue"
+c_ttf     = "indianred"
+c_autres  = "thistle3"
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+
+path_main <-  stringr::str_remove(getwd(), "docs")
+
+redirect <- function(normal_path, redirect = path_main){
+  if(is.null(redirect)){
+    res <- file.path(normal_path)  
+  }else{
+    res <- file.path(paste0(redirect), normal_path)  
+  }
+  
+  res |>  normalizePath()
+}
+
+
+
+
+```
+
+
+
+# Introduction
+
+Russia's invasion of Ukraine in February 2022 triggered a major energy crisis for European Union countries that started in September 2021 in the wake of the post-COVID recovery of the international demand . Between December 2020 and December 2021, the import price for energy in the euro area already more than doubled, spurring inflation across European countries. Regarding the french situation, From 2021Q2 and 2022Q2, energy prices’ increase contributed to 3.1 points of percentages (pp) out of a total of 5.3% of inflation in France [@bourgeois_alexandre_flambee_2022].
+
+
+If the reaction was quick to condemn Russia, through the ban on Russian trade, the dramatic rise of energy prices has been conducted to well as intervention policies to moderate the impact of this rise on households and businesses [@cae2023b] as is the case for France with the use of energy shield tariff from October 2021.
+The operating principle of the energy shield is based on a state subsidy between a capped consumer price and the supplier's price according to market conditions. Thus, while it guarantees the targeted level of inflation, its cost to the public authorities depends first and foremost on market prices. 
+Among the measures implemented by European countries, the choice made by France of a policy of maintaining price levels is quite distinctive [@Bruegel] since it is the sole country to have adopted these measures, transfers and tax reductions being more often used by the other member states.  
+
+Despite the uncertainties expressed in 2022 as to the ability of the energy system to withstand a rapid withdrawal from Russian energy imports,from today's perspective the facts seem to rather point to its resilience (see @fig-1).
+As pointed out in a recent analysis by the IEA [@iea2023], several factors that have contributed to lower global energy consumption in 2022 by 3% in comparison to previous year.  
+
+
+!["Spot price on the TTF market (figure à changer avec celle finale)"](figures/Fig2){#fig-1}
+
+Forecasting in the PLF issue an estimated cost for the policy for 2022 and 2023 to respectively XX and XX ...
+
+This study aims at understanding the macroeconomic effects from energy shield tariffs through an explicit representation of the price structure from wholesale market prices to consumer prices. 
+In the first section, we present the methodology used to assess the effects from implementing shield tariff, section 2 presents the data, Section 3 we present the results, that we discussed in the section 4. Section 5 concludes. 
+
+
+# Policy Context
+
+
+## The French system for regulation of energy prices [titre nul a changer]
+
+Previously a public monopoly, the supply of gas and electricity opened to newcomers in xxxx, making the market supposedly competitive. Despite being an open market, electricity and gas consumers in France have the option between a market price and a regulated price. The regulated price option made available to consumers is sold by the historical supplier, with prices determined by the *Commission de régulation de l'énergie (CRE)*.  There are three components that make up the regulated price: fair compensation for the energy supplier (this is the component that depends on wholesale prices), distribution and network costs and taxes (VAT and other forms of excises). Each component roughly accounts for one third of the price. 
+Those prices are determined on a yearly basis for electricity and monthly basis for gas. For electricity prices, this implies that consumers face a stable cost throughout the year. For the supplier, if wholesale prices have varied greatly during the year, such that the regulated price did not end up covering their cost, a make-up component will be added in the next period to allow them to recoup their cost. The shorter adjustment  time frame for gas prices on the hand imply more volatility for consumers but a higher adjustment factor with wholesale price fluctuations. The end of the regulated prices for gas has in fact been announced for July 2023, however, because of how often they were actualised, it is expected that there should not be much changes observed in gas prices. 
+
+The market price offerings for those commodities tend to be aligned with the regulated price. Often households contracts will be signed where the price paid will be x percent below regulated price for set period of time, after which the contract would revert to another price. Those alternative suppliers would in fact be hedging with wholesale prices, by buying from futures market at lower prices. The unforeseen surge in wholesale prices turned out to be unprofitable for some contracts that were locked in low prices. Conversely, new contracts at market prices during the peak would lead to a significant and - far superior - increase in price. On average however, the prices should more or less be aligned with the regulated price. It should be noted that households that hold such market price contract make up for about 30 % of the market share. The vast majority is still on the regulated price contracts.
+
+As a result, energy consumer prices in France fluctuate overall quite moderatetly. The passthrough of the variations of wholesale prices is in fact one the lowest in Europe, especially for electricity [ref imf paper]. The same can be observed for the contribution of energy prices to the total inflation in France in comparison to other European countries. 
+
+
+```{r}
+#| label: France price index
+#| echo: false
+
+```
+
+## Regulating energy prices in times of crisis : the energy price shield
+
+Towards the second half of 2021, wholesale gas prices experienced some high peaks (variations of magnitude x10 on daily averages) after remaining at record low points in 2020 in the midst of the Covid-19 pandemic. As economies were restarting fast, especially in Asia, and Europe was experiencing a cold winter, the tension of the demand on natural gas lead to a first severe increase in wholesale prices. This energy inflation crisis only worsened in 2022 due to the second Russian invasion of Ukraine on February 24th 2022. As an embargo on Russian gas,was agreed upon by the EU, albeit very difficultly so due to the high dependence of some member states, the cost of alternatives (mainly liquefied gas (LPG)) increased all the more. On the Dutch TTF market, the reference point for wholesale prices in Europe, the intraday trading prices reached temporary highs above the 1000 euros mark.
+
+```{r}
+#| label: European wholesale prices TTF
+#| echo: false
+
+```
+
+
+For France, as the gas regulated prices are evaluated monthly, the usual method of calculating prices by the CRE would have integrated these variations, and consumer prices would have followed suit. This marked the beginning of the government's intervention for gas prices. The initial measure of the *bouclier tarifaire*, or price shield, consisted in freezing the regulated tariff for household consumers on these types of contracts starting the end of the year 2021 and to be continued in 2022. For electricity prices, unaffected in 2021, the regulated price increase in 2022 would be limited to 4 % instead of an estimated increase of 30 %. For 2023, this price increase cap was fixed at 15 % for both household gas[^32] and electricity. In practice, this measure aims to cap the price, all taxes included, of the kilowatt-hour. There is in theory no condition made on the quantity consumed. It should be noted however that the government also ran a campaign in parallel encouraging energy savings during these time, citing risks of shortages. In 2022, the consumption of electricity and gas did indeed decrease despite the relatively low price increase. Whether this is a direct consequence of this push for a more responsible energy consumption or driven by a fear of further price hikes is not clear yet. 
+
+[^32]: For gas, this price increase is initially limited to the first half of the year. Given the current wholesale gas prices, it is unlikely to be extended to the rest of the year.
+
+In order to limit the impact on suppliers, this cap is reached first by a removal of some taxes applicable to the consumer for those products (the TICFE [acronym def]). To complete this, the CRE would then calculate a price that will reach the target by reducing the energy supplier compensation part of the commodity price. They also provide a theoretical price that would have been implemented without a price cap. The government will then subsidise the difference directly to supplier. When evaluating the total cost of this policy, it is the tax-rebate and the subsidy that are added. Figure xx below summarises the average theoretical and applicable prices; on this graph, the difference between dotted and solid lines represent the cost of the measure (not including tax rebates) for the governement. 
+
+The latest estimates by the French government of this policy alone in the Stability Program evaluated the cost in 2022 at xx billions euros for gas and xx billions euros for electricity. For 2023 as wholesale pricing are decreasing sharply (in may they reached levels below the 2021 average), the cost of the policy is so far estimated at xx for electricity and xx for gas. We note that the high estimated cost for electricity is mostly due to the design of the pricing system. As mentioned, regulated electricity prices are calculated yearly by the CRE, with minor adjustments at the second half of the year. The bulk of the theoretical price increase (which drives the cost of the measure) is likely due to the supplier compensation that integrates a make-up for the losses in the previous year due to unforeseen market prices increase.
+
+Cost-mitigation for consumers also included some targeted measures such as direct-to consumer subsidies for low-income households (*chèque énergie*), the cost of which is relatively minimal in comparison with the price shield measure. In this paper we also do not consider the increase in petrol prices, though it should be noted that a temporary price reduction on petrol subsidised by the governement was also put in place in 2022, which benefited all consumers for any amount consumed.
+
+
+# Modeling Framework and Scenarios
+## ThreeME model 
+
+ThreeME is a country-level open source Computable General Equilibrium model (CGE) originally developed to support policymakers in the design and evaluation of decarbonization pathways in France (Callonnec et al. 2013a, b, 2016). ThreeME is specifically designed to evaluate the short-, medium- and long-term impact of environmental and energy policies at the macroeconomic and sectoral levels. To this end, the model combines several important features: 
+
+  - Its sectoral disaggregation allows for analyzing the transfer of activities from one sector to another, particularly in terms of employment, investment, energy consumption or balance of trade.
+  - The highly detailed representation of energy flows through the economy allows for analyzing the consumption behavior of economic agents with respect to energy. Sectors can arbitrage between capital and energy when the relative price of energy increases, and substitute between energy vectors. Consumers can substitute between energy vectors, transportation modes or consumption goods.
+    
+As a CGE model, ThreeME fully considers feedbacks between supply and demand (see @#fig-Figure 1). Demand (consumption and investment) drives the supply (production). Symmetrically supply drives demand through the incomes generated by the production factors (labor, capital, energy products and materials).
+Compared to bottom-up energy models such as MARKAL [@markal1981] or TIMES [@loulou2005documentation], ThreeME goes beyond the mere description of the sectoral and technological dimensions by integrating these within a comprehensive macroeconomic model. ThreeME is a neo-Keynesian model. Compared to standard Walrasian-type CGEs that are largely supply driven, prices do not adjust instantaneously to clear markets. Instead the model is dynamic, and prices and quantities adjust slowly. Producers adjusts their supply to the demand. This has the advantage to allow for situations of market disequilibria (in particular the presence of involuntary unemployment). This framework is particularly well suited for policy analysis. In addition to providing information about the long term, it allows for analyzing transition phases over the short and medium terms, which is especially relevant when assessing the implementation of climate and energy policies. 
+
+!["Schematic representation of the model ThreeME"](figures/Fig1){#fig-Figure 1}
+
+Fig 1 demonstrates the methodological framework of ThreeME. This model maximizes the utility of each agent in period t subject to several constraints, such as market clearing (e.g., demand is equal to supply). The model is recursive dynamic (i.e., myopic), which means it first optimizes period $t$ and then uses the endogenous results (e.g., prices, wages, and production levels) for optimizing the next period(i.e., $t + 1$). After the model optimizes the last period (determined by the user), it provides the projection of the endogenous parameters, such as prices, household income, GDP, and employment rate, over the whole horizon. Moreover, ThreeME requires several exogenous parameters: the social accounting matrix (SAM) of the base year, population growth forecast, economic growth forecast, and substitution elasticities. SAM is a comprehensive and economy-wide database recording data about all transactions between economic agents in a specific economy for a specific period [kehoe1996social].
+The population and economic growth forecasts determine labor availability and productivity projection. Elasticities define the substitution proportion of production factors in production functions. In a CES function, the substitution between production factors can either follow the linear, fixed-proportion (i.e., Leontief) or CobbDouglas production functions. The linear production function represents a production process in which the inputs are perfect substitutes (e. g., labor can be substituted completely with capital). The fixed proportion production function reflects a production process in which the inputs are required in fixed proportions. In the Cobb-Douglas production function, the inputs can be substituted,if not perfectly. ThreeME assumes a nested CES function [@reynes2019cobb] to describe the substitution between production factors. This CES production function requires four inputs, KLEM, capital (K), labor (L), energy (E), and material (M).
+The production factors (KLEM) can be substituted with each other. The Elasticity of Substitution (ES) parameters determines the substitution level between each input. Each pair (i.e., K-E, KE-L, KEL-M) has its own ES, which is explained further in the description of the model [@reynes2021threeme]. An essential characteristic of a standard neoKeynesian macroeconomic AS-AD (aggregated supply and demand) model is that demand determines supply. The demand comprises (intermediate and final) consumption, investment and export whereas the supply comes from imports and domestic production. As feedback with eventually some lags, supply affects demand through several mechanisms. The level of production determines the quantity of inputs used by the firms and thus the quantity of their intermediate consumption and investment which are two components of the demand. It determines the level of employment as well and consequently the household final consumption. Another effect of employment on demand goes through the wage settingvia the unemploymentrate which is also determinedby the active population. The active population is mainly determined by exogenous factors such as demography but also by endogenous factors: because of discouraged worker effects, the unemployment rate may affect the labor participation rate and thus the active population
+
+## Integration of the Shield tariff mechanism
+
+The introduction of the Energy Shield Tariff (EST) into the model dynamics implies to change the equations setting the relation between a wholesale gross price (equivalently producer price) and the final consumer price. 
+In the generic model, the growth rate of consumer price depends on the growth rate of production prices, the applied margin and taxes such as: 
+
+$$ 
+\Delta\logP^{CH} = \Delta(\log(P^Y + MARGIN + NTAX)
+$$
+The introduction of EST is done as follows: 
+
+
+$$ 
+\Delta\log P_{c}^{CH} = \Delta(\log(P_{c}^Y + MARGIN_{c} + NTAX_{c})
+$$
+where 
+$$ 
+P_{c}^{CH} = \hat{P}_{c}^{CH} \\
+P_{c}^{CH} = t_{c}^{ST} \;{P}_{c, t-1}^{CH}
+$$
+
+
+
+## Calibrating ThreeME and integrating the CRE data
+
+ThreeME model for France has been calibraed using national accounts data available through Eurostat. The data version used in this paper is based at the year 2015. After the base year, the only shock integrated is world wide energy prices starting 2021 to represent and isolate the observed 
+energy price dynamics and allow for an analysis independent of any other variations in the economy. In order to model the energy consumer price energy in France, an additional modification is made on consumer prices to reflect the price regulation structure mentioned above. All other variables thus evolve using ThreeME's steady state specifications for France [ref].
+
+The energy commodity price dynamics as modified in ThreeME for the purpose of the study is presented on figure [ref] below. Aside from the 2021 to 2023 period, all price evolve with a standard 2 % increase trend for all prices.  For wholesale price, based on the TTF empirical observation we set a price of shock of xx% in 2021 and xx % in 2022. We then decrease the price by xx % in 2023. Producer prices follow based on a passthrough of 0.8[verif].
+
+The baseline in this work corresponds to a world without any consumer price mitigation measure. Therefore, we use the theoretical price increase (before tax) set by the CRE as the reference point. For the analysis, we then change this consumer price specification to include the before tax price as determined by the price shield policy. 
+
+A final tweak in the model is made to ensure that quantity consumed do not 
+
+
+```{r}
+#| label: prixthreeme
+```
+
+# Results
+
+# Discussion
+
+# Conclusion
+
+# Références

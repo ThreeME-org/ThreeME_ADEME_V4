@@ -1,0 +1,84 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Classic-Lined Title Page
+% LaTeX Template
+% Version 2.0 (17/7/17)
+%
+% This template was downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% WikiBooks (LaTeX - Title Creation) with modifications by:
+% Vel (vel@latextemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+	\centering % Centre everything on the title page
+	
+	%------------------------------------------------
+	%	Top rules
+	%------------------------------------------------
+	
+	\rule{\textwidth}{1pt} % Thick horizontal rule
+	
+	\vspace{2pt}\vspace{-\baselineskip} % Whitespace between rules
+	
+	\rule{\textwidth}{0.4pt} % Thin horizontal rule
+	
+	\vspace{0.1\textheight} % Whitespace between the top rules and title
+	
+	%------------------------------------------------
+	%	Title
+	%------------------------------------------------
+	
+	$if(author)${\Huge{$author$}}$endif$ % Author name
+	
+	\vspace{0.05\textheight} % Whitespace between the title and short horizontal rule
+	
+	\rule{0.3\textwidth}{0.4pt} % Short horizontal rule under the title
+		
+	%------------------------------------------------
+	%	Author
+	%------------------------------------------------
+	
+	\vspace{0.025\textheight} % Whitespace
+
+	\textcolor{black}{ % Black font color
+		{\Huge{$title$}}\\[0.5\baselineskip] % Title line 1
+		$if(subtitle)${\Huge{$subtitle$}}\\[0.5\baselineskip]$endif$ % Title line 2
+	}
+	
+	\vfill % Whitespace between the author name and publisher
+	
+	%------------------------------------------------
+	%	Publisher
+	%------------------------------------------------
+	
+	% {\includegraphics[width=5cm]{www/ofce.png}}\\[0.5\baselineskip]
+	% {\includegraphics[width=5cm]{www/neo.png}}\\[0.5\baselineskip] % Publisher logo
+
+	\begin{tikzpicture}[remember picture,overlay]
+ 	\useasboundingbox (0,0) rectangle(\the\paperwidth,\the\paperheight);
+  	\node [inner sep=0pt] at (-5,1.5) {\includegraphics[width=3cm]{www/neo.png}}; 
+  	\node [inner sep=0pt] at (4.5,2) {\includegraphics[width=5cm]{www/ofce.png}}; 
+  	\node [inner sep=0pt] at (4.5,1) {\includegraphics[width=4cm]{www/sciencespo.png}};
+	\end{tikzpicture}
+
+	% {\large\textsc{the publisher}} % Publisher
+	
+	\vspace{0.1\textheight} % Whitespace under the publisher text
+	
+	%------------------------------------------------
+	%	Bottom rules
+	%------------------------------------------------
+	
+	\rule{\textwidth}{0.4pt} % Thin horizontal rule
+	
+	\vspace{2pt}\vspace{-\baselineskip} % Whitespace between rules
+	
+	\rule{\textwidth}{1pt} % Thick horizontal rule
+	
+	

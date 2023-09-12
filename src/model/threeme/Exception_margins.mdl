@@ -1,0 +1,212 @@
+#### Margins
+
+##! Margins paid to commodity $m$ on the domestic commodity $c$
+d(log(MGPD[m, c])) = d(log(YQ[c])) + d(SUBST_MGPD[m, c])                                                                                      if MGPD[m, c] <> 0
+## The demand for margins $m$ paid on commodity $c$ depends on the demand for the commodity $c$ and on the substitution between margins type. \\
+
+##! Notional substitution between margin $m$ and the other margin types $mm$ paid on domestic commodity $c$
+SUBST_MGPD_n[m, c] = sum(- ES_MGPD[m, mm, c] * phi_MGPD[mm, c]{-1} * d(log(PMGPD[m, c]) - log(PMGPD[mm, c])) if MGPD[mm, c] <> 0 on mm) if MGPD[m, c] <> 0
+
+##! Share of margin type $m$ into the total margins paid on domestic commodity $c$
+phi_MGPD[m, c]     = (PMGPD[m, c] * MGPD[m, c]) / (sum(PMGPD[mm, c] * MGPD[mm, c] on mm))                                                   if MGPD[m, c] <> 0
+
+##! Margins paid to commodity $m$ on the imported commodity $c$
+d(log(MGPM[m, c])) = d(log( M[c])) + d(SUBST_MGPM[m, c])                                                                                      if MGPM[m, c] <> 0
+
+##! Notional substitution between margin $m$ and the other margin types $mm$ paid on imported commodity $c$
+SUBST_MGPM_n[m, c] = sum(- ES_MGPM[m, mm, c] * phi_MGPM[mm, c]{-1} * d(log(PMGPM[m, c]) - log(PMGPM[mm, c])) if MGPM[mm, c] <> 0 on mm) if MGPM[m, c] <> 0
+
+##! Share of margin type $m$ into the total margins paid on imported commodity $c$
+phi_MGPM[m, c]     = (PMGPM[m, c] * MGPM[m, c]) / (sum(PMGPM[mm, c] * MGPM[mm, c] on mm))                                                   if MGPM[m, c] <> 0
+
+
+##! Substitution effect of the domestic margin paid $m$ for the commodity $c$
+SUBST_MGPD[m, c]  = ADJUST6_MGPD[m, c]  * SUBST_MGPD_n[m, c]  + (1 - ADJUST6_MGPD[m, c])  * SUBST_MGPD[m, c]{-1}  if MGPD[m, c] <> 0
+
+##! Substitution effect on the imported margin paid $m$ for the commodity $c$
+SUBST_MGPM[m, c]  = ADJUST6_MGPM[m, c]  * SUBST_MGPM_n[m, c]  + (1 - ADJUST6_MGPM[m, c])  * SUBST_MGPM[m, c]{-1}  if MGPM[m, c] <> 0
+
+##! Substitution effect on the imported margin supplied for the commodity $m$
+SUBST_MGSM[m]     = ADJUST6_MGSM[m]     * SUBST_MGSM_n[m]     + (1 - ADJUST6_MGSM[m])     * SUBST_MGSM[m]{-1}     if MGSM[m]     <> 0
+
+
+
+##! Received margins on domestically produced commodity $m$
+MGSD[m] = (1 - phi_MGSM[m]) * MGS[m] if MGSD[m] <> 0
+
+##! Margins supplied from imported commodity $m$
+MGSM[m] =      phi_MGSM[m]  * MGS[m] if MGSM[m] <> 0
+
+##! Import share of commodity $c$ on supplied margins
+phi_MGSM[m] = 1 /( 1 + @elem( MGSD[m]/MGSM[m], %baseyear) * exp( SUBST_MGSM[m])) if MGSM[m]   <> 0
+
+##! Notional substitution effect induced by a change in the relative price between imported and domestically produced commodity $c$ for margins supplied
+d(SUBST_MGSM_n[c]) 	= - ES_MGSM[c] * d(log(PMGSD[c]) - log(PMGSM[c]))            if MGSM[c]   <> 0
+
+
+
+
+##! Market price of the margins paid to commodity $m$ on domestically produced commodity $c$
+PMGPD[m, c] * MGS[m] = PMGSD[m] * MGSD[m] + PMGSM[m] * MGSM[m]        if MGPD[m, c] <> 0
+## We assume that the margins paid on domestic and imported commodities can be produced by domestic and foreign (using the import share of the margin supplied). The price of the margins paid to commodity $m$ is assumed common to all commodity $c$. \\
+
+##! Market price of the margins paid to commodity $m$ on imported commodity $c$
+PMGPM[m, c] = PMGPD[m, c] if MGPM[m, c] <> 0
+## This price is the same as the one paid on domestic commodity because of the assumption given in the previous equation. \\
+
+##! Market price of margins supplied by domestically produced commodity $c$
+PMGSD[c]     = PYQS[c]      if MGSD[c]     <> 0
+
+##! Market price of margins supplied by imported commodity $c$
+PMGSM[c]     = PMS[c]       if MGSM[c]     <> 0
+
+
+
+### Margins paid (value & volume)
+##! Price of the margins paid on domestically produced commodity $c$
+PMGPD[c] * MGPD[c] = sum(PMGPD[m, c] * MGPD[m, c] if MGPD[m, c] <> 0 on m) 	   if MGPD[c]  	 <> 0
+
+##! Margins paid on the domestically produced commodity $c$
+		   MGPD[c] = sum(			    MGPD[m, c] if MGPD[m, c] <> 0 on m) 	   if MGPD[c]  	 <> 0
+
+##! Price of the margins paid on imported commodity $c$
+PMGPM[c] * MGPM[c] = sum(PMGPM[m, c] * MGPM[m, c] if MGPM[m, c] <> 0 on m) 	   if MGPM[c]  	 <> 0
+
+##! Margins paid on imported commodity $c$
+		   MGPM[c] = sum(				MGPM[m, c] if MGPM[m, c] <> 0 on m) 	   if MGPM[c]  	 <> 0
+
+##! Price of the margins paid to commodity $m$ on commodity $c$
+PMGP[m, c] * MGP[m, c] = PMGPD[m, c] * MGPD[m, c] + PMGPM[m, c] * MGPM[m, c] if MGP[m, c] <> 0
+
+##! Margins paid to commodity $m$ on commodity $c$
+			  MGP[m, c] = 				  MGPD[m, c] + 			   MGPM[m, c] if MGP[m, c] <> 0
+
+
+### Aggregation on commodities: supply side aggregates (value & volume)
+
+##! Aggregate price of the margins paid on domestically produced commodity
+PMGPD   * MGPD 		= sum(PMGPD[c]   * MGPD[c] 	 	if MGPD[c]	  <> 0 on c) 		if MGPD 	 <> 0
+
+##! Margins paid on domestically produced commodities
+          MGPD 		= sum(             MGPD[c] 	 	if MGPD[c]    <> 0 on c) 		if MGPD 	 <> 0
+
+##! Aggregate price of the margins paid on imported commodities
+PMGPM   * MGPM 		= sum(PMGPM[c]   * MGPM[c] 	 	if MGPM[c]    <> 0 on c) 		if MGPM 	 <> 0
+
+##! Margins paid on imported commodities
+          MGPM 		= sum(             MGPM[c] 	 	if MGPM[c]    <> 0 on c) 		if MGPM 	 <> 0
+
+
+### Margins supplied (value & volume):
+# TO BE CHANGED !!: Margins paid --> Margins used / Margins supplied -->  margins supplied
+## The margins supplied by commodity $m$ corresponds to the margins supplied by this commodity. By definition, the margins supplied is the sum of the margins paid (or used) on the commodities $c$. \\ \\
+## The margins paid on domestic and imported products ($MGPD_{m, c}$ and $MGPM_{m, c}$) are defined with behavioral equations in the producer block. They follow the domestic and imported production of commodity $c$ ($YQ_{c}$ and $M_{c}$) more or less proportionally depending on the possibility of substitutions between margins. The margins paid are then aggregated to define the margins supplied, $MGS_{m}$. The latter is then disaggregated between the domestic and imported margins supplied ($MGSD_{c}$ and $MGSM_{c}$). See specification in the producer block. \\
+
+##! Market price of the margins supplied by commodity $m$
+PMGS[m] * MGS[m]  = sum(PMGP[m, c] * MGP[m, c] 	if MGP[m, c] <> 0 on c) 	   if MGS[m]    <> 0
+
+##! Margins supplied by commodity $m$, expressed at market price
+           MGS[m]  = sum(    	 	    MGP[m, c] 	if MGP[m, c] <> 0 on c) 	   if MGS[m]    <> 0
+## The margins supplied correspond to the sum of the margins paid to commodity $m$ over all the commodities $c$ \\
+
+##! Market price of the margins supplied by commodity $m$ (for verification)
+PMGSbis[m] * MGSbis[m] = PMGSD[m] * MGSD[m] + PMGSM[m] * MGSM[m] 				   if MGSbis[m]  <> 0
+## Same variable as $PMGS_{m}$ above to check the accounting consistency. \\
+
+##! Margins supplied by commodity $m$, expressed at market price (for verification)
+			 MGSbis[m] = 		    MGSD[m] + 			 MGSM[m] 				   if MGSbis[m]  <> 0
+## Same variable as $MGS_{m}$ above to check the accounting consistency. \\
+
+
+##! Aggregate market price for the margins supplied on domestically produced commodities
+PMGSD * MGSD = sum(PMGSD[c] * MGSD[c] if MGSD[c] <> 0 on c) 		  if MGSD 	<> 0
+
+##! Aggregate margins supplied on domestically produced commodities, expressed at market price
+	    MGSD = sum(    		  MGSD[c] if MGSD[c] <> 0 on c) 		  if MGSD 	<> 0
+
+##! Aggregate market price for the margins supplied on imported commodities
+PMGSM * MGSM = sum(PMGSM[c] * MGSM[c] if MGSM[c] <> 0 on c) 		  if MGSM 	<> 0
+
+##! Aggregate margins supplied on imported commodities, expressed at market price
+	    MGSM = sum(		   	  MGSM[c] if MGSM[c] <> 0 on c) 		  if MGSM 	<> 0
+
+##! Aggregate market price for supplied margins
+PMGS  * MGS  = PMGSD * MGSD + PMGSM * MGSM 							  if MGS  	<> 0
+
+##! Aggregate supplied margins
+	    MGS  = 		   MGSD + 		  MGSM 							  if MGS  	<> 0
+
+verif_phi_MGPD[c] = (1 - (sum(phi_MGPD[m, c] on m)))*100 if MGPD[c] <> 0
+verif_phi_MGPM[c] = (1 - (sum(phi_MGPM[m, c] on m)))*100 if MGPM[c] <> 0
+
+#verif_MGSbis[c] = (MGSbis[c]/MGS[c] - 1)*100 if MGS[c] <> 0
+#verif_PMGSbis[c] = (PMGSbis[c]/PMGS[c] - 1)*100 if MGS[c] <> 0
+
+
+#ES_act_MGSM[m] = ES_MGSM[m] _ 
+#				- (PMGSD[m]/PMGSM[m] < 0.99999) * (log(MGSD[m]/MGSM[m]/@elem(MGSD[m]/MGSM[m], %baseyear)) / log(PMGSD[m]/PMGSM[m]*1.0000000001) + ES_MGSM[m]) _
+#				- (PMGSD[m]/PMGSM[m] > 1.00001) * (log(MGSD[m]/MGSM[m]/@elem(MGSD[m]/MGSM[m], %baseyear)) / log(PMGSD[m]/PMGSM[m]*1.0000000001) + ES_MGSM[m]) if MGSM[m]*MGSD[m] <> 0 
+
+#Verif_ES_MGSM[m] = ES_act_MGSM[m] - ES_MGSM[m]
+
+
+################### AVec @over partouT
+
+### Domestic and foreign equilibrium for commodities $c$ (value & volume):
+
+##! Market price for the domestically produced commodity $c$
+@over PQD[c]  * QD[c]  = PMGSD[c] * MGSD[c] + PCID[c] * CID[c] + PCHD[c] * CHD[c] + PGD[c] * GD[c] + PID[c] * ID[c] + PXD[c] * XD[c] + PDSD[c] * DSD[c] if QD[c] <> 0
+
+##! Quantity of domestically produced commodity $c$ expressed at market price
+@over		   QD[c]  = 	          MGSD[c] + 		  CID[c] + 		     CHD[c] + 	   	   GD[c] + 		    ID[c] + 		 XD[c] + 		   DSD[c] if QD[c] <> 0
+
+##! Market price for imported commodity $c$
+@over PQM[c]  * QM[c]  = PMGSM[c] * MGSM[c] + PCIM[c] * CIM[c] + PCHM[c] * CHM[c] + PGM[c] * GM[c] + PIM[c] * IM[c] + PXM[c] * XM[c] + PDSM[c] * DSM[c] if QM[c] <> 0
+
+##! Quantity of imported commodity $c$ expressed at market price
+@over  		    QM[c]  = 		      MGSM[c] + 		  CIM[c] + 		     CHM[c] + 	       GM[c] + 		    IM[c] + 		 XM[c] + 		   DSM[c] if QM[c] <> 0
+
+
+
+### Domestic and foreign equilibrium for commodities $c$ (value & volume):
+#  Domestic production of commodity $c$ at basic price:
+
+##! Production of commodity $c$, expressed at basic price
+
+@over YQ[c] * PYQ[c] 		 + NTAXCD_VAL[c]  + PMGPD[c] * MGPD[c] = PQD[c] * QD[c]    	   if YQ[c]      <> 0
+
+##! Basic price of the production of commodity $c$ (for verification)
+@over PYQbis[c] * YQ[c] 	 + NTAXCD_VAL[c]  + PMGPD[c] * MGPD[c] = PQD[c] * QD[c]    	   if YQ[c]      <> 0
+##  This price is already defined as a weighted average of the production price of the sectors producing commodity $c$ in the price block: $PYQ . YQ = \sum_{c} PYQ_{c} \; YQ_{c}$. To verify the accounting consistency, we define it here under an alias name. \\
+
+##! Production of commodity $c$, expressed at basic price (for verification)
+@over 			YQbis[c] + NTAXCD[c] 	  + 		   MGPD[c] = 		  QD[c]    	   if YQbis[c]   <> 0
+## Same variable as $YQ_{c}$ above to check the accounting consistency. \\
+
+##! Imports of commodity $c$, expressed at basic price
+@over M[c] * PM[c] + NTAXCM_VAL[c] + PMGPM[c] * MGPM[c] = PQM[c] * QM[c] 			   	   if M[c] 	     <> 0
+
+##! Basic price of imports of commodity $c$ (for verification)
+@over PMbis[c] * M[c]      + NTAXCM_VAL[c]  + PMGPM[c] * MGPM[c] = PQM[c] * QM[c] 	   if M[c]       <> 0
+##  This price is already defined in the price block as $PM_{c} = EXR . PWD_{c}$. To verify the accounting consistency, we define it here under an alias name. \\
+
+##! Imports of commodity $c$, expressed at basic price (for verification)
+@over 		   Mbis[c]   + NTAXCM[c] 	  + 		   MGPM[c] = 		  QM[c] 	   if Mbis[c]    <> 0
+## Same variable as $M_{c}$ above to check the accounting consistency. \\
+
+
+##! Price of domestically produced commodity $c$, expressed at market price
+@over PYQS[c] * YQS[c] = PYQ[c] * YQ[c] + PMGPD[c] * MGPD[c] + NTAXCD_VAL[c]      if YQS[c]      <> 0
+## $YQS_{c}$ is the volume of the production expressed at market price. It should not be seen as a composite of several ``goods``: production at base price, margins and taxes. Its does not increase when the volume of the margins and taxes increase. The price does instead. This is equivalent to assuming that $YQS_{c}$ is always proportional to and $YQ_{c}$ since the volume of margins and taxes depends on the latter. Writing it following the specification composite of several goods, $YQS_{c} = YQ_{c} + MGPD_{c} + NTAXCD_{c}$, would lead to inaccurate results since a decrease in the quantity of margins used per unit of production would not lead to a decrease of the selling price. \\
+
+##! Production of commodity $c$, expressed at market price
+@over YQS[c] = YQ[c] + MGPD[c] + NTAXCD[c]								        if YQS[c]      <> 0
+
+##! Price of imported commodity $c$, expressed at market price
+@over PMS[c]  * MS[c]  = PM[c]  * M[c]  + NTAXCM_VAL[c]    + PMGPM[c] * MGPM[c]   if MS[c]       <> 0
+
+##! Imports of commodity $c$, expressed at market price
+@over MS[c]  = M[c]  + NTAXCM[c]    + MGPM[c]										if MS[c]       <> 0
+
+
+

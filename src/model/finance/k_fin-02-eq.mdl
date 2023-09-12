@@ -1,0 +1,180 @@
+
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# %%%%%%%%%%%%    FINANCIAL MARKET MODEL   %%%%%%%%%%%%%%%%%%%%%%%%
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+##! Capital cost (for financial model)
+@over c_K * K = DEBT_F{-1}*(Phi_RD_F{-1} + r_DEBT_F{-1}) + Phi_INV_F * p{-1} * I{-1}
+
+##! Rate of return on households' wealth (for financial model)
+@over r_WEALTH * WEALTH = r_M * WEALTH_M + r_DEBTO_G * DEBTO_G_H + r_DEBTO_F * DEBTO_F_H
+
+##! Households' total wealth (for financial model)
+@over WEALTH = WEALTH_M + DEBTO_G_H + DEBTO_F_H 
+
+##! Average interest rate paid on the total Government's debt (for financial model) 
+@over r_DEBT_G * DEBT_G =  r_DEBTO_G * DEBTO_G + r_DEBTB_G * DEBTB_G
+
+###################################################################
+###############     Producers        ##############################
+###################################################################
+
+## Debt and interest rates
+
+##! Firms' total debt (volume)
+DEBT_F_vol = DEBT_F_vol{-1} * (1 - Phi_RD_F{-1}) - SAV_F/p
+P_DEBT_F * DEBT_F_vol = DEBT_F
+
+##! Firms' bank debt
+DEBTB_F = DEBTB_F{-1} * (1 - Phi_RDB_F{-1}) - SAV_F*Phi_SAV_F_B
+
+##! Firms' bond debt
+DEBTO_F = DEBTO_F{-1} * (1 - Phi_RDO_F{-1}) - SAV_F*Phi_SAV_F_O
+
+##! Average share of the total firm's debt reimbursed per year
+Phi_RD_F * DEBT_F = Phi_RDB_F * DEBTB_F + Phi_RDO_F * DEBTO_F
+
+##! Average interest rate paid on the total firms' debt  
+r_DEBT_F * DEBT_F = r_DEBTB_F * DEBTB_F + r_DEBTO_F * DEBTO_F
+
+##! Average interest rate paid on the firms' bank debt
+# Corresponds to weighted average of the average past interest rate and new intest rate  
+r_DEBTB_F * DEBTB_F = r_DEBTB_F{-1} * DEBTB_F{-1} * (1 - Phi_RDB_F{-1}) - Phi_SAV_F_B*SAV_F * r_DEBTB_F_n
+
+##! Average interest rate paid on the firms' bond debt  
+r_DEBTO_F * DEBTO_F = r_DEBTO_F{-1} * DEBTO_F{-1} * (1 - Phi_RDO_F{-1}) - Phi_SAV_F_O*SAV_F * r_DEBTO_F_n
+
+###################################################################
+###############     Households       ##############################
+###################################################################
+
+##! Wealth investment (amount that can be invested every period)
+INV_W = SAV_H + DEBTO_G_H{-1} * Phi_RDO_G{-1} + DEBTO_F_H{-1} * Phi_RDO_F{-1}
+
+##! Households' monetary wealth
+WEALTH_M  = WEALTH_M{-1}                        + Phi_W_M   * INV_W
+
+##! Goverment bond debt owned by households
+DEBTO_G_H = DEBTO_G_H{-1} * (1 - Phi_RDO_G{-1}) + Phi_W_DOG * INV_W
+
+##! Firm bond debt owned by households
+DEBTO_F_H = DEBTO_F_H{-1} * (1 - Phi_RDO_F{-1}) + Phi_W_DOF * INV_W
+
+
+###################################################################
+###############     Government       ##############################
+###################################################################
+
+##! Average share of the total Government's debt reimbursed per year
+Phi_RD_G * DEBT_G = Phi_RDO_G * DEBTO_G + Phi_RDB_G * DEBTB_G
+
+
+##! Bond Government's debt
+DEBTO_G = DEBTO_G_H + DEBTO_G_BC
+
+##! Bond Government's debt owned by the Central bank
+DEBTO_G_BC = DEBTO_G_BC{-1} * (1 - Phi_RDO_G{-1}) - SAV_G*Phi_SAV_G_O_BC 
+
+##! Bank Government's debt
+DEBTB_G    = DEBTB_G{-1}    * (1 - Phi_RDB_G{-1}) - SAV_G*Phi_SAV_G_B
+
+##! Average interest rate paid on the Government's bond debt  
+r_DEBTO_G * DEBTO_G = r_DEBTO_G{-1} * DEBTO_G{-1} * (1 - Phi_RDO_G{-1}) - SAV_G*Phi_SAV_G_O * r_DEBTO_G_n
+
+##! Average interest rate paid on the Government's bank debt 
+r_DEBTB_G * DEBTB_G = r_DEBTB_G{-1} * DEBTB_G{-1} * (1 - Phi_RDB_G{-1}) - SAV_G*Phi_SAV_G_B * r_DEBTB_G_n
+
+
+##! Share of the Government deficit financed though bonds
+# Phi_SAV_G_O = Phi_SAV_G_O_H + Phi_SAV_G_O_BC
+Phi_SAV_G_O = 1 - Phi_SAV_G_B
+
+Phi_SAV_G_O_BC = Phi_SAV_G_O - Phi_SAV_G_O_H   ### Equilibrium relation should be change to allow for non zero Phi_SAV_G_O_BC. For now, just a check.
+
+##! Share of the Government deficit financed through bond bought by households 
+Phi_SAV_G_O_H = - Phi_W_DOG * INV_W / SAV_G
+
+##! Share of the Government deficit financed through bank credit
+# The CB is the lender of last resort
+# Phi_SAV_G_B = 1 - Phi_SAV_G_O_H - Phi_SAV_G_O_BC
+
+d(log(Phi_SAV_G_B)) = eta_Phi_SAV_G_B * d(log((-SAV_G)/INV_W))
+
+###################################################################
+###############     Financial market ##############################
+###################################################################
+
+## Bank debt interest rates
+
+##! For firms
+d(r_DEBTB_F_n) = d(r)
+
+##! For the Government
+d(r_DEBTB_G_n) = d(r)
+
+##! For deposit
+d(r_M) = eta_r_M*d(r)
+
+## Bond debt interest rates
+# The bond interest rates clear the bond markets
+
+##! Average bond debt interest rate
+r_DEBTO_n = (r_M * ((INV_W / (- Phi_SAV_G_O*SAV_G - Phi_SAV_F_O*SAV_F)  - 1))^(-1/eta_W_DO))*beta_r_DEBTO_n
+
+# Equivalent buy BUG SOLVER R:
+# r_DEBTO_n = r_M * ((INV_W / (- Phi_SAV_G_O*SAV_G - Phi_SAV_F_O*SAV_F)  - 1) / (@elem( Phi_W_M/Phi_W_DO * (r_M/r_DEBTO_n)^(-eta_W_DO) , %baseyear)))^(-1/eta_W_DO)
+# r_DEBTO_n = r_M * ((INV_W / (- Phi_SAV_G_O*SAV_G - Phi_SAV_F_O*SAV_F)  - 1))^(-1/eta_W_DO)/((@elem( Phi_W_M/Phi_W_DO * (r_M/r_DEBTO_n)^(-eta_W_DO) , %baseyear)))^(-1/eta_W_DO)
+
+
+# If the deficit of the Government or companies decreases, the interest rate goes down.
+# This explicit expression corresponds to the interest rate (r_DEBTO_n) that satisfies the equality Phi_W_DO * INV_W = - Phi_SAV_G_O*SAV_G - Phi_SAV_F_O*SAV_F: the supply of bond credit by households should equal the demand of firms and the Government.  
+# In E-Views, it can be modeled as:
+# r_DEBTO_n   + Phi_W_DO * INV_W = - Phi_SAV_G_O*SAV_G - Phi_SAV_F_O*SAV_F	+ r_DEBTO_n
+# r_DEBTO_n  *  		Phi_W_DO * INV_W = (- Phi_SAV_G_O*SAV_G - Phi_SAV_F_O*SAV_F)		* r_DEBTO_n
+# The explicit expression is more tedious but may help the solver to solve or help understanding why the solver does not solve. 
+
+##! Firms' bond debt interest rate
+r_DEBTO_F_n = (r_DEBTO_G_n * ((Phi_W_DO * INV_W / (- Phi_SAV_F_O * SAV_F) - 1) )^(-1/eta_W_DOF))*beta_r_DEBTO_F_n
+
+# Equivalent buy BUG SOLVER R:
+# r_DEBTO_F_n = r_DEBTO_G_n * ((Phi_W_DO * INV_W / (- Phi_SAV_F_O * SAV_F) - 1) / (@elem( Phi_W_DOG/Phi_W_DOF * (r_DEBTO_G_n/r_DEBTO_F_n)^(-eta_W_DOF) , %baseyear)))^(-1/eta_W_DOF)
+# r_DEBTO_F_n = r_DEBTO_G_n * ((Phi_W_DO * INV_W / (- Phi_SAV_F_O * SAV_F) - 1) )^(-1/eta_W_DOF)/((@elem( Phi_W_DOG/Phi_W_DOF * (r_DEBTO_G_n/r_DEBTO_F_n)^(-eta_W_DOF) , %baseyear)))^(-1/eta_W_DOF)
+
+
+# This explicit expression corresponds to the interest rate (r_DEBTO_F_n) that satisfies the equality Phi_W_DOF * INV_W = - Phi_SAV_F_O*SAV_F: the supply of firm bond credit by households should equal the demand of firms. The bond households portfolio depend on the relative return between the Government bond and firms' bond.
+# Can also be modeled as: 
+# r_DEBTO_F_n +   Phi_W_DOF * INV_W = - Phi_SAV_F_O*SAV_F     + r_DEBTO_F_n
+
+##! Government's bond debt interest rate
+r_DEBTO_G_n * Phi_W_DOG = Phi_W_DO * r_DEBTO_n - Phi_W_DOF * r_DEBTO_F_n 
+# Defined by the identity of the average bond debt interest rate (r_DEBTO_n)
+
+##! Shares of firms' saving (deficit) financed through bank credit
+# Defined as a share of the investment
+Phi_SAV_F_B = - (1 - Phi_INV_F) * p * I / SAV_F * Phi_INV_B
+												# Phi_INV_B could be made endogenous: negative function of r_DEBTB_F_n/r_DEBTO_F_n. Use the logistic.
+
+##! Shares of firms' saving (deficit) financed through bond
+Phi_SAV_F_O = 1 - Phi_SAV_F_B
+
+##! Shares of household investment wealth invested in bonds
+Phi_W_DO = 1 /( 1 + beta_Phi_W_DO* (r_M/r_DEBTO_n)^eta_W_DO )
+
+# Equivalent buy BUG SOLVER R:
+# Phi_W_DO = 1 /( 1 + @elem( Phi_W_M/Phi_W_DO * (r_M/r_DEBTO_n)^(-eta_W_DO) , %baseyear) * (r_M/r_DEBTO_n)^eta_W_DO)
+
+##! Shares of household investment wealth invested in money deposit
+Phi_W_M = 1 - Phi_W_DO 
+
+##! Shares of household investment wealth invested in firms bonds
+Phi_W_DOF = Phi_W_DO / ( 1 + beta_Phi_W_DOF * (r_DEBTO_G_n/r_DEBTO_F_n)^eta_W_DOF)
+
+# Equivalent buy BUG SOLVER R:
+# Phi_W_DOF = Phi_W_DO / ( 1 + @elem( Phi_W_DOG/Phi_W_DOF * (r_DEBTO_G_n/r_DEBTO_F_n)^(-eta_W_DOF) , %baseyear) * (r_DEBTO_G_n/r_DEBTO_F_n)^eta_W_DOF)
+
+
+
+##! Shares of household investment wealth invested Government bonds
+Phi_W_DOG = Phi_W_DO - Phi_W_DOF 
+

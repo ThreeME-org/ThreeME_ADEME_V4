@@ -1,0 +1,146 @@
+## Model parameters
+
+# Depreciation rate
+delta := 0.05
+
+# K-L elasticity of substitution
+rho := 0.1
+
+# Elasticity of substitution between domestic and imported commodities
+rho_M := 0.6 								### New compared to 05
+
+# Elasticity of exports to prices
+rho_X := 0.6								### New compared to 05
+
+# Adjustment parameters
+ADJUST1_|V| := 0.1 where V in py CH L K 	### Changed compared to 05
+
+ADJUST2_|V| := 1 where V in py CH L K 		### Changed compared to 05
+ADJUST3_|V| := 0 where V in py CH L K 		### Changed compared to 05
+ADJUST4_|V| := 0 where V in py CH L K 		### Changed compared to 05
+
+## Long term equilibrium
+# Growth rate of labor productivity
+GR_PROD_L := 0.01
+
+# Growth rate of population
+GR_POP := 0.005
+
+# Growth rate of prices (Inflation)
+GR_PRICE := 0.02
+
+# Interest rate
+r := 0.1
+
+# Mark-up
+m_up := 0.3  
+
+## use this version when w is calibrated on real data
+#(1 + m_up) := @elem( py_n * Y / (w * L_n + p * (delta + r) * K_n), %baseyear)     ### Changed compared to 05
+
+# Long-term growth
+mu := (1 + GR_PROD_L)*(1 + GR_POP) - 1
+
+## Variables calibrated on real data
+
+# Labor
+L :=  1000 * (1 + GR_POP)^(@year - %baseyear)
+LF := 1100 * (1 + GR_POP)^(@year - %baseyear)                       ## If Keynes
+U := 1 - L/LF										           ## If Keynes	
+
+# Production
+Y := 100 * (1 + mu)^(@year - %baseyear)
+
+# Investment
+I :=  20 * (1 + mu)^(@year - %baseyear)
+
+# Public spending
+G :=  10 * (1 + mu)^(@year - %baseyear)			 
+
+# Prices
+p := 1 * (1 + GR_PRICE)^(@year - %baseyear)
+
+|V| := p where V in py pm pw				### New compared to 05
+
+# Income tax rate
+T_INC := 0.1 								
+
+# Imports
+M := 20 * (1 + mu)^(@year - %baseyear)			### New compared to 05
+
+# Exports
+X := 19 * (1 + mu)^(@year - %baseyear)			### New compared to 05
+
+## Calibration of the other variables
+
+# Long-term savings rate
+(1 - sigma) := CH_n * p / ((w * L + p * r * K + c_Y * Y * m_up) * (1 - T_INC))
+
+#consumption
+CH := Y + M - (I + G + X)		### Changed compared to 05  
+
+# Capital Stock
+K := I * (1 + mu) / (mu + delta) 								## If Keynes
+
+# Labour productivity
+PROD_L := Y / L 
+
+# Capital productivity
+PROD_K := Y / K
+
+# Unit cost
+c_Y := py_n / (1 + m_up)		### Changed compared to 05	
+
+# Wage
+w * L_n := c_Y * Y - p * (delta + r) * K_n
+
+## wage calibrated on real data
+#w := 0.030111 * (1 + GR_w_nml)^(@year - %baseyear)                           ## If keynes
+
+# Labour share in production function
+Phi_L := w / c_Y / PROD_L
+
+# Capital share in production function
+Phi_K := p * (delta + r) / c_Y / PROD_K
+
+# Notional variables
+|V|_n := |V| where V in py CH L K 		### Changed compared to 05
+|V|_e := |V| where V in py CH L K 		### Changed compared to 05
+
+# mark-up equation parameters                                                  ## If keynes
+alpha_1 := 0.1
+alpha_2 := 0.1
+
+# wage equation parameters                                                    ## If keynes
+GR_w_nml := (1 + GR_PROD_L) * (1 + GR_PRICE) - 1
+RHO_1 := 1
+RHO_2 := 1
+RHO_3 := 0.2
+RHO_4 := 0
+RHO0 := log(1 + GR_W_nml) - RHO_1 * log(1 + GR_PRICE) - RHO_2 * log(1 + GR_PROD_L) + RHO_3 * U
+
+# interest rate equation parameters (Taylor fonction)                          ## If Keynes
+gamma_1 := 1.5
+gamma_2 := 0.05 ### 0.5 make the solver collapse
+
+# Propensity to save equation parameters (Ricardian effect)                      ## If Keynes 
+theta_1 := 0.5
+
+# Saving (budget balance) of the Government 
+SAV_GOV := (w * L + p * r * K + c_Y * Y * m_up) * T_INC - p * G 	
+
+# Budget balance as a percentage of GDP
+SAV_GOV_GDP := 100 * SAV_GOV / (py * Y)								
+
+Phi_M  := M / (Y + M) / ((pm / p) ^ (-rho_M))  	### New compared to 05
+
+WD := X / ((py / pw) ^ (-rho_X))  				### New compared to 05
+
+# Saving of the Rest of the World (Trade balance: + means trade deficit for the national economy)
+SAV_ROW := pm * M - py * X 					### New compared to 05
+
+# Trade balance as a percentage of GDP
+
+SAV_ROW_GDP := 100 * SAV_ROW / (py * Y)		### New compared to 05
+
+

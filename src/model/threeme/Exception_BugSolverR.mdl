@@ -1,0 +1,22 @@
+#####Exception related to bugs of the R solver
+# Overwrite the equation creating a bug 
+
+# @over Verif_PCH_CES = 0  # Not enough to solve the bug. 
+						   # The equation Verif_PCH_CES should be deactivated in verfi.mdl block for now
+
+@over PDS[c] = P
+
+@over Verif_ALL = 0
+@over Verif_ALL2 = 0
+
+
+## Pour mémoire: Bug identifiés par Anissa sur la version Mex c4_s4
+# Pas nécessaire pour la versions FRA c4_s4
+# ##! Energy costs in sector $s$ (forward-looking specification)
+# @over d(log(Cbis[E, s]))      = d(log(P))
+# 
+# ##! Share of commodity $c$ into the total marginal household consumption
+# @over d(log(phi_MCH[c])) = 0
+# 
+# ##! CES consumption price index
+# @over PCH_CES = P

@@ -1,0 +1,58 @@
+## Between margins paid on the domestic and imported commodity c
+ES_MGPD[m, mm, c] := 0.3
+ES_MGPM[m, mm, c] := 0.3
+
+ADJUST6_MGPD[m, c] := 0.3
+
+ADJUST6_MGPM[m, c] := 0.3
+
+ADJUST6_|V|M[m] := 0.3 where V in MGS
+
+ES_MGSM[m] := 0.8
+
+
+
+phi_MGPD[m, c]  := PMGPD[m, c] * MGPD[m, c] / (sum(PMGPD[mm, c] * MGPD[mm, c] on mm) + eps)
+phi_MGPM[m, c]  := PMGPM[m, c] * MGPM[m, c] / (sum(PMGPM[mm, c] * MGPM[mm, c] on mm) + eps)
+
+phi_|V|M[m] := |V|M[m] / (|V|[m] + eps) where V in MGS
+
+
+|V| := P where V in PMGSD PMGSM PMGS PMGPD PMGPM
+
+# All variable started by SUBST are calibrated to zero
+SUBST_MGPD[m, c] := 0
+SUBST_MGPM[m, c] := 0
+
+SUBST_MGPD_n[m, c] := 0
+SUBST_MGPM_n[m, c] := 0
+
+
+MGPD := sum(MGPD[c] on c)
+
+MGPM := sum(MGPM[c] on c)
+
+MGS[m] := sum(MGP[m, c] on c)
+
+MGP[m, c] := MGPD[m, c] + MGPM[m, c]
+
+MGSbis[c] := MGSD[c] + MGSM[c]
+
+
+
+|V||O| := sum(|V||O|[c] on c) where V in MGS
+
+|V| := |V|D + |V|M where V in MGS
+
+MGP|O|[c] := sum(MGP|O|[m, c] on m)
+
+
+#### METTRE @OVER !!!!
+@over Q|O|[c] := MGS|O|[c] + CI|O|[c] + CH|O|[c] + G|O|[c] + I|O|[c] + X|O|[c] + DS|O|[c]
+
+@over YQbis[c] + NTAXCD[c] + MGPD[c] := QD[c]
+
+@over Mbis[c] + NTAXCM[c] + MGPM[c] := QM[c]
+
+@over YQS[c] := YQ[c] + NTAXCD[c] + MGPD[c]
+@over MS[c] := M[c] + NTAXCM[c] + MGPM[c]

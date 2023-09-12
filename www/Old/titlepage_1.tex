@@ -1,0 +1,47 @@
+
+\definecolor{titlepagecolor}{RGB}{31,97,141}
+\definecolor{beaublue}{rgb}{0.74, 0.83, 0.9}
+
+\DeclareFixedFont{\bigsf}{T1}{phv}{b}{n}{1.5cm}
+
+\makeatletter
+\let\newtitle\@title
+\let\newauthor\@author
+\let\newdate\@date
+\let\newabstract\@abstracttitle
+\let\newinstitute\@subtitle
+\def\printauthor{%                  
+    {\large \newauthor}}              
+\makeatother
+
+\backgroundsetup{
+scale=1,
+angle=0,
+opacity=1,
+contents={
+\begin{tikzpicture}[remember picture,overlay]
+ \useasboundingbox (0,0) rectangle(\the\paperwidth,\the\paperheight);
+ \fill[color=titlepagecolor] (-\the\paperwidth/2,10) rectangle(\the\paperwidth,5);
+  % \node [anchor = west] at (-21/2+1,14) {\includegraphics[width=5cm]{www/ofce.png}}; 
+  % \node [anchor = east] at (+21/2-1,14){\includegraphics[width=5cm]{www/sciencespo.png}};  
+  \node [anchor = west, color = white, font = \huge\bf] at (-\the\paperwidth/2 + 1.5cm,7.5){\newtitle}; 
+  \node [anchor = east, color = white, font = \LARGE\bf] at (\the\paperwidth/2 - 1cm,5.5){\newdate}; 
+  \node [anchor = west, color = black, font = \LARGE\it] at (-\the\paperwidth/2 + 1.5cm,4.5){\newauthor};
+  \node [text width=10cm, black,  fill= beaublue, anchor=west]at (-\the\paperwidth/4 + 1.5cm,2){\newinstitute}; 
+\end{tikzpicture}
+  }
+}
+           
+
+
+
+
+
+\begin{titlepage}
+\BgThispage
+
+\begin{minipage}{0.35\linewidth}
+
+\end{minipage}
+
+\end{titlepage}

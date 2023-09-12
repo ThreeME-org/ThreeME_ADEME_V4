@@ -1,0 +1,19 @@
+%list_sec := sind sveh scon strc strd sser senc send
+
+%list_com := cind cveh ccon ctrc ctrd cser cenc cend
+
+%list_com_MAT := cind cveh ccon ctrc ctrd cser
+
+%list_com_MATO := cind cveh ccon cser
+
+%list_com_MARG := ctrc ctrd cser
+
+%list_com_TRSP := ctrc ctrd
+
+%list_com_E := cenc cend
+
+%list_com_NCES := cind cveh ccon ctrc ctrd cser cenc cend
+
+chous_inv in ccon
+
+ctrsp_inv in cveh

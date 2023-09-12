@@ -1,0 +1,40 @@
+###################################################################
+###############    Verifications and Indicators  ##################
+###################################################################
+
+##! Firms' total debt (value) for verification
+DEBT_F_bis = DEBTB_F + DEBTO_F
+
+##! DEBT_G_bis = DEBTO_G + DEBTB_G
+verif_DEBT_G = DEBT_G - DEBT_G_bis
+
+# Comparison indicator capital costs
+
+c_K_approx1 * K = p_K{-1}*K{-1}*(delta + r_K{-1}) 
+		# Strictly equivalent to c_K if ADJUST1_DIV := 1.0, Phi_DIV_H  := 1.0 <=> Phi_INV_F := 0; Phi_RD_F := delta 
+c_K_approx2 = p_K * (delta + r_K)
+		# Small difference with c_K (ratio 1.03-1.08)
+
+c_K_approx3 = p_K_bis * (delta + r_K_bis)
+		# Small difference with c_K (ratio 1.01-0.98)
+
+# p_K * K = p_K{-1}*K{-1}*(1 - delta) + p*I
+		# Strictly equivalent to DEBT_F or PDEBT_F if ADJUST1_DIV := 1.0, Phi_DIV_H  := 1.0 <=> Phi_INV_F := 0; Phi_RD_F := delta 
+
+p_K_bis = delta * p + (1 - delta) * p_K_bis{-1}
+		# Small difference with PDEBT_F (ratio 0.97-0.95)
+
+# r_K * p_K*K = r_K{-1}*p_K{-1}*K{-1}*(1 - delta) + p * I * r
+		# Strictly equivalent to R_DEBT_F if ADJUST1_DIV := 1.0, Phi_DIV_H  := 1.0 <=> Phi_INV_F := 0; Phi_RD_F := delta 
+
+
+r_K_bis = delta * r + (1 - delta) * r_K_bis{-1}
+		# Small difference with r_DEBT_F (ratio 0.99-0.90) (true only when the interest rate are the same in both model)
+
+r_K_bis2 * K = r_K{-1}*K{-1}*(1 - delta) + I * r
+		# Small difference with r_DEBT_F (ratio 0.99-0.99)
+
+Phi_INV_F_bis = SAV_F / (p * I) + 1
+
+verif_Phi_W = Phi_W_DOG + Phi_W_DOF + Phi_W_M - 1
+

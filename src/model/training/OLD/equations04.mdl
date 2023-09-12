@@ -1,0 +1,46 @@
+Y = CH + I + G 
+
+p_n * Y = c_Y * Y * (1 + m_up)
+
+c_Y * Y = w * L_n + p * (delta + r) * K_n
+
+CH_n * p = (1 - sigma) * (w * L + p * r * K + c_Y * Y * m_up)
+
+L_n = Y / PROD_L * Phi_L ^ rho * (w 		      / c_Y / PROD_L) ^ (-rho)
+
+K_n = Y / PROD_K * Phi_K ^ rho * (p * (delta + r) / c_Y / PROD_K) ^ (-rho)
+
+I = d(K) + delta * K{-1}				## If Keynes
+
+log(p) = ADJUST1_p * log(p_n) + (1 - ADJUST1_p) * (log(p{-1}) + d(log(p_e)))
+
+d(log(p_e)) = ADJUST2_p * d(log(p_e{-1})) + ADJUST3_p * d(log(p{-1})) + ADJUST4_p * d(log(p_n))
+
+log(CH) = ADJUST1_CH * log(CH_n) + (1 - ADJUST1_CH) * (log(CH{-1}) + d(log(CH_e)))
+
+d(log(CH_e)) = ADJUST2_CH * d(log(CH_e{-1})) + ADJUST3_CH * d(log(CH{-1})) + ADJUST4_CH * d(log(CH_n))
+
+log(L) = ADJUST1_L * log(L_n) + (1 - ADJUST1_L) * (log(L{-1}) + d(log(L_e)))
+
+d(log(L_e)) = ADJUST2_L * d(log(L_e{-1})) + ADJUST3_L * d(log(L{-1})) + ADJUST4_L * d(log(L_n))
+
+log(K) = ADJUST1_K * log(K_n) + (1 - ADJUST1_K) * (log(K{-1}) + d(log(K_e)))
+
+d(log(K_e)) = ADJUST2_K * d(log(K_e{-1})) + ADJUST3_K * d(log(K{-1})) + ADJUST4_K * d(log(K_n))
+
+# Mark-up equation
+d(log(1 + m_up)) = alpha_1 * d(log(L_n/L)) + alpha_2 * d(log(K_n/k))
+
+# Wage equation
+U = 1 - L/LF
+d(log(w)) = RHO0 + RHO_1 * d(log(p)) + RHO_2 * d(log(PROD_L)) - RHO_3 * U - RHO_4 * d(U)
+
+# interest rate equation:  Taylor reaction function
+d(r) =  gamma_1 * d(d(p)/p{-1}) - gamma_2 * d(U)
+
+# Propensity to save equation: Ricardien effect 
+d(sigma) = theta_1 * d( r - d(p)/p{-1})
+
+
+
+ 

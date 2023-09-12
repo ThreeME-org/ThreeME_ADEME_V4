@@ -1,0 +1,163 @@
+##! Growth rate of labor productivity
+GR_PROG_L
+
+##! Growth rate of population
+GR_POP
+
+##! Growth rate of prices (Inflation)
+GR_PRICE
+
+##! K-L elasticity of substitution
+rho 
+
+##! Capital depreciation rate
+delta
+
+##! Elasticity of interest rate to inflation (Taylor fonction)
+gamma_1 
+
+##! Elasticity of interest rate to unemployment (Taylor fonction)
+gamma_2
+
+##! Elasticity of the propensity to save to the real interest rate
+theta_1
+
+##! Elasticity of the propensity to save to the unemployment rate
+theta_2
+
+##! Elasticity of the propensity to save to the ratio of governement's debt to GDP
+theta_3
+
+##! Elasticity of Mark-up to the ratio of notional labor to labor
+alpha_1 
+
+##! Elasticity of Mark-up to the ratio of notional capital to capital
+alpha_2
+
+##!  Elasticity of the income tax rate to the debt ratio
+rho_tinc_debt
+
+##! Elasticity of notional wage to expected production price   
+RHO_1 
+
+##! Elasticity of notional wage to labor productivity
+RHO_2
+
+##! Elasticity of notional wage to unemployment
+RHO_3 
+
+##! Elasticity of notional wage to the variation of unemployment
+RHO_4
+
+##! Elasticity of notional wage to unemployment
+RHO0_U
+
+##! Elasticity of the income tax rate to the debt ratio
+rho_tinc_debt
+
+##! Elasticity of investment to notional capital (Adjustment parameter)
+ADJUST_I_Kn 
+
+##! Elasticity of investment to previous investment (Adjustment parameter)
+ADJUST_I_I1
+
+##! Elasticity of investment to the ratio of previous notional capital to previous capital (Adjustment parameter)
+ADJUST_I_KnK1 
+
+##! Elasticity of investment to interest rate (Adjustment parameter)
+ADJUST_I_rK 
+
+##! Elasticity of interest rate to notional interest rate (Adjustment parameter)
+ADJUST_r 
+
+##! Elasticity of propensity to save to notional propensity to save  (Adjustment parameter)
+ADJUST_sigma 
+
+##! Elasticity of mark-up to notional mark-up  (Adjustment parameter)
+ADJUST_m_up 
+
+##! Elasticity of income to notional income  (Adjustment parameter)
+ADJUST_t_inc 
+
+##! Elasticity of production price to nominal production price (Adjustment parameter)
+ADJUST1_p 
+
+##! Elasticity of expected production price to previous expected poduction price (Adjustment parameter)
+ADJUST2_p 
+
+##! Elasticity of expected production price to previous poduction price (Adjustment parameter)
+ADJUST3_p 
+
+##! Elasticity of labor to notional labor (Adjustment parameter)
+ADJUST1_L 
+
+##! Elasticity of expected labor to previous expected notional labor (Adjustment parameter)
+ADJUST2_L 
+
+##! Elasticity of expected labor to previous labor (Adjustment parameter)
+ADJUST3_L 
+
+##! Elasticity of wage to notional wage (Adjustment parameter)
+ADJUST_W_Wn 
+
+##! Elasticity of wage to the ratio of previous notional wage to previous (Adjustment parameter)
+ADJUST_W_W1Wn1 
+
+##! Elasticity of household consumption to notional household consumption (Adjustment parameter)
+ADJUST1_CH 
+
+##! Elasticity of expected household consumption growth to previous expected household consumption (Adjustment parameter)
+ADJUST2_CH 
+
+##! Elasticity of expected household consumption growth to previous household consumption (Adjustment parameter)
+ADJUST3_CH 
+
+##! Elasticity of dividend for household to notional dividend for household (Adjustment parameter)
+ADJUST1_DIV 
+
+##! Elasticity of expected dividend for household to previous expected dividend for household (Adjustment parameter)
+ADJUST2_DIV 
+
+##! Elasticity of expected dividend for household to previous dividend for household (Adjustment parameter)
+ADJUST3_DIV 
+
+##! Share of the firms' debt reimbursed every period
+phi_RD_F
+
+##! Share of the government's debt reimbursed every period
+phi_RD_G
+
+##! Variation of Mark-up
+dm_up_shock
+
+##! Share of self-financing investment
+phi_Inv_F
+
+##! Share of profit transferred to households 
+phi_DIV_H
+
+##! Weight parameters of the production function representing the labor share.
+phi_L
+
+##! Weight parameters of the production function representing the capital share.
+phi_K
+
+##! Share of households in firms’ and goverment’s debts
+Phi_rK_H
+
+##! Share of households' investment wealth invested on Government bonds
+phi_W_DOG
+
+##! 
+eta
+
+##! 
+Phi_INV_B
+
+
+
+
+
+
+
+

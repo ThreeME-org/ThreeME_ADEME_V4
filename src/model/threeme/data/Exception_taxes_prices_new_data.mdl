@@ -1,0 +1,97 @@
+
+### Data calibration from equations:
+
+NTAXCID_VAL[c] := sum(NTAXCID_VAL[c,s] on s)
+
+NTAXCID[c] := sum(NTAXCID[c,s] on s)
+
+NTAXCIM_VAL[c] := sum(NTAXCIM_VAL[c,s] on s)
+
+NTAXCIM[c] := sum(NTAXCIM[c,s] on s)
+
+VATD[c]                 := @elem(RVAT[c],%baseyear)     * CHD[c]  / (1 + @elem(RNTAXCHD[c], %baseyear))
+
+VATM[c]   := @elem(RVAT[c],%baseyear)     * CHM[c]  / (1 + @elem(RNTAXCHM[c], %baseyear))
+
+VAT[c] := VATD[c] + VATM[c]
+
+VAT := sum(VAT[c] on c)
+
+
+#### Special data : not calibrated from equations
+
+NTAXCID_VAL[c,s] :=  NTAXCID[c,s] * P
+NTAXCIM_VAL[c,s] := NTAXCIM[c,s] * P
+NTAXCHD_VAL[c]   := NTAXCHD[c] * P
+NTAXCHM_VAL[c]   := NTAXCHM[c] * P
+NTAXID_VAL[c]    := NTAXID[c]  * P
+NTAXIM_VAL[c]    := NTAXIM[c]  * P 
+NTAXGD_VAL[c]    := NTAXGD[c]  * P
+NTAXGM_VAL[c]    := NTAXGM[c]  * P
+NTAXXD_VAL[c] 	 := NTAXXD[c]  * P
+NTAXXM_VAL[c]    := NTAXXM[c]  * P
+NTAXDSD_VAL[c]   := NTAXDSD[c] * P
+NTAXDSM_VAL[c]   := NTAXDSM[c] * P
+
+
+# Tax rates on commodities per use
+RNTAXCID[c,s] := NTAXCID[c,s] /(CID[c,s] - NTAXCID[c,s] + eps)
+RNTAXCIM[c,s] := NTAXCIM[c,s] /(CIM[c,s] - NTAXCIM[c,s] + eps)
+RNTAXCHD[c]   := NTAXCHD[c]   /(CHD[c]   - NTAXCHD[c]   + eps)
+RNTAXCHM[c]   := NTAXCHM[c]   /(CHM[c]   - NTAXCHM[c]   + eps)
+RNTAXID[c]    := NTAXID[c]    /(ID[c]    - NTAXID[c]    + eps)
+RNTAXIM[c]    := NTAXIM[c]    /(IM[c]    - NTAXIM[c]    + eps)
+RNTAXGD[c]    := NTAXGD[c]    /(GD[c]    - NTAXGD[c]    + eps)
+RNTAXGM[c]    := NTAXGM[c]    /(GM[c]    - NTAXGM[c]    + eps)
+RNTAXXD[c] 	  := NTAXXD[c]    /(XD[c]    - NTAXXD[c]    + eps)
+RNTAXXM[c]    := NTAXXM[c]    /(XM[c]    - NTAXXM[c]    + eps)
+RNTAXDSD[c]   := NTAXDSD[c]   /(DSD[c]   - NTAXDSD[c]   + eps)
+RNTAXDSM[c]   := NTAXDSM[c]   /(DSM[c]   - NTAXDSM[c]   + eps)
+
+RNTAXCID_OTH[c,s] := RNTAXCID[c,s]
+RNTAXCIM_OTH[c,s] := RNTAXCIM[c,s]
+RNTAXCHD_OTH[c] := RNTAXCHD[c] - RVAT[c] 
+RNTAXCHM_OTH[c] := RNTAXCHM[c] - RVAT[c]
+RNTAXXD_OTH[c] := RNTAXXD[c]
+RNTAXXM_OTH[c] := RNTAXXM[c]
+
+
+#### Carbon tax
+
+# For simplicity, carbon tax rate are calibrated at 0. It should thus be interpreted as the additionnal tax rate compared to the baseline. The reason of this simplification are: (1) national account data do not identify explicitly the carbon tax; (2) there may be a difference between the official carbon tax rate and the implicit tax rate that should integrate excise; this differ also per country ; (3) this simplify greatly the algebraic specification of this block; (4) the "absolute" tax rate can easily be computed when post-processing the results by adding the rate level of the baseyear.
+
+R2_CI[ghg,c,s] 	:= 0
+R2_MAT[ghg,s] 	:= 0
+R2_Y[ghg,s] 	:= 0
+R2_CH[ghg,c] 	:= 0
+R2_X[ghg,c] 	:= 0
+
+T2VAL_CI[ghg,c,s] := 0
+T2VAL_CI[ghg,c] := 0
+T2VAL_CI[ghg,s] := 0
+T2VAL_CI[c,s] := 0
+T2VAL_CI[ghg] := 0
+T2VAL_CI[c] := 0
+T2VAL_CI[s] := 0
+T2VAL_CI := 0
+T2VAL_MAT[ghg,s] := 0
+T2VAL_MAT[ghg] := 0
+T2_MAT[ghg] := 0
+T2VAL_MAT[s] := 0
+T2_MAT[s] := 0
+T2VAL_MAT := 0
+T2VAL_Y[ghg,s] := 0
+T2VAL_Y[ghg] := 0
+T2VAL_Y[s] := 0
+T2VAL_Y := 0
+T2VAL_SEC[s] := 0
+T2VAL_SEC := 0
+T2VAL_CH[ghg,c] := 0
+T2VAL_CH[ghg] := 0
+T2VAL_CH[c] := 0
+T2VAL_CH := 0
+T2VAL_X[ghg,c] := 0
+T2VAL_X[ghg] := 0
+T2VAL_X[c] := 0
+T2VAL_X := 0
+T2VAL := 0

@@ -1,0 +1,8 @@
+	# 1st calibration with calibration error on purpose:
+Y := 10
+CH := 10
+I := 5
+
+	# Use this calibration for consumption and have a look at the calibration error. 
+	# As you will see, the calibration error will not be constant when you use this calibration. 
+# CH := 5 * (1 + 0.05)^(@year - %baseyear)

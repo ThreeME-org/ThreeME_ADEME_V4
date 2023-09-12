@@ -1,0 +1,17 @@
+%list_sec := sagr sfor sfoo sveh sgla sche spla smet sigo scgo scon srai sroa swat sair spri sfin spub smin sfos seoi sega sewi seso sehy seot
+
+%list_com := cagr cfor cfoo cveh cgla cche cpla cmet cigo ccgo ccon crai croa cwat cair cpri cfin cpub cmin ccoa cfut cgas cele
+
+%list_com_MAT := cagr cfor cfoo cveh cgla cche cpla cmet cigo ccgo ccon crai croa cwat cair cpri cfin cpub cmin
+
+%list_com_MATO := cagr cfor cfoo cveh cgla cche cpla cmet cigo ccgo ccon cpri cfin cpub cmin
+
+%list_com_TRSP := crai croa cwat cair
+
+%list_com_E := ccoa cfut cgas cele
+
+%list_com_NCES := cagr cfor cveh cigo ccon crai croa cwat cair cfut cgas cele
+
+chous_inv in ccon
+
+ctrsp_inv in cveh

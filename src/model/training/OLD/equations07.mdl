@@ -1,0 +1,72 @@
+include ..\model\lists
+# Production of commodity c 
+Y[c] = CI[c] + CH[c] + I[c] + G[c] 
+
+# Price of commodity c
+p[c] * Y[c] = sum(p[a] * Y[c,a] on a) 
+
+# Production of commodity c by activity a
+Y[c,a] = phi_Y[c,a] * Y[c]
+
+# Total production of activity a
+Y[a] = sum(Y[c,a] on c) 
+
+## Equations for intermediary consumption
+# Intermediary consumption c consummed by activity a
+CI[c,a] = phi_CI[c,a] * Y[a] 
+
+# Total intermediary consumption of commodity c
+CI[c] = sum(CI[c,a] on a)
+
+# Total intermediary consumption comsummed by a (in volume and value)
+CI[a] = sum(CI[c,a] on c) 
+
+pci[a] * CI[a] = sum(p[c] * CI[c,a] on c) 
+
+P_n[a] * Y[a] = c_Y[a] * Y[a] * (1 + m_up[a])
+
+c_Y[a] * Y[a] = c_KL[a] * KL[a] + pci[a] * CI[a]
+
+c_KL[a] * KL[a] = w[a] * L_n[a] + pi * (delta[a] + r[a]) * K_n[a] 
+
+CH_n[c] * p[c] = Beta_CH[c] * (1 - sigma) * (sum(w[a] * L[a] + pi * r[a] * K[a] + c_Y[a] * Y[a] * m_up[a] on a))
+
+KL[a] = phi_KL[a] * Y[a] 
+
+L_n[a] = KL[a] / PROD_L[a] * phi_L[a] ^ rho * (w[a]    				 / c_KL[a] / PROD_L[a]) ^ (-rho)
+
+K_n[a] = KL[a] / PROD_k[a] * Phi_k[a] ^ rho * (pi * (delta[a] + r[a]) / c_KL[a] / PROD_K[a]) ^ (-rho)
+
+I[a] = d(k[a]) + delta[a] * K[a]{-1}
+I = sum(I[a] on a)
+I[c] = Beta_I[c] * I
+pi*I = sum(p[c] * I[c] on c)
+
+log(|V|[c]) = ADJUST1_|V| * log(|V|_n[c]) + (1 - ADJUST1_|V|) * (log(|V|[c]{-1}) + d(log(|V|_e[c]))) where V in CH 
+log(|V|[a]) = ADJUST1_|V| * log(|V|_n[a]) + (1 - ADJUST1_|V|) * (log(|V|[a]{-1}) + d(log(|V|_e[a]))) where V in p L K
+
+d(log(|V|_e[c])) = ADJUST2_|V| * d(log(|V|_e[c]{-1})) + ADJUST3_|V| * d(log(|V|[c]{-1})) + ADJUST4_|V| * d(log(|V|_n[c]))  where V in CH 
+d(log(|V|_e[a])) = ADJUST2_|V| * d(log(|V|_e[a]{-1})) + ADJUST3_|V| * d(log(|V|[a]{-1})) + ADJUST4_|V| * d(log(|V|_n[a]))  where V in p L K
+
+# Mark-up equation
+d(log(1 + m_up[a])) = alpha_1 * d(log(L_n[a] / L[a])) + alpha_2 * d(log(K_n[a] / k[a]))
+ 
+# Wage equation
+U = 1 - L/LF
+d(log(w[a])) = RHO0 + RHO_1 * d(log(pch)) + RHO_2 * d(log(PROD_L[a])) - RHO_3 * U - RHO_4 * d(U)
+
+pch * CH = sum(p[c] * CH[c] on c) 
+
+# interest rate equation:  Taylor reaction function
+d(r) =  gamma_1 * d(d(pch)/pch{-1}) - gamma_2 * d(U)
+d(r[a]) = d(r)
+
+# Propensity to save equation: Ricardien effect 
+d(sigma) = theta_1 * d(r - d(pch)/pch{-1})
+
+# Agregate variables
+|V| = sum(|V|[c] on c) where V in CI CH G 
+|V| = sum(|V|[a] on a) where V in L K 
+
+
+Y = CI + CH + I + G

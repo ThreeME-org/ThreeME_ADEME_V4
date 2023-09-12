@@ -1,0 +1,119 @@
+## Model parameters
+
+# Depreciation rate
+delta := 0.05
+
+# K-L elasticity of substitution
+rho := 0.1
+
+# Adjustment parameters
+ADJUST1_|V| := 0.1 where V in p CH L K
+
+ADJUST2_|V| := 1 where V in p CH L K
+ADJUST3_|V| := 0 where V in p CH L K
+ADJUST4_|V| := 0 where V in p CH L K
+
+## Long term equilibrium
+# Growth rate of labor productivity
+GR_PROD_L := 0.01
+
+# Growth rate of population
+GR_POP := 0.005
+
+# Growth rate of prices (Inflation)
+GR_PRICE := 0.02
+
+# Interest rate
+r := 0.1
+
+# Mark-up
+m_up := 0.3  
+
+## use this version when w is calibrated on real data
+#(1 + m_up) := @elem( p_n * Y / (w * L_n + p * (delta + r) * K_n), %baseyear)     ## If Keynes
+
+# Long-term growth
+mu := (1 + GR_PROD_L)*(1 + GR_POP) - 1
+
+## Variables calibrated on real data
+
+# Labor
+L :=  1000 * (1 + GR_POP)^(@year - %baseyear)
+LF := 1100 * (1 + GR_POP)^(@year - %baseyear)                       ## If Keynes
+U := 1 - L/LF										           ## If Keynes	
+
+# Production
+Y := 100 * (1 + mu)^(@year - %baseyear)
+
+# Investment
+I :=  20 * (1 + mu)^(@year - %baseyear)
+
+# Public spending
+G :=  10 * (1 + mu)^(@year - %baseyear)			### Changed compared to 04
+
+# Price
+p := 1 * (1 + GR_PRICE)^(@year - %baseyear)
+
+# Income tax rate
+T_INC := 0.1 								### New compared to 04
+
+## Calibration of the other variables
+
+# Long-term savings rate
+(1 - sigma) := CH_n * p / ((w * L + p * r * K + c_Y * Y * m_up) * (1 - T_INC))	### New compared to 04
+
+#consumption
+CH := Y - I - G
+
+# Capital Stock
+K := I * (1 + mu) / (mu + delta) 								## If Keynes
+
+# Labour productivity
+PROD_L := Y / L 
+
+# Capital productivity
+PROD_K := Y / K
+
+# Unit cost
+c_Y := p_n / (1 + m_up)
+
+# Wage
+w * L_n := c_Y * Y - p * (delta + r) * K_n
+
+## wage calibrated on real data
+#w := 0.030111 * (1 + GR_w_nml)^(@year - %baseyear)                           ## If keynes
+
+# Labour share in production function
+Phi_L := w / c_Y / PROD_L
+
+# Capital share in production function
+Phi_K := p * (delta + r) / c_Y / PROD_K
+
+# Notional variables
+|V|_n := |V| where V in p CH L K
+|V|_e := |V| where V in p CH L K
+
+# mark-up equation parameters                                                  ## If keynes
+alpha_1 := 0.1
+alpha_2 := 0.1
+
+# wage equation parameters                                                    ## If keynes
+GR_w_nml := (1 + GR_PROD_L) * (1 + GR_PRICE) - 1
+RHO_1 := 1
+RHO_2 := 1
+RHO_3 := 0.2
+RHO_4 := 0
+RHO0 := log(1 + GR_W_nml) - RHO_1 * log(1 + GR_PRICE) - RHO_2 * log(1 + GR_PROD_L) + RHO_3 * U
+
+# interest rate equation parameters (Taylor fonction)                          ## If Keynes
+gamma_1 := 1.5
+gamma_2 := 0.05 ### 0.5 make the solver collapse
+
+# Propensity to save equation parameters (Ricardian effect)                      ## If Keynes 
+theta_1 := 0.5
+
+# Saving (budget balance) of the Government 
+SAV_GOV := (w * L + p * r * K + c_Y * Y * m_up) * T_INC - p * G 	### New compared to 04
+
+# Budget balance as a percentage of GDP
+SAV_GOV_GDP := 100 * SAV_GOV / (p * Y)								### New compared to 04

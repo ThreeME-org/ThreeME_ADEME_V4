@@ -1,0 +1,29 @@
+\mode<presentation>
+
+% Frame title
+\defbeamertemplate*{frametitle}{ofce}[1][]
+{
+  \begin{beamercolorbox}[wd=\paperwidth,ht=1.2cm]{frametitle} 
+  \begin{tikzpicture}
+
+  \useasboundingbox[fill=white](0,0) rectangle(\the\paperwidth,1.2);
+  \fill[scporouge] (0,0) rectangle(0.95,1.2);
+  \fill[scporouge] (1,0) rectangle(\the\paperwidth,1.2);
+  \fill[scporouge] (0,-10) rectangle(\the\paperwidth,-7.8);
+    \ifx\insertframesubtitle\@empty%
+      {\node[text width=11cm,anchor=west, white,font=\bf] at (1.2,0.61){\insertframetitle};}
+      \else%
+      {\node[anchor= west, white,font=\bf] at (1.2,0.81){\insertframetitle};%
+       \node[anchor= west, white,font=\small] at (2.2,0.41){\insertframesubtitle};}%
+      \fi
+
+  \node [inner sep=0pt] at (\the\paperwidth-1.2cm,-8.1cm) {\includegraphics[height=0.5cm]{pictures/logo_blanc_ofce.png}};
+  \node [inner sep=0pt] at (1.2cm,-8.1) {\includegraphics[height=0.5cm]{pictures/NEO_Small_logo_TransparentBg_HighRes.png}};   
+  \node [white , font = \footnotesize] at (\the\paperwidth/2,-8.1){\insertframenumber};    
+  \end{tikzpicture}
+
+  \end{beamercolorbox}
+ 
+}
+
+\mode<all>

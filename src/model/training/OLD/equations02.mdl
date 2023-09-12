@@ -1,0 +1,11 @@
+I = Y - CH - G
+
+Y = w*L + (delta + r)*K
+
+CH = (1 - sigma) * (w*L + r*K)
+
+w +	L = Y / PROD_L * Phi_L ^ rho * ( w 		  / PROD_L) ^ (-rho) 	+ w
+
+r + K = Y / PROD_K * Phi_K ^ rho * ((r + delta)/PROD_K) ^ (-rho) 	+ r
+
+d(K) = I{-1} - delta * K{-1}
